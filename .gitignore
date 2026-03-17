@@ -1,5 +1,13 @@
+# Environnements virtuels
+env/
 venv/
+
+# Fichiers compilés Python
 __pycache__/
 *.pyc
+
+# Fichiers de configuration locaux
 .env
+
+# Cache de pytest
 .pytest_cache/
