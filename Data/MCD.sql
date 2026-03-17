@@ -1,36 +1,39 @@
-CREATE TABLE "Team" (
-  "id" int PRIMARY KEY,
-  "name" varchar
+CREATE DATABASE footballprediction_db;
+
+\c footballprediction_db;
+
+-- Table des équipes
+CREATE TABLE team (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
 );
 
-CREATE TABLE "Match" (
-  "id" int PRIMARY KEY,
-  "date" datetime,
-  "home_team_id" int,
-  "away_team_id" int,
-  "home_score" int,
-  "away_score" int,
-  "result" varchar
+-- Table des matchs
+CREATE TABLE match (
+  id SERIAL PRIMARY KEY,
+  date TIMESTAMP NOT NULL,
+  home_team_id INT NOT NULL,
+  away_team_id INT NOT NULL,
+  home_score INT,
+  away_score INT,
+  result VARCHAR(10),
+  CONSTRAINT fk_home_team FOREIGN KEY (home_team_id) REFERENCES team (id) DEFERRABLE INITIALLY IMMEDIATE,
+  CONSTRAINT fk_away_team FOREIGN KEY (away_team_id) REFERENCES team (id) DEFERRABLE INITIALLY IMMEDIATE
 );
 
-CREATE TABLE "TeamMatchStats" (
-  "id" int PRIMARY KEY,
-  "match_id" int,
-  "team_id" int,
-  "is_home" boolean,
-  "goals" int,
-  "shots" int,
-  "shots_on_target" int,
-  "yellow_cards" int,
-  "red_cards" int,
-  "corners" int,
-  "fouls" int
+-- Table des stats par équipe pour chaque match
+CREATE TABLE team_match_stats (
+  id SERIAL PRIMARY KEY,
+  match_id INT NOT NULL,
+  team_id INT NOT NULL,
+  is_home BOOLEAN,
+  goals INT,
+  shots INT,
+  shots_on_target INT,
+  yellow_cards INT,
+  red_cards INT,
+  corners INT,
+  fouls INT,
+  CONSTRAINT fk_team FOREIGN KEY (team_id) REFERENCES team (id) DEFERRABLE INITIALLY IMMEDIATE,
+  CONSTRAINT fk_match FOREIGN KEY (match_id) REFERENCES match (id) DEFERRABLE INITIALLY IMMEDIATE
 );
-
-ALTER TABLE "TeamMatchStats" ADD FOREIGN KEY ("team_id") REFERENCES "Team" ("id") DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE "TeamMatchStats" ADD FOREIGN KEY ("match_id") REFERENCES "Match" ("id") DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE "Match" ADD FOREIGN KEY ("home_team_id") REFERENCES "Team" ("id") DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE "Match" ADD FOREIGN KEY ("away_team_id") REFERENCES "Team" ("id") DEFERRABLE INITIALLY IMMEDIATE;
