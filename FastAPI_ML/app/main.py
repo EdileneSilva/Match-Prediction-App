@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routes import register_routes
+from .routes.predict import register_routes
 
+
+from .core.config import settings
 
 app = FastAPI(
-    title="Match Prediction App - ML API",
+    title=settings.PROJECT_NAME,
     description="API ML (données de matchs, entraînement et prédiction) pour la Match Prediction App.",
-    version="0.1.0",
+    version=settings.PROJECT_VERSION,
 )
 
 app.add_middleware(

@@ -1,16 +1,8 @@
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
+from .core.config import settings
 
-load_dotenv()
-
-DATABASE_APP_URL = os.getenv(
-    "DATABASE_APP_URL",
-    "postgresql://postgres:postgres@localhost:5432/footballapp_db"
-)
-
-engine = create_engine(DATABASE_APP_URL)
+engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

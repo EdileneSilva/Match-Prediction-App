@@ -103,16 +103,36 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
 - Mise en place d’un service ML minimal :
   - Nouveau fichier `FastAPI_ML/app/services/ml_service.py` avec une fonction `predict_match` qui renvoie pour l’instant un résultat **stub** (`DRAW` avec une confiance de `0.5`).
   - Ce stub servira de point d’ancrage à remplacer par un vrai pipeline scikit-learn (préprocessing, entraînement, sauvegarde, chargement).
+- Configuration du corps de requête et de la logique de DB-fetch pour `/predict` dans `FastAPI_ML`.
 - Création des routes de l’API ML :
   - Nouveau fichier `FastAPI_ML/app/routes.py` :
     - `GET /` : message de bienvenue pour l’API ML.
     - `POST /predict` : route de prédiction qui appelle `ml_service.predict_match` (structure compatible avec une évolution vers un vrai modèle).
 
-### 5. Gestion des anciens fichiers et prochaine étape de nettoyage
-- Le dossier historique `FastAPI/` contient encore l’ancienne application monolithique (mélange App + ML).
-- Toute la logique utile a été recopiée et structurée dans :
-  - `FastAPI_App/` pour la partie Application.
-  - `FastAPI_ML/` pour la partie ML.
-- **Décision** : le dossier `FastAPI/` est désormais obsolète et sera supprimé du projet (et ignoré par Git) une fois les tests de démarrage des deux nouvelles APIs validés.
-- Chaque API disposera de son environnement virtuel dédié (`venv` séparé) et de son propre fichier `requirements.txt`, ce qui facilite le déploiement indépendant et la maintenance.
+---
+
+## Étape 5 : Implémentation Auth & Prédiction (18 Mars 2026)
+
+### 1. Authentification JWT (`feature/auth`)
+- Création de `FastAPI_App/app/core/security.py` : gestion du hashage (bcrypt) et génération de tokens JWT.
+- Développement de `FastAPI_App/app/services/auth_service.py` : logique métier pour l'inscription, la recherche d'utilisateur et l'authentification.
+- Mise en place de `FastAPI_App/app/routes/auth.py` : endpoints `/register`, `/login`, et `/me`.
+- Intégration du système de dépendance `get_current_user` pour protéger les futures routes.
+
+### 2. Route de Prédiction ML (`feature/predict`)
+- Création de la branche `feature/predict` (basée sur la structure refactorisée).
+- Enrichissement de `FastAPI_ML/app/schemas/match.py` avec les DTOs `PredictionRequest` et `PredictionResponse`.
+- Implémentation du endpoint `POST /predict` dans `FastAPI_ML/app/routes/predict.py` avec validation de l'existence des équipes en base de données.
+- Mise à jour du `MLService` pour simuler un calcul de probabilité et de score de confiance.
+
+**Prochaines étapes prévues :**
+- Finaliser l'appel HTTP inter-API (Client factorisé).
+- Implémenter la logique d'historisation des prédictions côté App.
+
+### 5. Nettoyage de la structure obsolète (Terminé)
+- Suppression définitive du dossier monolithique `FastAPI/`.
+- Validation de la migration complète vers :
+  - `FastAPI_App/` (Application API)
+  - `FastAPI_ML/` (ML API)
+- Chaque API dispose désormais de ses propres dépendances et ressources isolées.
 
