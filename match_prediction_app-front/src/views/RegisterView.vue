@@ -1,7 +1,9 @@
 <template>
   <div class="auth-container">
     <div class="auth-card">
-      <div class="logo">LOGO APP</div>
+      <div class="logo">
+  <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
+</div>
       
       <h2 class="auth-title">Inscription</h2>
       
@@ -258,6 +260,11 @@ export default {
 .login-link:hover {
   color: #5a6fd8;
   text-decoration: underline;
+}
+
+.logo-img {
+  height: 1.5rem;
+  width: auto;
 }
 
 @media (max-width: 480px) {

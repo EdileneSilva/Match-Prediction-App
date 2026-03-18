@@ -1,17 +1,5 @@
 <template>
   <div class="dashboard">
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand">LOGO</div>
-      <div class="nav-menu">
-        <router-link to="/" class="nav-item active">Dashboard</router-link>
-        <router-link to="/predictions" class="nav-item">Prédictions</router-link>
-        <router-link to="/history" class="nav-item">Historique</router-link>
-        <router-link to="/profile" class="nav-item">Profil</router-link>
-        <router-link to="/exit" class="nav-item exit">Exit</router-link>
-      </div>
-    </nav>
-
     <!-- Main Content -->
     <main class="main-content">
       <!-- Info Cards -->
@@ -87,55 +75,6 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Navigation */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-item {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item.active {
-  color: white;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-item.exit {
-  background: rgba(255, 67, 54, 0.3);
-  color: #ff4336;
-}
-
-.nav-item.exit:hover {
-  background: rgba(255, 67, 54, 0.5);
 }
 
 /* Main Content */
@@ -279,6 +218,11 @@ export default {
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
+.logo-img {
+  height: 1.5rem;
+  width: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
@@ -286,27 +230,27 @@ export default {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
+
   .info-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .match-item {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .match-percentage {
     margin: 0;
   }

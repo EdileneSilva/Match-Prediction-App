@@ -1,22 +1,10 @@
 <template>
   <div class="dashboard">
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand">LOGO</div>
-      <div class="nav-menu">
-        <router-link to="/" class="nav-item">Dashboard</router-link>
-        <router-link to="/predictions" class="nav-item">Prédictions</router-link>
-        <router-link to="/history" class="nav-item">Historique</router-link>
-        <router-link to="/profile" class="nav-item active">Profil</router-link>
-        <router-link to="/exit" class="nav-item exit">Exit</router-link>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
+ <!-- Main Content -->
     <main class="main-content">
       <div class="profile-container">
         <h1 class="page-title">Mon Profil</h1>
-        
+
         <!-- Profile Form -->
         <div class="profile-form">
           <!-- Photo Section -->
@@ -25,20 +13,15 @@
               <img v-if="profileData.photo" :src="profileData.photo" alt="Photo" class="profile-photo">
               <div v-else class="default-avatar">
                 <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#999"/>
-                  <path d="M12 14C7.59 14 4 17.59 4 22H20C20 17.59 16.41 14 12 14Z" fill="#999"/>
+                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z"
+                    fill="#999" />
+                  <path d="M12 14C7.59 14 4 17.59 4 22H20C20 17.59 16.41 14 12 14Z" fill="#999" />
                 </svg>
               </div>
             </div>
             <div class="form-group">
               <label for="photo">Photo</label>
-              <input 
-                type="file" 
-                id="photo" 
-                @change="handlePhotoChange"
-                accept="image/*"
-                class="photo-input"
-              >
+              <input type="file" id="photo" @change="handlePhotoChange" accept="image/*" class="photo-input">
             </div>
           </div>
 
@@ -46,52 +29,29 @@
           <div class="form-fields">
             <div class="form-group">
               <label for="name">Nom</label>
-              <input 
-                type="text" 
-                id="name" 
-                v-model="profileData.name"
-                placeholder="Votre nom"
-                class="form-input"
-              >
+              <input type="text" id="name" v-model="profileData.name" placeholder="Votre nom" class="form-input">
             </div>
-            
+
             <div class="form-group">
               <label for="email">Email</label>
-              <input 
-                type="email" 
-                id="email" 
-                v-model="profileData.email"
-                placeholder="adresse@email.com"
-                class="form-input"
-              >
+              <input type="email" id="email" v-model="profileData.email" placeholder="adresse@email.com"
+                class="form-input">
             </div>
-            
+
             <div class="form-group">
               <label for="password">Mot de passe</label>
-              <input 
-                type="password" 
-                id="password" 
-                v-model="profileData.password"
-                placeholder="••••••••"
-                class="form-input"
-              >
+              <input type="password" id="password" v-model="profileData.password" placeholder="••••••••"
+                class="form-input">
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <button 
-              class="save-btn" 
-              @click="saveProfile"
-              :disabled="isSaving"
-            >
+            <button class="save-btn" @click="saveProfile" :disabled="isSaving">
               {{ isSaving ? 'Enregistrement...' : 'Enregistrer modifications' }}
             </button>
-            
-            <button 
-              class="delete-btn" 
-              @click="deleteAccount"
-            >
+
+            <button class="delete-btn" @click="deleteAccount">
               Supprimer mon compte
             </button>
           </div>
@@ -126,17 +86,17 @@ export default {
         reader.readAsDataURL(file)
       }
     },
-    
+
     async saveProfile() {
       this.isSaving = true
-      
+
       // Simulate API call
       setTimeout(() => {
         this.isSaving = false
         alert('Profil mis à jour avec succès!')
       }, 1500)
     },
-    
+
     deleteAccount() {
       if (confirm('Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.')) {
         // Simulate account deletion
@@ -371,6 +331,11 @@ export default {
   color: white;
 }
 
+.logo-img {
+  height: 1.5rem;
+  width: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
@@ -378,26 +343,26 @@ export default {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
+
   .profile-container {
     padding: 1.5rem;
   }
-  
+
   .photo-section {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }

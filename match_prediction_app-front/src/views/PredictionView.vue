@@ -1,22 +1,10 @@
 <template>
   <div class="dashboard">
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand">LOGO</div>
-      <div class="nav-menu">
-        <router-link to="/" class="nav-item">Dashboard</router-link>
-        <router-link to="/predictions" class="nav-item active">Prédictions</router-link>
-        <router-link to="/history" class="nav-item">Historique</router-link>
-        <router-link to="/profile" class="nav-item">Profil</router-link>
-        <router-link to="/exit" class="nav-item exit">Exit</router-link>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
+<!-- Main Content -->
     <main class="main-content">
       <div class="prediction-container">
         <h1 class="page-title">Prédiction de Match</h1>
-        
+
         <!-- Team Selection -->
         <div class="selection-section">
           <div class="team-selectors">
@@ -27,9 +15,9 @@
                 <option v-for="team in teams" :key="team" :value="team">{{ team }}</option>
               </select>
             </div>
-            
+
             <div class="vs-indicator">VS</div>
-            
+
             <div class="form-group">
               <label for="team2">Équipe 2</label>
               <select id="team2" v-model="selectedTeam2" class="team-select">
@@ -38,12 +26,9 @@
               </select>
             </div>
           </div>
-          
-          <button 
-            class="predict-btn" 
-            @click="launchPrediction"
-            :disabled="!selectedTeam1 || !selectedTeam2 || isPredicting"
-          >
+
+          <button class="predict-btn" @click="launchPrediction"
+            :disabled="!selectedTeam1 || !selectedTeam2 || isPredicting">
             {{ isPredicting ? 'Prédiction en cours...' : 'Lancer la prédiction IA' }}
           </button>
         </div>
@@ -51,7 +36,7 @@
         <!-- Prediction Results -->
         <div v-if="predictionResult" class="results-section">
           <h2>Résultat Prédiction</h2>
-          
+
           <div class="prediction-stats">
             <div class="stat-item">
               <span class="stat-label">Victoire Équipe 1</span>
@@ -60,7 +45,7 @@
                 <div class="progress" :style="{ width: predictionResult.team1Win + '%' }"></div>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <span class="stat-label">Match nul</span>
               <span class="stat-value">{{ predictionResult.draw }}%</span>
@@ -68,7 +53,7 @@
                 <div class="progress" :style="{ width: predictionResult.draw + '%' }"></div>
               </div>
             </div>
-            
+
             <div class="stat-item">
               <span class="stat-label">Victoire Équipe 2</span>
               <span class="stat-value">{{ predictionResult.team2Win }}%</span>
@@ -77,12 +62,12 @@
               </div>
             </div>
           </div>
-          
+
           <div class="score-prediction">
             <span class="score-label">Score probable : </span>
             <span class="score-value">{{ predictionResult.probableScore }}</span>
           </div>
-          
+
           <button class="save-btn" @click="savePrediction">
             Enregistrer prédiction
           </button>
@@ -112,9 +97,9 @@ export default {
       if (!this.selectedTeam1 || !this.selectedTeam2) {
         return
       }
-      
+
       this.isPredicting = true
-      
+
       // Simulate AI prediction API call
       setTimeout(() => {
         this.predictionResult = {
@@ -123,31 +108,31 @@ export default {
           team2Win: Math.floor(Math.random() * 30) + 10, // 10-40%
           probableScore: `${Math.floor(Math.random() * 3) + 1} - ${Math.floor(Math.random() * 3)}`
         }
-        
+
         // Ensure percentages add up to 100
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win
         if (total !== 100) {
           const diff = 100 - total
           this.predictionResult.team1Win += diff
         }
-        
+
         this.isPredicting = false
       }, 2000)
     },
-    
+
     savePrediction() {
       if (!this.predictionResult) return
-      
+
       const prediction = {
         team1: this.selectedTeam1,
         team2: this.selectedTeam2,
         result: this.predictionResult,
         date: new Date().toISOString()
       }
-      
+
       // Here you would typically save to a backend
       console.log('Saving prediction:', prediction)
-      
+
       // Show success message
       alert('Prédiction enregistrée avec succès!')
     }
@@ -160,55 +145,6 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Navigation (same as HomeView) */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-item {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item.active {
-  color: white;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-item.exit {
-  background: rgba(255, 67, 54, 0.3);
-  color: #ff4336;
-}
-
-.nav-item.exit:hover {
-  background: rgba(255, 67, 54, 0.5);
 }
 
 /* Main Content */
@@ -398,6 +334,11 @@ export default {
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
 }
 
+.logo-img {
+  height: 1.5rem;
+  width: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
@@ -405,44 +346,44 @@ export default {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
+
   .prediction-container {
     padding: 1.5rem;
   }
-  
+
   .team-selectors {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .vs-indicator {
     padding: 0.5rem 0;
   }
-  
+
   .stat-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .stat-label {
     flex: none;
   }
-  
+
   .stat-value {
     flex: none;
   }
-  
+
   .progress-bar {
     width: 100%;
   }

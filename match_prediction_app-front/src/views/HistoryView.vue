@@ -1,22 +1,10 @@
 <template>
   <div class="dashboard">
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand">LOGO</div>
-      <div class="nav-menu">
-        <router-link to="/" class="nav-item">Dashboard</router-link>
-        <router-link to="/predictions" class="nav-item">Prédictions</router-link>
-        <router-link to="/history" class="nav-item active">Historique</router-link>
-        <router-link to="/profile" class="nav-item">Profil</router-link>
-        <router-link to="/exit" class="nav-item exit">Exit</router-link>
-      </div>
-    </nav>
-
     <!-- Main Content -->
     <main class="main-content">
       <div class="history-container">
         <h1 class="page-title">Historique des Prédictions</h1>
-        
+
         <!-- History Table -->
         <div class="table-container">
           <table class="history-table">
@@ -43,7 +31,7 @@
             </tbody>
           </table>
         </div>
-        
+
         <!-- Global Score -->
         <div class="global-score">
           <span class="score-label">Score global : </span>
@@ -99,55 +87,6 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Navigation (same as other views) */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-item {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item.active {
-  color: white;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-item.exit {
-  background: rgba(255, 67, 54, 0.3);
-  color: #ff4336;
-}
-
-.nav-item.exit:hover {
-  background: rgba(255, 67, 54, 0.5);
 }
 
 /* Main Content */
@@ -262,6 +201,11 @@ export default {
   font-size: 1.3rem;
 }
 
+.logo-img {
+  height: 1.5rem;
+  width: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {
@@ -269,32 +213,33 @@ export default {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
+
   .history-container {
     padding: 1.5rem;
   }
-  
+
   .history-table {
     font-size: 0.85rem;
   }
-  
+
   .history-table th,
   .history-table td {
     padding: 0.75rem 0.5rem;
   }
-  
+
   .page-title {
     font-size: 1.5rem;
   }
+
 }
 </style>
