@@ -6,6 +6,10 @@
 </div>
       
       <h2 class="auth-title">Connexion</h2>
+
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
       
       <form class="auth-form" @submit.prevent="handleLogin">
         <div class="form-group">
@@ -52,21 +56,33 @@
 </template>
 
 <script>
+import { apiClient } from '@/api/client'
+
 export default {
   name: 'LoginView',
   data() {
     return {
       email: '',
       password: '',
-      rememberMe: false
+      rememberMe: false,
+      errorMessage: ''
     }
   },
   methods: {
-    handleLogin() {
-      // Handle login logic here
-      console.log('Login attempt:', { email: this.email, rememberMe: this.rememberMe })
-      // Redirect to home after successful login
-      this.$router.push('/')
+    async handleLogin() {
+      try {
+        const response = await apiClient.post('/auth/login', {
+          email: this.email,
+          password: this.password
+        })
+        
+        localStorage.setItem('token', response.access_token)
+        localStorage.setItem('user', JSON.stringify(response.user))
+        
+        this.$router.push('/')
+      } catch (error) {
+        this.errorMessage = error.message
+      }
     }
   }
 }

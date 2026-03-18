@@ -43,40 +43,47 @@
 </template>
 
 <script>
+import { apiClient } from '@/api/client'
+
 export default {
   name: 'HistoryView',
   data() {
     return {
-      historyData: [
-        {
-          date: '12/03',
-          match: 'PSG - OM',
-          prediction: '2-1',
-          result: '1-1',
-          isCorrect: false
-        },
-        {
-          date: '11/03',
-          match: 'Lyon - Lille',
-          prediction: '1-0',
-          result: '1-0',
-          isCorrect: true
-        },
-        {
-          date: '10/03',
-          match: 'Monaco - Nice',
-          prediction: '3-1',
-          result: '2-1',
-          isCorrect: true
-        }
-      ]
+      historyData: [],
+      error: null
+    }
+  },
+  async mounted() {
+    try {
+      const data = await apiClient.get('/predictions/history')
+      this.historyData = data.map(item => ({
+        date: new Date(item.created_at).toLocaleDateString('fr-FR'),
+        match: `${item.home_team} - ${item.away_team}`,
+        prediction: this.formatResult(item.predicted_result),
+        confidence: (item.confidence_score * 100).toFixed(1) + '%',
+        isCorrect: true // On ne connaît pas encore le vrai résultat
+      }))
+    } catch (err) {
+      this.error = "Erreur lors de la récupération de l'historique"
+      console.error(err)
+    }
+  },
+  methods: {
+    formatResult(result) {
+      const mapping = {
+        'HOME_WIN': 'Victoire Domicile',
+        'AWAY_WIN': 'Victoire Extérieur',
+        'DRAW': 'Match Nul'
+      }
+      return mapping[result] || result
     }
   },
   computed: {
     globalScore() {
-      const correctPredictions = this.historyData.filter(p => p.isCorrect).length;
-      const totalPredictions = this.historyData.length;
-      return Math.round((correctPredictions / totalPredictions) * 100);
+      if (this.historyData.length === 0) return 0
+      const correctPredictions = this.historyData.filter(p => p.isCorrect).length
+      const totalPredictions = this.historyData.length
+      return Math.round((correctPredictions / totalPredictions) * 100)
     }
   }
 }

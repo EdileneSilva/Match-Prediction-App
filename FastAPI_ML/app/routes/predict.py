@@ -1,11 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 from ..database import get_db
 from ..schemas.match import PredictionRequest, PredictionResponse
+from ..schemas.team import Team as TeamSchema
 from ..services.ml_service import ml_service
 from ..models.match import Team
 
 router = APIRouter(tags=["ML Prediction"])
+
+@router.get("/teams", response_model=List[TeamSchema])
+def get_teams(db: Session = Depends(get_db)):
+    return db.query(Team).all()
 
 @router.post("/predict", response_model=PredictionResponse)
 def predict(request: PredictionRequest, db: Session = Depends(get_db)):

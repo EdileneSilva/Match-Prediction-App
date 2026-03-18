@@ -136,3 +136,17 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
   - `FastAPI_ML/` (ML API)
 - Chaque API dispose désormais de ses propres dépendances et ressources isolées.
 
+
+## Étape 7 : Intégration Frontend-Backend (feature/integration)
+### 1. Configuration Backend (App API & ML API)
+- Mise à jour de la configuration **CORS** dans FastAPI_App pour autoriser le frontend (ports 8080 et 5173).
+- Implémentation de la route /predictions/teams dans FastAPI_App (proxy vers ML API).
+- Implémentation du flux complet /predictions/predict : appel à la ML API et historisation dans footballapp_db.
+- Ajout de la route /teams dans FastAPI_ML pour exposer la liste des équipes.
+
+### 2. Développement Frontend (Vue.js)
+- Création d'un client API centralisé dans src/api/client.js (JWT & Base URL).
+- Branchement des vues LoginView, RegisterView, PredictionView et HistoryView aux endpoints réels.
+
+**État actuel :**
+- L'application est fonctionnelle de bout en bout (Auth -> Prédiction -> Historique).

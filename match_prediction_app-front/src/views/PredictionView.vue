@@ -2,8 +2,9 @@
   <div class="dashboard">
 <!-- Main Content -->
     <main class="main-content">
-      <div class="prediction-container">
-        <h1 class="page-title">Prédiction de Match</h1>
+        <div v-if="error" class="error-message" style="margin-bottom: 1rem; color: #ff4d4f; text-align: center;">
+          {{ error }}
+        </div>
 
         <!-- Team Selection -->
         <div class="selection-section">
@@ -11,8 +12,8 @@
             <div class="form-group">
               <label for="team1">Équipe 1</label>
               <select id="team1" v-model="selectedTeam1" class="team-select">
-                <option value="">Sélectionner équipe</option>
-                <option v-for="team in teams" :key="team" :value="team">{{ team }}</option>
+                <option :value="null">Sélectionner équipe</option>
+                <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
               </select>
             </div>
 
@@ -21,8 +22,8 @@
             <div class="form-group">
               <label for="team2">Équipe 2</label>
               <select id="team2" v-model="selectedTeam2" class="team-select">
-                <option value="">Sélectionner équipe</option>
-                <option v-for="team in teams" :key="team" :value="team">{{ team }}</option>
+                <option :value="null">Sélectionner équipe</option>
+                <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
               </select>
             </div>
           </div>
@@ -78,18 +79,26 @@
 </template>
 
 <script>
+import { apiClient } from '@/api/client'
+
 export default {
   name: 'PredictionView',
   data() {
     return {
-      selectedTeam1: '',
-      selectedTeam2: '',
+      selectedTeam1: null,
+      selectedTeam2: null,
       isPredicting: false,
       predictionResult: null,
-      teams: [
-        'PSG', 'Marseille', 'Lyon', 'Lille', 'Monaco', 'Nice',
-        'Bordeaux', 'Saint-Étienne', 'Lens', 'Rennes', 'Nantes', 'Montpellier'
-      ]
+      teams: [],
+      error: null
+    }
+  },
+  async mounted() {
+    try {
+      this.teams = await apiClient.get('/predictions/teams')
+    } catch (err) {
+      this.error = "Impossible de charger les équipes"
+      console.error(err)
     }
   },
   methods: {
@@ -99,42 +108,47 @@ export default {
       }
 
       this.isPredicting = true
+      this.predictionResult = null
+      this.error = null
 
-      // Simulate AI prediction API call
-      setTimeout(() => {
+      try {
+        const response = await apiClient.post('/predictions/predict', {
+          home_team_id: this.selectedTeam1.id,
+          away_team_id: this.selectedTeam2.id,
+          home_team_name: this.selectedTeam1.name,
+          away_team_name: this.selectedTeam2.name
+        })
+
+        // On adapte le format de l'API App (predicted_result, confidence_score)
+        // vers le format attendu par la vue (qui est plus détaillé avec des % par issue)
+        // Pour l'instant, on simule la répartition si l'API ML ne donne qu'un seul gagnant
+        // ou on adapte si possible.
+        
         this.predictionResult = {
-          team1Win: Math.floor(Math.random() * 40) + 40, // 40-80%
-          draw: Math.floor(Math.random() * 30) + 10, // 10-40%
-          team2Win: Math.floor(Math.random() * 30) + 10, // 10-40%
-          probableScore: `${Math.floor(Math.random() * 3) + 1} - ${Math.floor(Math.random() * 3)}`
+          team1Win: response.predicted_result === 'HOME_WIN' ? response.confidence_score * 100 : (1 - response.confidence_score) * 50,
+          draw: response.predicted_result === 'DRAW' ? response.confidence_score * 100 : (1 - response.confidence_score) * 20,
+          team2Win: response.predicted_result === 'AWAY_WIN' ? response.confidence_score * 100 : (1 - response.confidence_score) * 30,
+          probableScore: "N/A" // Pas encore géré par le modèle stub
         }
 
-        // Ensure percentages add up to 100
+        // Normalisation à 100%
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win
-        if (total !== 100) {
-          const diff = 100 - total
-          this.predictionResult.team1Win += diff
-        }
+        this.predictionResult.team1Win = Math.round((this.predictionResult.team1Win / total) * 100)
+        this.predictionResult.draw = Math.round((this.predictionResult.draw / total) * 100)
+        this.predictionResult.team2Win = 100 - this.predictionResult.team1Win - this.predictionResult.draw
 
+      } catch (err) {
+        this.error = err.message
+      } finally {
         this.isPredicting = false
-      }, 2000)
+      }
     },
 
     savePrediction() {
-      if (!this.predictionResult) return
-
-      const prediction = {
-        team1: this.selectedTeam1,
-        team2: this.selectedTeam2,
-        result: this.predictionResult,
-        date: new Date().toISOString()
-      }
-
-      // Here you would typically save to a backend
-      console.log('Saving prediction:', prediction)
-
-      // Show success message
-      alert('Prédiction enregistrée avec succès!')
+      // Dans notre nouveau flux, la prédiction est déjà enregistrée en BD par le backend
+      // lors de l'appel à /predict. On peut donc juste afficher un message ou rediriger.
+      alert('Prédiction enregistrée dans votre historique !')
+      this.$router.push('/history')
     }
   }
 }
