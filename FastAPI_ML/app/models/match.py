@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, TIMESTAMP, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database import Base
+
+from ..database import Base
+
 
 class Team(Base):
     __tablename__ = "team"
@@ -8,10 +10,10 @@ class Team(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(Text, nullable=False)
 
-    # Relations
     home_matches = relationship("Match", foreign_keys="Match.home_team_id", back_populates="home_team")
     away_matches = relationship("Match", foreign_keys="Match.away_team_id", back_populates="away_team")
     statistics = relationship("TeamMatchStats", back_populates="team")
+
 
 class Match(Base):
     __tablename__ = "match"
@@ -24,10 +26,10 @@ class Match(Base):
     away_score = Column(Integer, nullable=True)
     result = Column(String(10), nullable=True)
 
-    # Relations
     home_team = relationship("Team", foreign_keys=[home_team_id], back_populates="home_matches")
     away_team = relationship("Team", foreign_keys=[away_team_id], back_populates="away_matches")
     statistics = relationship("TeamMatchStats", back_populates="match")
+
 
 class TeamMatchStats(Base):
     __tablename__ = "team_match_stats"
@@ -44,6 +46,6 @@ class TeamMatchStats(Base):
     corners = Column(Integer, nullable=True)
     fouls = Column(Integer, nullable=True)
 
-    # Relations
     match = relationship("Match", back_populates="statistics")
     team = relationship("Team", back_populates="statistics")
+

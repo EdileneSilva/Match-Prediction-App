@@ -1,5 +1,15 @@
+# Environnements virtuels
+env/
 venv/
+FastAPI_App/venv/
+FastAPI_ML/venv/
+
+# Fichiers compilés Python
 __pycache__/
 *.pyc
+
+# Fichiers de configuration locaux
 .env
+
+# Cache de pytest
 .pytest_cache/
