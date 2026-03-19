@@ -8,7 +8,7 @@
       <router-link to="/predictions" class="nav-item">Prédictions</router-link>
       <router-link to="/history" class="nav-item">Historique</router-link>
       <router-link to="/profile" class="nav-item">Profil</router-link>
-      <router-link to="/exit" class="nav-item exit">Exit</router-link>
+      <router-link to="/exit" class="nav-item exit">Déconnexion</router-link>
     </div>
   </nav>
 </template>

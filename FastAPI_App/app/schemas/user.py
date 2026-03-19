@@ -37,10 +37,46 @@ class UserOut(BaseModel):
 
 class PredictionHistoryOut(BaseModel):
     id: int
-    home_team: str
-    away_team: str
+    home_team_name: str
+    away_team_name: str
     predicted_result: Optional[str]
     confidence_score: Optional[float]
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserFavoriteTeamBase(BaseModel):
+    team_name: str
+
+
+class UserFavoriteTeamOut(UserFavoriteTeamBase):
+    id: int
+    user_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserStats(BaseModel):
+    total_predictions: int
+    favorite_teams_count: int
+    # On pourrait ajouter win_rate si on avait les résultats réels
+
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class ForgotPassword(BaseModel):
+    email: EmailStr
+
+
+class ResetPassword(BaseModel):
+    token: str
+    new_password: str

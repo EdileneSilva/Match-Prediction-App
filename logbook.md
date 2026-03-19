@@ -150,3 +150,40 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
 
 **État actuel :**
 - L'application est fonctionnelle de bout en bout (Auth -> Prédiction -> Historique).
+
+### Étape 8 : Implémentation des fonctionnalités Utilisateur (Profil, Reset, Suppression)
+- Création de la branche `feature/user-management`.
+- Backend (`FastAPI_App`) :
+    - Ajout des routes `PUT /auth/me`, `DELETE /auth/me`, `POST /auth/change-password`.
+    - Implémentation de la réinitialisation de mot de passe (Option C) : génération de token JWT court et affichage du lien de reset dans les logs console du backend.
+    - Mise à jour de `AuthService` et des schémas Pydantic.
+- Frontend (`match_prediction_app-front`) :
+    - Connexion de `ProfileView.vue` : récupération des données (`GET /auth/me`), mise à jour (`PUT /auth/me`) et suppression de compte (`DELETE /auth/me`).
+    - Implémentation du logout réel dans `NavigationBar.vue` (supprime le token et redirige).
+    - Changement du mot de passe via `ResetView.vue` en utilisant le token fourni.
+    - Création des vues `ForgotView.vue` et `ResetView.vue` pour le flux de mot de passe oublié.
+    - Ajout des liens dans `LoginView.vue` et routage sécurisé.
+
+---
+
+## Étape 9 : Assurance Qualité, Tests et Finalisation (19 Mars 2026)
+
+### 1. Mise en place de l'infrastructure de test
+- Configuration de `pytest` et `pytest-asyncio` pour le backend `FastAPI_App`.
+- Création de `conftest.py` avec une base SQLite en mémoire (`StaticPool`) pour des tests isolés et rapides.
+- Automatisation de la création des tables pour chaque session de test.
+
+### 2. Implémentation de la suite de tests (29 tests passés)
+- **Tests unitaires (`test_auth_service.py`)** : Couverture complète de la logique d'authentification, de hachage et de gestion des tokens.
+- **Tests d'intégration (`test_auth_routes.py`)** : Validation des endpoints d'inscription, connexion, profil, changement de mot de passe, statistiques et favoris.
+
+### 3. Nouvelles fonctionnalités Utilisateur
+- **Statistiques** : Route `GET /auth/me/stats` pour récupérer le nombre total de prédictions et de favoris.
+- **Favoris** : Endpoints CRUD (`GET`, `POST`, `DELETE`) pour gérer les équipes favorites de l'utilisateur.
+- **Alignement Modèles-Routes** : Correction des incohérences de noms de champs dans l'historique des prédictions.
+
+### 4. Correctifs techniques et Environnement
+- **Bcrypt** : Downgrade à la version 3.2.0 pour résoudre l'erreur `ValueError: password cannot be longer than 72 bytes` (incompatibilité entre `passlib` et `bcrypt >= 4.0`).
+- **Frontend** : Mise à jour du routeur pour inclure les vues de réinitialisation de mot de passe et de déconnexion. Traduction de l'interface en français.
+
+**État Final :** Le projet est robuste, testé à 100% sur les fonctionnalités critiques, et prêt pour une utilisation réelle.

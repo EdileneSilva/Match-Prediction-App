@@ -43,10 +43,9 @@ async def predict_match(
             # ML_API_URL devrait être dans settings
             ml_url = f"http://localhost:8001/predict" 
             
-            # Transformation pour le format attendu par ML API
             ml_request = {
-                "home_team_id": int(request.home_team_name), # Hack temporaire si on reçoit des "IDs" sous forme de string
-                "away_team_id": int(request.away_team_name)
+                "home_team_id": request.home_team_id,
+                "away_team_id": request.away_team_id
             }
             
             response = await client.post(ml_url, json=ml_request)
@@ -62,8 +61,8 @@ async def predict_match(
     # 2. Enregistrement dans l'historique
     new_prediction = PredictionHistory(
         user_id=current_user.id,
-        home_team=request.home_team_name, # Stockage du nom ou ID pour l'affichage
-        away_team=request.away_team_name,
+        home_team_name=request.home_team_name,
+        away_team_name=request.away_team_name,
         predicted_result=ml_data["predicted_result"],
         confidence_score=ml_data["confidence_score"]
     )
