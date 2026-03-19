@@ -15,8 +15,8 @@
 
 <script>
 export default {
-  name: 'NavigationBar'
-}
+  name: "NavigationBar",
+};
 </script>
 
 <style scoped>
@@ -26,7 +26,7 @@ export default {
   align-items: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 1.5rem 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .nav-brand {
@@ -54,11 +54,11 @@ export default {
 }
 
 .nav-item:hover {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .nav-item.active {
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .nav-item.exit {
@@ -75,7 +75,7 @@ export default {
     gap: 1rem;
     padding: 1rem;
   }
-  
+
   .nav-menu {
     flex-wrap: wrap;
     justify-content: center;
