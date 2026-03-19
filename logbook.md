@@ -35,6 +35,21 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
   - `user` : gestion des comptes (username, email, hashed_password, is_active, created_at).
   - `prediction_history` : historique des prédictions par user (home/away team, predicted_result, confidence_score). Noms d'équipes en texte brut pour respecter la séparation inter-DB.
   - `user_favorite_team` : équipes favorites avec contrainte d'unicité (user_id, team_name).
+- Détail structure `footballapp_db` :
+  - `prediction_history` : `home_team_name` + `away_team_name` stockés en texte (pas de FK vers la DB ML), avec `confidence_score` en `NUMERIC(5,4)` pour garder une précision suffisante côté front.
+  - `user_favorite_team` : contrainte `UNIQUE (user_id, team_name)` pour éviter les doublons dans les favoris.
+
+### 2.1. Détail structure `footballprediction_db` (ML / Data)
+- Détail des tables ML à partir de `Data/MCD.sql` :
+  - `team` : référence des équipes (id, name).
+  - `match` : matchs (home_team_id, away_team_id, home_score, away_score, result) avec FK vers `team` pour les équipes domicile/extérieur.
+  - `team_match_stats` : statistiques par équipe et par match (match_id, team_id, is_home + features : goals, shots, shots_on_target, yellow_cards, red_cards, corners, fouls).
+
+### 2.2. Mise en place / déploiement des schémas
+- Les schémas sont fournis sous forme de scripts SQL :
+  - `Data/MCD.sql` pour créer `footballprediction_db` (DB ML/Data).
+  - `Data/MCD_app.sql` pour créer `footballapp_db` (DB Application).
+- Les scripts incluent `CREATE DATABASE` et `\c <db>` : ils sont pensés pour être exécutés une fois depuis `psql` avant de démarrer les deux API.
 
 ### 3. Implémentation de l'API Application (FastAPI + JWT)
 - Mise à jour du `FastAPI/.env` avec les URLs des deux bases de données (`DATABASE_APP_URL`, `DATABASE_ML_URL`) et les variables JWT.
