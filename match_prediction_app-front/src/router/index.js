@@ -5,6 +5,8 @@ import RegisterView from '../views/RegisterView.vue'
 import PredictionView from '../views/PredictionView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import ForgotView from '../views/ForgotView.vue'
+import ResetView from '../views/ResetView.vue'
 
 const routes = [
   {
@@ -36,6 +38,24 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: ProfileView
+  },
+  {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: ForgotView
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: ResetView
+  },
+  {
+    path: '/exit',
+    name: 'exit',
+    beforeEnter: (to, from, next) => {
+      localStorage.removeItem('token');
+      next('/login');
+    }
   }
 ]
 

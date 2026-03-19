@@ -54,7 +54,7 @@
               <input
                 type="text"
                 id="name"
-                v-model="profileData.name"
+                v-model="profileData.username"
                 placeholder="Votre nom"
                 class="form-input"
               />
@@ -100,20 +100,34 @@
 </template>
 
 <script>
+import { apiClient } from "@/api/client";
+
 export default {
   name: "ProfileView",
   data() {
     return {
       isSaving: false,
       profileData: {
-        name: "John Doe",
-        email: "adresse@email.com",
+        username: "",
+        email: "",
         password: "",
         photo: null,
       },
     };
   },
+  async mounted() {
+    await this.fetchProfile();
+  },
   methods: {
+    async fetchProfile() {
+      try {
+        const data = await apiClient.get("/auth/me");
+        this.profileData.username = data.username;
+        this.profileData.email = data.email;
+      } catch (err) {
+        console.error("Erreur lors de la récupération du profil", err);
+      }
+    },
     handlePhotoChange(event) {
       const file = event.target.files[0];
       if (file) {
@@ -127,23 +141,33 @@ export default {
 
     async saveProfile() {
       this.isSaving = true;
-
-      // Simulate API call
-      setTimeout(() => {
-        this.isSaving = false;
+      try {
+        await apiClient.put("/auth/me", {
+          username: this.profileData.username,
+          email: this.profileData.email,
+        });
         alert("Profil mis à jour avec succès!");
-      }, 1500);
+      } catch (err) {
+        alert("Erreur: " + (err.message || "Inconnue"));
+      } finally {
+        this.isSaving = false;
+      }
     },
 
-    deleteAccount() {
+    async deleteAccount() {
       if (
         confirm(
           "Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.",
         )
       ) {
-        // Simulate account deletion
-        alert("Compte supprimé avec succès");
-        this.$router.push("/login");
+        try {
+          await apiClient.delete("/auth/me");
+          alert("Compte supprimé avec succès");
+          localStorage.removeItem("token");
+          this.$router.push("/login");
+        } catch (err) {
+          alert("Erreur lors de la suppression: " + err.message);
+        }
       }
     },
   },
