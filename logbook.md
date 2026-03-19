@@ -184,6 +184,6 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
 
 ### 4. Correctifs techniques et Environnement
 - **Bcrypt** : Downgrade à la version 3.2.0 pour résoudre l'erreur `ValueError: password cannot be longer than 72 bytes` (incompatibilité entre `passlib` et `bcrypt >= 4.0`).
-- **Frontend** : Mise à jour du routeur pour inclure les vues de réinitialisation de mot de passe et de déconnexion. Traduction de l'interface en français.
+- **Frontend** : Mise à jour du routeur pour inclure les vues de réinitialisation de mot de passe et de déconnexion. Correction d'erreurs de syntaxe dans `PredictionView.vue` et du mapping des données dans `HistoryView.vue`. Traduction de l'interface en français.
 
-**État Final :** Le projet est robuste, testé à 100% sur les fonctionnalités critiques, et prêt pour une utilisation réelle.
+**État Final :** Le projet est robuste, testé à 100% sur les fonctionnalités critiques, et entièrement opérationnel côté frontend.
