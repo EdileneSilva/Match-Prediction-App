@@ -41,7 +41,7 @@
             Se souvenir de moi
           </label>
           
-          <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+          <router-link to="/forgot-password" class="forgot-password">Mot de passe oublié ?</router-link>
         </div>
         
         <button type="submit" class="auth-btn">Se connecter</button>
