@@ -73,7 +73,6 @@
             Enregistrer prédiction
           </button>
         </div>
-      </div>
     </main>
   </div>
 </template>

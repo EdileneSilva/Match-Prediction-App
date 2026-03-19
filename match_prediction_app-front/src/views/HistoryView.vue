@@ -58,7 +58,7 @@ export default {
       const data = await apiClient.get('/predictions/history')
       this.historyData = data.map(item => ({
         date: new Date(item.created_at).toLocaleDateString('fr-FR'),
-        match: `${item.home_team} - ${item.away_team}`,
+        match: `${item.home_team_name} - ${item.away_team_name}`,
         prediction: this.formatResult(item.predicted_result),
         confidence: (item.confidence_score * 100).toFixed(1) + '%',
         isCorrect: true // On ne connaît pas encore le vrai résultat
