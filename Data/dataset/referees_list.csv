@@ -1,0 +1,234 @@
+Date,Referee,HomeTeam,Round
+2025-08-15,J. Pignard,Rennes,1
+2025-08-16,R. Lissorgue,Lens,1
+2025-08-16,R. Buquet,Monaco,1
+2025-08-16,T. Léonard,Nice,1
+2025-08-17,F. Letexier,Angers,1
+2025-08-17,A. Kherradji,Auxerre,1
+2025-08-17,M. Vernice,Metz,1
+2025-08-17,B. Bastien,Nantes,1
+2025-08-17,C. Turpin,Stade Brestois,1
+2025-08-22,H. Ben El Hadj,Paris SG,2
+2025-08-23,E. Wattellier,Lyon,2
+2025-08-23,M. Bollengier,Marseille,2
+2025-08-23,J. Stinat,Nice,2
+2025-08-24,G. Paradis,Le Havre,2
+2025-08-24,W. Delajod,Lille,2
+2025-08-24,J. Brisard,Lorient,2
+2025-08-24,B. Dechepy,Strasbourg,2
+2025-08-24,B. Millot,Toulouse,2
+2025-08-29,A. Kherradji,Lens,3
+2025-08-30,R. Lissorgue,Lorient,3
+2025-08-30,S. Frappart,Nantes,3
+2025-08-30,E. Wattellier,Toulouse,3
+2025-08-31,M. Bollengier,Angers,3
+2025-08-31,J. Brisard,Le Havre,3
+2025-08-31,F. Letexier,Lyon,3
+2025-08-31,B. Bastien,Monaco,3
+2025-08-31,G. Angoula,Paris FC,3
+2025-09-12,T. Léonard,Marseille,4
+2025-09-13,R. Lissorgue,Auxerre,4
+2025-09-13,G. Paradis,Nice,4
+2025-09-14,J. Stinat,Lille,4
+2025-09-14,B. Millot,Metz,4
+2025-09-14,J. Pignard,Paris SG,4
+2025-09-14,R. Buquet,Rennes,4
+2025-09-14,B. Dechepy,Stade Brestois,4
+2025-09-14,W. Delajod,Strasbourg,4
+2025-09-19,C. Turpin,Lyon,5
+2025-09-20,E. Wattellier,Lens,5
+2025-09-20,M. Vernice,Nantes,5
+2025-09-20,B. Bastien,Stade Brestois,5
+2025-09-21,M. Bollengier,Auxerre,5
+2025-09-21,A. Kherradji,Le Havre,5
+2025-09-21,S. Frappart,Monaco,5
+2025-09-21,F. Letexier,Paris FC,5
+2025-09-22,J. Brisard,Marseille,5
+2025-09-26,J. Pignard,Strasbourg,6
+2025-09-27,R. Buquet,Lorient,6
+2025-09-27,T. Léonard,Paris SG,6
+2025-09-27,B. Millot,Toulouse,6
+2025-09-28,W. Delajod,Angers,6
+2025-09-28,M. Vernice,Lille,6
+2025-09-28,G. Paradis,Metz,6
+2025-09-28,A. Kherradji,Nice,6
+2025-09-28,B. Dechepy,Rennes,6
+2025-10-03,B. Millot,Paris FC,7
+2025-10-04,F. Letexier,Auxerre,7
+2025-10-04,C. Turpin,Metz,7
+2025-10-04,G. Angoula,Stade Brestois,7
+2025-10-05,J. Pignard,Le Havre,7
+2025-10-05,B. Bastien,Lille,7
+2025-10-05,T. Léonard,Lyon,7
+2025-10-05,W. Delajod,Monaco,7
+2025-10-05,G. Paradis,Strasbourg,7
+2025-10-17,C. Turpin,Paris SG,8
+2025-10-18,J. Stinat,Angers,8
+2025-10-18,B. Dechepy,Marseille,8
+2025-10-18,J. Brisard,Nice,8
+2025-10-19,G. Angoula,Lens,8
+2025-10-19,M. Bollengier,Lorient,8
+2025-10-19,T. Léonard,Nantes,8
+2025-10-19,E. Wattellier,Rennes,8
+2025-10-19,F. Letexier,Toulouse,8
+2025-10-24,R. Buquet,Paris FC,9
+2025-10-25,S. Frappart,Lens,9
+2025-10-25,G. Paradis,Monaco,9
+2025-10-25,J. Pignard,Stade Brestois,9
+2025-10-26,B. Bastien,Angers,9
+2025-10-26,H. Ben El Hadj,Auxerre,9
+2025-10-26,B. Millot,Lille,9
+2025-10-26,E. Wattellier,Lyon,9
+2025-10-26,M. Bollengier,Rennes,9
+2025-10-29,B. Millot,Le Havre,10
+2025-10-29,W. Delajod,Lorient,10
+2025-10-29,T. Léonard,Marseille,10
+2025-10-29,A. Kherradji,Metz,10
+2025-10-29,J. Brisard,Nantes,10
+2025-10-29,B. Dechepy,Nice,10
+2025-10-29,J. Stinat,Paris FC,10
+2025-10-29,R. Buquet,Strasbourg,10
+2025-10-29,C. Turpin,Toulouse,10
+2025-11-01,B. Bastien,Auxerre,11
+2025-11-01,E. Wattellier,Monaco,11
+2025-11-01,F. Letexier,Paris SG,11
+2025-11-02,J. Pignard,Lens,11
+2025-11-02,J. Brisard,Lille,11
+2025-11-02,G. Angoula,Nantes,11
+2025-11-02,T. Léonard,Rennes,11
+2025-11-02,C. Turpin,Stade Brestois,11
+2025-11-02,J. Stinat,Toulouse,11
+2025-11-07,G. Paradis,Paris FC,12
+2025-11-08,R. Lissorgue,Le Havre,12
+2025-11-08,W. Delajod,Marseille,12
+2025-11-08,B. Dechepy,Monaco,12
+2025-11-09,A. Kherradji,Angers,12
+2025-11-09,H. Ben El Hadj,Lorient,12
+2025-11-09,B. Bastien,Lyon,12
+2025-11-09,S. Frappart,Metz,12
+2025-11-09,F. Letexier,Strasbourg,12
+2025-11-21,J. Pignard,Nice,13
+2025-11-22,J. Brisard,Lens,13
+2025-11-22,M. Vernice,Paris SG,13
+2025-11-22,H. Ben El Hadj,Rennes,13
+2025-11-23,T. Léonard,Auxerre,13
+2025-11-23,B. Millot,Lille,13
+2025-11-23,R. Buquet,Nantes,13
+2025-11-23,G. Angoula,Stade Brestois,13
+2025-11-23,M. Bollengier,Toulouse,13
+2025-11-28,J. Stinat,Metz,14
+2025-11-29,E. Wattellier,Marseille,14
+2025-11-29,C. Turpin,Monaco,14
+2025-11-29,F. Letexier,Paris FC,14
+2025-11-30,G. Paradis,Angers,14
+2025-11-30,W. Delajod,Le Havre,14
+2025-11-30,R. Lissorgue,Lorient,14
+2025-11-30,A. Kherradji,Lyon,14
+2025-11-30,B. Dechepy,Strasbourg,14
+2025-12-05,J. Brisard,Lille,15
+2025-12-05,T. Léonard,Stade Brestois,15
+2025-12-06,B. Bastien,Nantes,15
+2025-12-06,M. Bollengier,Paris SG,15
+2025-12-06,S. Frappart,Toulouse,15
+2025-12-07,E. Wattellier,Auxerre,15
+2025-12-07,R. Buquet,Le Havre,15
+2025-12-07,M. Vernice,Lorient,15
+2025-12-07,J. Stinat,Nice,15
+2025-12-12,S. Frappart,Angers,16
+2025-12-13,R. Lissorgue,Metz,16
+2025-12-13,B. Dechepy,Paris FC,16
+2025-12-13,B. Millot,Rennes,16
+2025-12-14,J. Pignard,Auxerre,16
+2025-12-14,W. Delajod,Lens,16
+2025-12-14,M. Bollengier,Lyon,16
+2025-12-14,F. Letexier,Marseille,16
+2025-12-14,G. Angoula,Strasbourg,16
+2026-01-02,M. Vernice,Toulouse,17
+2026-01-03,E. Wattellier,Lille,17
+2026-01-03,J. Brisard,Monaco,17
+2026-01-03,C. Turpin,Nice,17
+2026-01-04,H. Ben El Hadj,Le Havre,17
+2026-01-04,G. Paradis,Lorient,17
+2026-01-04,M. Bollengier,Marseille,17
+2026-01-04,B. Bastien,Paris SG,17
+2026-01-04,J. Stinat,Stade Brestois,17
+2026-01-16,W. Delajod,Monaco,18
+2026-01-16,J. Brisard,Paris SG,18
+2026-01-17,R. Buquet,Angers,18
+2026-01-17,B. Dechepy,Lens,18
+2026-01-17,G. Angoula,Toulouse,18
+2026-01-18,R. Lissorgue,Lyon,18
+2026-01-18,B. Millot,Nantes,18
+2026-01-18,S. Frappart,Rennes,18
+2026-01-18,J. Pignard,Strasbourg,18
+2026-01-23,M. Vernice,Auxerre,19
+2026-01-24,M. Bollengier,Le Havre,19
+2026-01-24,B. Bastien,Marseille,19
+2026-01-24,C. Turpin,Rennes,19
+2026-01-25,W. Delajod,Lille,19
+2026-01-25,E. Wattellier,Metz,19
+2026-01-25,H. Ben El Hadj,Nantes,19
+2026-01-25,T. Léonard,Paris FC,19
+2026-01-25,G. Paradis,Stade Brestois,19
+2026-01-30,J. Stinat,Lens,20
+2026-01-31,B. Dechepy,Lorient,20
+2026-01-31,R. Buquet,Monaco,20
+2026-01-31,J. Pignard,Paris FC,20
+2026-02-01,B. Millot,Angers,20
+2026-02-01,F. Letexier,Lyon,20
+2026-02-01,S. Frappart,Nice,20
+2026-02-01,E. Wattellier,Strasbourg,20
+2026-02-01,R. Lissorgue,Toulouse,20
+2026-02-06,G. Paradis,Metz,21
+2026-02-07,J. Pignard,Lens,21
+2026-02-07,M. Vernice,Nantes,21
+2026-02-07,G. Angoula,Stade Brestois,21
+2026-02-08,C. Turpin,Angers,21
+2026-02-08,F. Letexier,Auxerre,21
+2026-02-08,A. Kherradji,Le Havre,21
+2026-02-08,B. Bastien,Nice,21
+2026-02-08,W. Delajod,Paris SG,21
+2026-02-13,E. Wattellier,Monaco,22
+2026-02-13,B. Bastien,Rennes,22
+2026-02-14,H. Ben El Hadj,Lille,22
+2026-02-14,F. Letexier,Marseille,22
+2026-02-14,B. Dechepy,Paris FC,22
+2026-02-15,J. Brisard,Le Havre,22
+2026-02-15,S. Frappart,Lorient,22
+2026-02-15,T. Léonard,Lyon,22
+2026-02-15,M. Bollengier,Metz,22
+2026-02-20,R. Lissorgue,Stade Brestois,23
+2026-02-21,W. Delajod,Lens,23
+2026-02-21,A. Kherradji,Paris SG,23
+2026-02-21,B. Millot,Toulouse,23
+2026-02-22,M. Vernice,Angers,23
+2026-02-22,G. Angoula,Auxerre,23
+2026-02-22,J. Pignard,Nantes,23
+2026-02-22,J. Stinat,Nice,23
+2026-02-22,R. Buquet,Strasbourg,23
+2026-02-27,C. Turpin,Strasbourg,24
+2026-02-28,M. Bollengier,Le Havre,24
+2026-02-28,G. Paradis,Monaco,24
+2026-02-28,S. Frappart,Rennes,24
+2026-03-01,T. Léonard,Lille,24
+2026-03-01,R. Buquet,Lorient,24
+2026-03-01,J. Brisard,Marseille,24
+2026-03-01,J. Stinat,Metz,24
+2026-03-01,H. Ben El Hadj,Paris FC,24
+2026-03-06,R. Buquet,Paris SG,25
+2026-03-07,J. Pignard,Auxerre,25
+2026-03-07,W. Delajod,Nantes,25
+2026-03-07,B. Dechepy,Toulouse,25
+2026-03-08,M. Vernice,Lens,25
+2026-03-08,A. Kherradji,Lille,25
+2026-03-08,E. Wattellier,Lyon,25
+2026-03-08,R. Lissorgue,Nice,25
+2026-03-08,B. Bastien,Stade Brestois,25
+2026-03-13,M. Bollengier,Marseille,26
+2026-03-14,F. Letexier,Angers,26
+2026-03-14,T. Léonard,Lorient,26
+2026-03-14,J. Pignard,Monaco,26
+2026-03-15,J. Stinat,Le Havre,26
+2026-03-15,G. Angoula,Metz,26
+2026-03-15,J. Brisard,Rennes,26
+2026-03-15,B. Millot,Strasbourg,26
