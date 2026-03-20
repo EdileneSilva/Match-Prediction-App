@@ -1,4 +1,7 @@
+![Match Prediction App](docs/match-prediction-banner.jpg)
+
 # Match Prediction App
+
 
 Application complète de prédiction de matchs de Ligue 1 avec :
 - 2 APIs FastAPI séparées (Application & ML)
@@ -173,12 +176,3 @@ Conséquence :
 
 ---
 
-## 8. Bannière / visuel pour le README
-
-Tu peux ajouter une bannière dans ce dossier (par exemple `docs/match-prediction-banner.png`) et l’afficher en haut du README :
-
-```markdown
-![Match Prediction App](docs/match-prediction-banner.png)
-```
-
-Idée de visuel : illustration d’un stade de football avec deux équipes face à face et un dashboard de prédiction (courbes, pourcentages), dans des tons bleu/violet comme l’UI du projet.
