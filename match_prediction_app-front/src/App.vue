@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NavigationBar />
+    <NavigationBar v-if="showNavbar" />
     <router-view/>
   </div>
 </template>
@@ -11,6 +11,12 @@ import NavigationBar from '@/components/NavigationBar.vue'
 export default {
   components: {
     NavigationBar
+  },
+  computed: {
+    showNavbar() {
+      const authPages = ['login', 'register', 'forgot-password', 'reset-password'];
+      return !authPages.includes(this.$route.name);
+    }
   }
 }
 </script>
