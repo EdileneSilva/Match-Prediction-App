@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
- <!-- Main Content -->
+    <!-- Main Content -->
     <main class="main-content">
       <div class="profile-container">
         <h1 class="page-title">Mon Profil</h1>
@@ -10,18 +10,40 @@
           <!-- Photo Section -->
           <div class="photo-section">
             <div class="photo-placeholder">
-              <img v-if="profileData.photo" :src="profileData.photo" alt="Photo" class="profile-photo">
+              <img
+                v-if="profileData.photo"
+                :src="profileData.photo"
+                alt="Photo"
+                class="profile-photo"
+              />
               <div v-else class="default-avatar">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z"
-                    fill="#999" />
-                  <path d="M12 14C7.59 14 4 17.59 4 22H20C20 17.59 16.41 14 12 14Z" fill="#999" />
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z"
+                    fill="#999"
+                  />
+                  <path
+                    d="M12 14C7.59 14 4 17.59 4 22H20C20 17.59 16.41 14 12 14Z"
+                    fill="#999"
+                  />
                 </svg>
               </div>
             </div>
             <div class="form-group">
               <label for="photo">Photo</label>
-              <input type="file" id="photo" @change="handlePhotoChange" accept="image/*" class="photo-input">
+              <input
+                type="file"
+                id="photo"
+                @change="handlePhotoChange"
+                accept="image/*"
+                class="photo-input"
+              />
             </div>
           </div>
 
@@ -29,26 +51,42 @@
           <div class="form-fields">
             <div class="form-group">
               <label for="name">Nom</label>
-              <input type="text" id="name" v-model="profileData.name" placeholder="Votre nom" class="form-input">
+              <input
+                type="text"
+                id="name"
+                v-model="profileData.username"
+                placeholder="Votre nom"
+                class="form-input"
+              />
             </div>
 
             <div class="form-group">
               <label for="email">Email</label>
-              <input type="email" id="email" v-model="profileData.email" placeholder="adresse@email.com"
-                class="form-input">
+              <input
+                type="email"
+                id="email"
+                v-model="profileData.email"
+                placeholder="adresse@email.com"
+                class="form-input"
+              />
             </div>
 
             <div class="form-group">
               <label for="password">Mot de passe</label>
-              <input type="password" id="password" v-model="profileData.password" placeholder="••••••••"
-                class="form-input">
+              <input
+                type="password"
+                id="password"
+                v-model="profileData.password"
+                placeholder="••••••••"
+                class="form-input"
+              />
             </div>
           </div>
 
           <!-- Action Buttons -->
           <div class="action-buttons">
             <button class="save-btn" @click="saveProfile" :disabled="isSaving">
-              {{ isSaving ? 'Enregistrement...' : 'Enregistrer modifications' }}
+              {{ isSaving ? "Enregistrement..." : "Enregistrer modifications" }}
             </button>
 
             <button class="delete-btn" @click="deleteAccount">
@@ -62,57 +100,85 @@
 </template>
 
 <script>
+import { apiClient } from "@/api/client";
+
 export default {
-  name: 'ProfileView',
+  name: "ProfileView",
   data() {
     return {
       isSaving: false,
       profileData: {
-        name: 'John Doe',
-        email: 'adresse@email.com',
-        password: '',
-        photo: null
-      }
-    }
+        username: "",
+        email: "",
+        password: "",
+        photo: null,
+      },
+    };
+  },
+  async mounted() {
+    await this.fetchProfile();
   },
   methods: {
+    async fetchProfile() {
+      try {
+        const data = await apiClient.get("/auth/me");
+        this.profileData.username = data.username;
+        this.profileData.email = data.email;
+      } catch (err) {
+        console.error("Erreur lors de la récupération du profil", err);
+      }
+    },
     handlePhotoChange(event) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
-          this.profileData.photo = e.target.result
-        }
-        reader.readAsDataURL(file)
+          this.profileData.photo = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     },
 
     async saveProfile() {
-      this.isSaving = true
-
-      // Simulate API call
-      setTimeout(() => {
-        this.isSaving = false
-        alert('Profil mis à jour avec succès!')
-      }, 1500)
+      this.isSaving = true;
+      try {
+        await apiClient.put("/auth/me", {
+          username: this.profileData.username,
+          email: this.profileData.email,
+        });
+        alert("Profil mis à jour avec succès!");
+      } catch (err) {
+        alert("Erreur: " + (err.message || "Inconnue"));
+      } finally {
+        this.isSaving = false;
+      }
     },
 
-    deleteAccount() {
-      if (confirm('Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.')) {
-        // Simulate account deletion
-        alert('Compte supprimé avec succès')
-        this.$router.push('/login')
+    async deleteAccount() {
+      if (
+        confirm(
+          "Êtes-vous sûr de vouloir supprimer votre compte? Cette action est irréversible.",
+        )
+      ) {
+        try {
+          await apiClient.delete("/auth/me");
+          alert("Compte supprimé avec succès");
+          localStorage.removeItem("token");
+          this.$router.push("/login");
+        } catch (err) {
+          alert("Erreur lors de la suppression: " + err.message);
+        }
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
 .dashboard {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Navigation (same as other views) */

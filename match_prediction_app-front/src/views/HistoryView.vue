@@ -144,148 +144,47 @@
 </template>
 
 <script>
+import { apiClient } from '@/api/client'
+
 export default {
   name: 'HistoryView',
   data() {
     return {
-      selectedFilter: 'all',
-      showDetails: {},
-      historyData: [
-        {
-          date: '12/03',
-          match: 'PSG - OM',
-          prediction: '2-1',
-          result: '1-1',
-          isCorrect: false
-        },
-        {
-          date: '11/03',
-          match: 'Lyon - Lille',
-          prediction: '1-0',
-          result: '1-0',
-          isCorrect: true
-        },
-        {
-          date: '10/03',
-          match: 'Monaco - Nice',
-          prediction: '3-1',
-          result: '2-1',
-          isCorrect: true
-        },
-        {
-          date: '09/03',
-          match: 'Marseille - Bordeaux',
-          prediction: '2-0',
-          result: '3-1',
-          isCorrect: false
-        },
-        {
-          date: '08/03',
-          match: 'Saint-Étienne - Nantes',
-          prediction: '1-1',
-          result: '1-2',
-          isCorrect: false
-        }
-      ]
+      historyData: [],
+      error: null
+    }
+  },
+  async mounted() {
+    try {
+      const data = await apiClient.get('/predictions/history')
+      this.historyData = data.map(item => ({
+        date: new Date(item.created_at).toLocaleDateString('fr-FR'),
+        match: `${item.home_team} - ${item.away_team}`,
+        prediction: this.formatResult(item.predicted_result),
+        confidence: (item.confidence_score * 100).toFixed(1) + '%',
+        isCorrect: true // On ne connaît pas encore le vrai résultat
+      }))
+    } catch (err) {
+      this.error = "Erreur lors de la récupération de l'historique"
+      console.error(err)
+    }
+  },
+  methods: {
+    formatResult(result) {
+      const mapping = {
+        'HOME_WIN': 'Victoire Domicile',
+        'AWAY_WIN': 'Victoire Extérieur',
+        'DRAW': 'Match Nul'
+      }
+      return mapping[result] || result
     }
   },
   computed: {
     globalScore() {
-      const correctPredictions = this.historyData.filter(p => p.isCorrect).length;
-      const totalPredictions = this.historyData.length;
-      return Math.round((correctPredictions / totalPredictions) * 100);
-    },
-    correctPredictions() {
-      return this.historyData.filter(p => p.isCorrect).length;
-    },
-    averageGoalDifference() {
-      const totalDiff = this.historyData.reduce((sum, p) => {
-        return sum + this.getTotalGoalDifference(p);
-      }, 0);
-      return (totalDiff / this.historyData.length).toFixed(1);
-    },
-    winnerAccuracy() {
-      const correctWinners = this.historyData.filter(p => 
-        this.getPredictedWinner(p) === this.getActualWinner(p)
-      ).length;
-      return Math.round((correctWinners / this.historyData.length) * 100);
-    },
-    filteredData() {
-      switch(this.selectedFilter) {
-        case 'correct':
-          return this.historyData.filter(p => p.isCorrect);
-        case 'incorrect':
-          return this.historyData.filter(p => !p.isCorrect);
-        case 'close':
-          return this.historyData.filter(p => this.getTotalGoalDifference(p) <= 2);
-        default:
-          return this.historyData;
-      }
-    }
-  },
-  methods: {
-    getGoalDifference(prediction) {
-      const predGoals = prediction.prediction.split('-').map(Number);
-      const realGoals = prediction.result.split('-').map(Number);
-      const homeDiff = Math.abs(predGoals[0] - realGoals[0]);
-      const awayDiff = Math.abs(predGoals[1] - realGoals[1]);
-      return `+${homeDiff + awayDiff}`;
-    },
-    getTotalGoalDifference(prediction) {
-      const predGoals = prediction.prediction.split('-').map(Number);
-      const realGoals = prediction.result.split('-').map(Number);
-      return Math.abs(predGoals[0] - realGoals[0]) + Math.abs(predGoals[1] - realGoals[1]);
-    },
-    getAccuracyPercentage(prediction) {
-      const totalDiff = this.getTotalGoalDifference(prediction);
-      if (totalDiff === 0) return 100;
-      if (totalDiff === 1) return 75;
-      if (totalDiff === 2) return 50;
-      if (totalDiff === 3) return 25;
-      return 10;
-    },
-    getDifferenceClass(prediction) {
-      const diff = this.getTotalGoalDifference(prediction);
-      if (diff === 0) return 'diff-perfect';
-      if (diff === 1) return 'diff-good';
-      if (diff === 2) return 'diff-average';
-      return 'diff-poor';
-    },
-    getRowClass(prediction) {
-      if (prediction.isCorrect) return 'row-correct';
-      const diff = this.getTotalGoalDifference(prediction);
-      if (diff <= 2) return 'row-close';
-      return 'row-incorrect';
-    },
-    getPredictionType(prediction) {
-      if (prediction.isCorrect) return '🎯 Score exact';
-      if (this.getPredictedWinner(prediction) === this.getActualWinner(prediction)) return '🏆 Vainqueur correct';
-      return '❌ Incorrect';
-    },
-    getPredictedWinner(prediction) {
-      const predGoals = prediction.prediction.split('-').map(Number);
-      if (predGoals[0] > predGoals[1]) return prediction.match.split(' - ')[0];
-      if (predGoals[1] > predGoals[0]) return prediction.match.split(' - ')[1];
-      return 'Match nul';
-    },
-    getActualWinner(prediction) {
-      const realGoals = prediction.result.split('-').map(Number);
-      if (realGoals[0] > realGoals[1]) return prediction.match.split(' - ')[0];
-      if (realGoals[1] > realGoals[0]) return prediction.match.split(' - ')[1];
-      return 'Match nul';
-    },
-    getPerformanceClass(prediction) {
-      const accuracy = this.getAccuracyPercentage(prediction);
-      if (accuracy >= 75) return 'performance-excellent';
-      if (accuracy >= 50) return 'performance-good';
-      if (accuracy >= 25) return 'performance-average';
-      return 'performance-poor';
-    },
-    getChartBarClass(prediction) {
-      return this.getPerformanceClass(prediction);
-    },
-    toggleDetails(index) {
-      this.$set(this.showDetails, index, !this.showDetails[index]);
+      if (this.historyData.length === 0) return 0
+      const correctPredictions = this.historyData.filter(p => p.isCorrect).length
+      const totalPredictions = this.historyData.length
+      return Math.round((correctPredictions / totalPredictions) * 100)
     }
   }
 }

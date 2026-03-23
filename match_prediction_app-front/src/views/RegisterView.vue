@@ -6,6 +6,10 @@
 </div>
       
       <h2 class="auth-title">Inscription</h2>
+
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
       
       <form class="auth-form" @submit.prevent="handleRegister">
         <div class="form-group">
@@ -72,6 +76,8 @@
 </template>
 
 <script>
+import { apiClient } from '@/api/client'
+
 export default {
   name: 'RegisterView',
   data() {
@@ -80,28 +86,33 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      agreeTerms: false
+      agreeTerms: false,
+      errorMessage: ''
     }
   },
   methods: {
-    handleRegister() {
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
-        alert('Les mots de passe ne correspondent pas')
+        this.errorMessage = 'Les mots de passe ne correspondent pas'
         return
       }
       
       if (!this.agreeTerms) {
-        alert('Vous devez accepter les conditions dutilisation')
+        this.errorMessage = 'Vous devez accepter les conditions d\'utilisation'
         return
       }
       
-      // Handle registration logic here
-      console.log('Registration attempt:', { 
-        name: this.name, 
-        email: this.email 
-      })
-      // Redirect to login after successful registration
-      this.$router.push('/login')
+      try {
+        await apiClient.post('/auth/register', {
+          username: this.name, // Nom complet utilisé comme username pour l'instant
+          email: this.email,
+          password: this.password
+        })
+        
+        this.$router.push('/login')
+      } catch (error) {
+        this.errorMessage = error.message
+      }
     }
   }
 }

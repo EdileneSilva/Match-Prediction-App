@@ -35,6 +35,21 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
   - `user` : gestion des comptes (username, email, hashed_password, is_active, created_at).
   - `prediction_history` : historique des prédictions par user (home/away team, predicted_result, confidence_score). Noms d'équipes en texte brut pour respecter la séparation inter-DB.
   - `user_favorite_team` : équipes favorites avec contrainte d'unicité (user_id, team_name).
+- Détail structure `footballapp_db` :
+  - `prediction_history` : `home_team_name` + `away_team_name` stockés en texte (pas de FK vers la DB ML), avec `confidence_score` en `NUMERIC(5,4)` pour garder une précision suffisante côté front.
+  - `user_favorite_team` : contrainte `UNIQUE (user_id, team_name)` pour éviter les doublons dans les favoris.
+
+### 2.1. Détail structure `footballprediction_db` (ML / Data)
+- Détail des tables ML à partir de `Data/MCD.sql` :
+  - `team` : référence des équipes (id, name).
+  - `match` : matchs (home_team_id, away_team_id, home_score, away_score, result) avec FK vers `team` pour les équipes domicile/extérieur.
+  - `team_match_stats` : statistiques par équipe et par match (match_id, team_id, is_home + features : goals, shots, shots_on_target, yellow_cards, red_cards, corners, fouls).
+
+### 2.2. Mise en place / déploiement des schémas
+- Les schémas sont fournis sous forme de scripts SQL :
+  - `Data/MCD.sql` pour créer `footballprediction_db` (DB ML/Data).
+  - `Data/MCD_app.sql` pour créer `footballapp_db` (DB Application).
+- Les scripts incluent `CREATE DATABASE` et `\c <db>` : ils sont pensés pour être exécutés une fois depuis `psql` avant de démarrer les deux API.
 
 ### 3. Implémentation de l'API Application (FastAPI + JWT)
 - Mise à jour du `FastAPI/.env` avec les URLs des deux bases de données (`DATABASE_APP_URL`, `DATABASE_ML_URL`) et les variables JWT.
@@ -136,3 +151,54 @@ Ce document retrace l'évolution du projet, les décisions techniques et les ét
   - `FastAPI_ML/` (ML API)
 - Chaque API dispose désormais de ses propres dépendances et ressources isolées.
 
+
+## Étape 7 : Intégration Frontend-Backend (feature/integration)
+### 1. Configuration Backend (App API & ML API)
+- Mise à jour de la configuration **CORS** dans FastAPI_App pour autoriser le frontend (ports 8080 et 5173).
+- Implémentation de la route /predictions/teams dans FastAPI_App (proxy vers ML API).
+- Implémentation du flux complet /predictions/predict : appel à la ML API et historisation dans footballapp_db.
+- Ajout de la route /teams dans FastAPI_ML pour exposer la liste des équipes.
+
+### 2. Développement Frontend (Vue.js)
+- Création d'un client API centralisé dans src/api/client.js (JWT & Base URL).
+- Branchement des vues LoginView, RegisterView, PredictionView et HistoryView aux endpoints réels.
+
+**État actuel :**
+- L'application est fonctionnelle de bout en bout (Auth -> Prédiction -> Historique).
+
+### Étape 8 : Implémentation des fonctionnalités Utilisateur (Profil, Reset, Suppression)
+- Création de la branche `feature/user-management`.
+- Backend (`FastAPI_App`) :
+    - Ajout des routes `PUT /auth/me`, `DELETE /auth/me`, `POST /auth/change-password`.
+    - Implémentation de la réinitialisation de mot de passe (Option C) : génération de token JWT court et affichage du lien de reset dans les logs console du backend.
+    - Mise à jour de `AuthService` et des schémas Pydantic.
+- Frontend (`match_prediction_app-front`) :
+    - Connexion de `ProfileView.vue` : récupération des données (`GET /auth/me`), mise à jour (`PUT /auth/me`) et suppression de compte (`DELETE /auth/me`).
+    - Implémentation du logout réel dans `NavigationBar.vue` (supprime le token et redirige).
+    - Changement du mot de passe via `ResetView.vue` en utilisant le token fourni.
+    - Création des vues `ForgotView.vue` et `ResetView.vue` pour le flux de mot de passe oublié.
+    - Ajout des liens dans `LoginView.vue` et routage sécurisé.
+
+---
+
+## Étape 9 : Assurance Qualité, Tests et Finalisation (19 Mars 2026)
+
+### 1. Mise en place de l'infrastructure de test
+- Configuration de `pytest` et `pytest-asyncio` pour le backend `FastAPI_App`.
+- Création de `conftest.py` avec une base SQLite en mémoire (`StaticPool`) pour des tests isolés et rapides.
+- Automatisation de la création des tables pour chaque session de test.
+
+### 2. Implémentation de la suite de tests (29 tests passés)
+- **Tests unitaires (`test_auth_service.py`)** : Couverture complète de la logique d'authentification, de hachage et de gestion des tokens.
+- **Tests d'intégration (`test_auth_routes.py`)** : Validation des endpoints d'inscription, connexion, profil, changement de mot de passe, statistiques et favoris.
+
+### 3. Nouvelles fonctionnalités Utilisateur
+- **Statistiques** : Route `GET /auth/me/stats` pour récupérer le nombre total de prédictions et de favoris.
+- **Favoris** : Endpoints CRUD (`GET`, `POST`, `DELETE`) pour gérer les équipes favorites de l'utilisateur.
+- **Alignement Modèles-Routes** : Correction des incohérences de noms de champs dans l'historique des prédictions.
+
+### 4. Correctifs techniques et Environnement
+- **Bcrypt** : Downgrade à la version 3.2.0 pour résoudre l'erreur `ValueError: password cannot be longer than 72 bytes` (incompatibilité entre `passlib` et `bcrypt >= 4.0`).
+- **Frontend** : Mise à jour du routeur pour inclure les vues de réinitialisation de mot de passe et de déconnexion. Correction d'erreurs de syntaxe dans `PredictionView.vue` et du mapping des données dans `HistoryView.vue`. Traduction de l'interface en français.
+
+**État Final :** Le projet est robuste, testé à 100% sur les fonctionnalités critiques, et entièrement opérationnel côté frontend.
