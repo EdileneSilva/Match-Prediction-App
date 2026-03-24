@@ -1,3 +1,9 @@
+import aiIcon from '@/assets/icons-ai2.png';
+import statsIcon from '@/assets/icons-bar-chart.png';
+import profileIcon from '@/assets/icons-profile.png';
+import soccerIcon from '@/assets/icons-soccer-ball.png';
+import targetIcon from '@/assets/icons-target.png';
+
 export const STATS = [
   { value: 94, suffix: '%', label: 'Précision moyenne' },
   { value: 150, suffix: 'K+', label: 'Prédictions réalisées' },
@@ -7,13 +13,13 @@ export const STATS = [
 
 export const FEATURES = [
   {
-    icon: '/src/assets/icons-ai2.png',
+    icon: aiIcon,
     title: 'IA Prédictive',
     desc: 'Modèles de deep learning entraînés sur des années de données historiques pour une précision maximale.',
     gradient: 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))'
   },
   {
-    icon: '/src/assets/icons-bar-chart.png',
+    icon: statsIcon,
     title: 'Analyses Détaillées',
     desc: 'Accédez à des statistiques poussées pour chaque match afin de prendre les meilleures décisions.',
     gradient: 'linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2))'
@@ -22,17 +28,17 @@ export const FEATURES = [
 
 export const STEPS = [
   {
-    icon: '/src/assets/icons-profile.png',
+    icon: profileIcon,
     title: 'Créez votre compte',
     desc: 'Inscription rapide et gratuite pour accéder à la plateforme.'
   },
   {
-    icon: '/src/assets/icons-soccer-ball.png',
+    icon: soccerIcon,
     title: 'Consultez les matchs',
     desc: 'Sélectionnez les rencontres qui vous intéressent parmi nos ligues disponibles.'
   },
   {
-    icon: '/src/assets/icons-target.png',
+    icon: targetIcon,
     title: 'Obtenez vos prédictions',
     desc: 'L\'IA analyse et vous fournit des probabilités de résultats détaillées.'
   }
