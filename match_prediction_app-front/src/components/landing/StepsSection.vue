@@ -127,7 +127,6 @@ h2 span.highlight {
   width: 45px;
   height: 45px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 
 h3 {

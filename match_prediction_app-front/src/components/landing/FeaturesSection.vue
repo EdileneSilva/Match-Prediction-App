@@ -111,7 +111,6 @@ h2 span {
   width: 40px;
   height: 40px;
   object-fit: contain;
-  filter: brightness(0) invert(1); /* Makes the icon white if it's black */
 }
 
 h3 {
