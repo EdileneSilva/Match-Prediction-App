@@ -58,13 +58,11 @@ h2 {
 }
 
 h2 span {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fbbf24;
 }
 
 p {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.25rem;
   max-width: 600px;
   margin: 0 auto 3rem;

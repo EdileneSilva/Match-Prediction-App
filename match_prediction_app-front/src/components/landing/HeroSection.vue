@@ -5,8 +5,11 @@ import { RouterLink } from 'vue-router';
 <template>
   <section class="hero">
     <div class="hero-container">
+      <div class="hero-image-top">
+        <img src="@/assets/Ballon.png" alt="Ballon" class="ballon-img" />
+      </div>
       <div class="hero-content">
-        <div class="badge">Predictly v2.0 est arrivé</div>
+        <div class="badge">Match Prediction v2.0 est arrivé</div>
         <h1>L'Intelligence Artificielle au service de vos <span>Victoires</span></h1>
         <p>Les prédictions de football les plus précises grâce à nos modèles d'IA avancés et l'analyse de données en temps réel.</p>
         <div class="hero-actions">
@@ -32,10 +35,29 @@ import { RouterLink } from 'vue-router';
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-image-top {
+  margin-bottom: 2rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.ballon-img {
+  max-width: 300px;
+  height: auto;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+  /* Ensure it blends if there's a white background */
+  mix-blend-mode: multiply;
 }
 
 .hero-content {
-  max-width: 700px;
+  max-width: 800px;
   position: relative;
   z-index: 2;
 }
@@ -43,10 +65,10 @@ import { RouterLink } from 'vue-router';
 .badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50px;
-  color: #a3bffa;
+  color: white;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 2rem;
@@ -61,14 +83,12 @@ h1 {
 }
 
 h1 span {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fbbf24; /* Use a golden/yellow for "Victoires" to stand out on purple */
 }
 
 p {
   font-size: 1.25rem;
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   margin-bottom: 2.5rem;
 }

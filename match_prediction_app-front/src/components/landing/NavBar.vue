@@ -6,8 +6,8 @@ import { RouterLink } from 'vue-router';
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-logo">
-        <div class="logo-icon">P</div>
-        <span>Predictly</span>
+        <div class="logo-icon">M</div>
+        <span>Match Prediction</span>
       </div>
       <div class="nav-links">
         <RouterLink to="/login" class="nav-link">Connexion</RouterLink>

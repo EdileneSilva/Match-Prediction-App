@@ -7,8 +7,8 @@ import { STEPS } from './constants';
     <div class="steps-container">
       <div class="section-header">
         <div class="section-badge">Processus</div>
-        <h2>Comment ça <span>marche</span> ?</h2>
-        <p>Trois étapes simples pour transformer vos analyses sportives.</p>
+        <h2>Comment ça <span class="highlight">marche</span> ?</h2>
+        <p class="section-desc">Trois étapes simples pour transformer vos analyses sportives.</p>
       </div>
 
       <div class="steps-grid">
@@ -62,14 +62,12 @@ h2 {
   font-weight: 800;
 }
 
-h2 span {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+h2 span.highlight {
+  color: #fbbf24;
 }
 
 .section-header p {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 1.15rem;
 }
 

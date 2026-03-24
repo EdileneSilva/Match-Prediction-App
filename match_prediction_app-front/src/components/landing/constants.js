@@ -13,22 +13,10 @@ export const FEATURES = [
     gradient: 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))'
   },
   {
-    icon: '⚡',
-    title: 'Temps Réel',
-    desc: 'Analyses mises à jour en direct pour suivre l\'évolution des probabilités pendant les matchs.',
-    gradient: 'linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2))'
-  },
-  {
     icon: '📊',
     title: 'Analyses Détaillées',
     desc: 'Accédez à des statistiques poussées pour chaque match afin de prendre les meilleures décisions.',
     gradient: 'linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2))'
-  },
-  {
-    icon: '🔔',
-    title: 'Alertes Intelligentes',
-    desc: 'Recevez des notifications pour les opportunités à forte probabilité détectées par notre IA.',
-    gradient: 'linear-gradient(135deg, rgba(250, 112, 154, 0.2), rgba(254, 225, 64, 0.2))'
   }
 ];
 

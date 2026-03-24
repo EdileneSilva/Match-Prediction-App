@@ -4,8 +4,8 @@
       <div class="footer-grid">
         <div class="footer-info">
           <div class="footer-logo">
-            <div class="logo-icon">P</div>
-            <span>Predictly</span>
+            <div class="logo-icon">M</div>
+            <span>Match Prediction</span>
           </div>
           <p>L'IA au service de l'analyse sportive de haut niveau.</p>
         </div>
@@ -37,7 +37,7 @@
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; {{ new Date().getFullYear() }} Predictly. Tous droits réservés.</p>
+        <p>&copy; {{ new Date().getFullYear() }} Match Prediction. Tous droits réservés.</p>
       </div>
     </div>
   </footer>
@@ -75,16 +75,18 @@
 .logo-icon {
   width: 35px;
   height: 35px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #fbbf24;
+  color: #764ba2;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
   font-size: 1rem;
 }
 
 .footer-info p {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
   max-width: 250px;
 }
@@ -107,7 +109,7 @@ ul li {
 }
 
 ul li a {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: color 0.3s ease;
   font-size: 0.95rem;

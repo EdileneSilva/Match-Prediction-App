@@ -61,14 +61,12 @@ h2 {
 }
 
 h2 span {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fbbf24;
 }
 
 .section-header p {
   font-size: 1.15rem;
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.6;
 }
 
@@ -116,7 +114,7 @@ h3 {
 }
 
 .feature-card p {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.6;
 }
 
