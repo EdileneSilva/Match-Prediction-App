@@ -15,7 +15,10 @@ import { STEPS } from './constants';
         <div v-for="(step, index) in STEPS" :key="index" class="step-item">
           <div class="step-icon-wrapper">
             <div class="step-number">{{ index + 1 }}</div>
-            <div class="step-icon">{{ step.icon }}</div>
+            <div class="step-icon">
+              <img v-if="step.icon.includes('/')" :src="step.icon" :alt="step.title" class="step-icon-img" />
+              <span v-else>{{ step.icon }}</span>
+            </div>
           </div>
           <h3>{{ step.title }}</h3>
           <p>{{ step.desc }}</p>
@@ -115,6 +118,16 @@ h2 span.highlight {
 
 .step-icon {
   font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon-img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 h3 {

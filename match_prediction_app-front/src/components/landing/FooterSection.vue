@@ -15,7 +15,6 @@
           <ul>
             <li><a href="#features">Fonctionnalités</a></li>
             <li><a href="#">Ligue 1</a></li>
-            <li><a href="#">Premier League</a></li>
           </ul>
         </div>
         
@@ -37,7 +36,7 @@
       </div>
       
       <div class="footer-bottom">
-        <p>&copy; {{ new Date().getFullYear() }} Match Prediction. Tous droits réservés.</p>
+        <p>&copy; {{ new Date().getFullYear() }} Match Prediction. Par team AI Mory Labs Tous droits réservés.</p>
       </div>
     </div>
   </footer>

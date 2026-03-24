@@ -7,13 +7,13 @@ export const STATS = [
 
 export const FEATURES = [
   {
-    icon: '🧠',
+    icon: '/src/assets/icons-ai2.png',
     title: 'IA Prédictive',
     desc: 'Modèles de deep learning entraînés sur des années de données historiques pour une précision maximale.',
     gradient: 'linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2))'
   },
   {
-    icon: '📊',
+    icon: '/src/assets/icons-bar-chart.png',
     title: 'Analyses Détaillées',
     desc: 'Accédez à des statistiques poussées pour chaque match afin de prendre les meilleures décisions.',
     gradient: 'linear-gradient(135deg, rgba(79, 172, 254, 0.2), rgba(0, 242, 254, 0.2))'
@@ -22,17 +22,17 @@ export const FEATURES = [
 
 export const STEPS = [
   {
-    icon: '📱',
+    icon: '/src/assets/icons-profile.png',
     title: 'Créez votre compte',
     desc: 'Inscription rapide et gratuite pour accéder à la plateforme.'
   },
   {
-    icon: '🎯',
+    icon: '/src/assets/icons-soccer-ball.png',
     title: 'Consultez les matchs',
     desc: 'Sélectionnez les rencontres qui vous intéressent parmi nos ligues disponibles.'
   },
   {
-    icon: '🏅',
+    icon: '/src/assets/icons-target.png',
     title: 'Obtenez vos prédictions',
     desc: 'L\'IA analyse et vous fournit des probabilités de résultats détaillées.'
   }
@@ -42,14 +42,14 @@ export const TESTIMONIALS = [
   {
     quote: 'La précision des prédictions foot est impressionnante. Un outil indispensable.',
     name: 'Ethan P.',
-    role: 'Analyste sportif',
+    role: 'boucher',
     initials: 'EP',
     color: 'linear-gradient(135deg, #667eea, #764ba2)'
   },
   {
     quote: 'L\'interface est intuitive et les résultats sont au rendez-vous. Je recommande.',
     name: 'Sarah A.',
-    role: 'Journaliste sportive',
+    role: 'Influenceuse foot',
     initials: 'SA',
     color: 'linear-gradient(135deg, #f093fb, #f5576c)'
   },
