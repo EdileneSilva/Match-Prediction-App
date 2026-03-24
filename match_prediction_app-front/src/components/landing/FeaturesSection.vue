@@ -94,9 +94,9 @@ h2 span {
 }
 
 .icon-box {
-  width: 70px;
-  height: 70px;
-  border-radius: 20px;
+  width: 90px;
+  height: 90px;
+  border-radius: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,8 +108,8 @@ h2 span {
 }
 
 .feature-icon-img {
-  width: 40px;
-  height: 40px;
+  width: 55px;
+  height: 55px;
   object-fit: contain;
 }
 
