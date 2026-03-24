@@ -6,11 +6,18 @@ import PredictionView from '../views/PredictionView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ForgotView from '../views/ForgotView.vue'
+import LandingView from '../views/LandingView.vue'
 import ResetView from '../views/ResetView.vue'
 
 const routes = [
   {
     path: '/',
+    name: 'landing',
+    component: LandingView,
+    meta: { guestOnly: true }
+  },
+  {
+    path: '/dashboard',
     name: 'home',
     component: HomeView,
     meta: { requiresAuth: true }

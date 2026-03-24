@@ -14,7 +14,7 @@ export default {
   },
   computed: {
     showNavbar() {
-      const authPages = ['login', 'register', 'forgot-password', 'reset-password'];
+      const authPages = ['landing', 'login', 'register', 'forgot-password', 'reset-password'];
       return !authPages.includes(this.$route.name);
     }
   }
