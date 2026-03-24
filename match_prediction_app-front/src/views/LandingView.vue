@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, nextTick } from 'vue';
 import NavBar from '@/components/landing/NavBar.vue';
 import HeroSection from '@/components/landing/HeroSection.vue';
 import StatsSection from '@/components/landing/StatsSection.vue';
@@ -10,7 +10,11 @@ import CtaSection from '@/components/landing/CtaSection.vue';
 import FooterSection from '@/components/landing/FooterSection.vue';
 
 onMounted(() => {
-  window.scrollTo(0, 0);
+  nextTick(() => {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }, 50);
+  });
 });
 </script>
 
