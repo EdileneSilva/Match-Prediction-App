@@ -41,10 +41,10 @@ onMounted(() => {
 }
 
 .landing-page {
-  background-color: #0f172a;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow-x: hidden;
 }
 
@@ -55,20 +55,5 @@ onMounted(() => {
 
 .secondary-btn {
   cursor: pointer;
-}
-
-/* Background elements for depth without heavy animations */
-.landing-page::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(118, 75, 162, 0.05) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 </style>

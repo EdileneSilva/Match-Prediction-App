@@ -64,13 +64,11 @@ h2 {
 }
 
 h2 span {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #fbbf24;
 }
 
 .section-header p {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 1.15rem;
 }
 
@@ -138,7 +136,7 @@ h2 span {
 }
 
 .user-role {
-  color: #a0aec0;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
 }
 
