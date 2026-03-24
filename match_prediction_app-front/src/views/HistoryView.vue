@@ -3,7 +3,49 @@
     <!-- Main Content -->
     <main class="main-content">
       <div class="history-container">
-        <h1 class="page-title">Historique des Prédictions</h1>
+        <h1 class="page-title">📊 Historique des Prédictions</h1>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-dashboard">
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ globalScore }}%</div>
+              <div class="stat-label">Précision globale</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ correctPredictions }}</div>
+              <div class="stat-label">Prédictions correctes</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ averageGoalDifference }}</div>
+              <div class="stat-label">Écart moyen de buts</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ winnerAccuracy }}%</div>
+              <div class="stat-label">Précision du vainqueur</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-container">
+          <select v-model="selectedFilter" class="filter-select">
+            <option value="all">Toutes les prédictions</option>
+            <option value="correct">Prédictions correctes</option>
+            <option value="incorrect">Prédictions incorrectes</option>
+            <option value="close">Prédictions proches</option>
+          </select>
+        </div>
 
         <!-- History Table -->
         <div class="table-container">
@@ -12,30 +54,89 @@
               <tr>
                 <th>Date</th>
                 <th>Match</th>
-                <th>Prédiction</th>
-                <th>Résultat</th>
-                <th>Statut</th>
+                <th>Prédiction IA</th>
+                <th>Résultat réel</th>
+                <th>Différence</th>
+                <th>Précision</th>
+                <th>Détails</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(prediction, index) in historyData" :key="index">
+              <tr v-for="(prediction, index) in filteredData" :key="index" 
+                  :class="getRowClass(prediction)">
                 <td>{{ prediction.date }}</td>
-                <td>{{ prediction.match }}</td>
-                <td>{{ prediction.prediction }}</td>
-                <td>{{ prediction.result }}</td>
-                <td class="status-cell">
-                  <span v-if="prediction.isCorrect" class="status-icon correct">✓</span>
-                  <span v-else class="status-icon incorrect">✗</span>
+                <td class="match-cell">{{ prediction.match }}</td>
+                <td class="prediction-cell">
+                  <span class="score-badge prediction">{{ prediction.prediction }}</span>
+                </td>
+                <td class="result-cell">
+                  <span class="score-badge result">{{ prediction.result }}</span>
+                </td>
+                <td class="difference-cell">
+                  <span :class="getDifferenceClass(prediction)">
+                    {{ getGoalDifference(prediction) }}
+                  </span>
+                </td>
+                <td class="accuracy-cell">
+                  <div class="accuracy-bar">
+                    <div class="accuracy-fill" :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
+                    <span class="accuracy-text">{{ getAccuracyPercentage(prediction) }}%</span>
+                  </div>
+                </td>
+                <td class="details-cell">
+                  <button @click="toggleDetails(index)" class="details-btn">
+                    {{ showDetails[index] ? 'Masquer' : 'Voir' }}
+                  </button>
+                </td>
+              </tr>
+              <!-- Expanded Details Row -->
+              <tr v-if="showDetails[index]" :key="'details-' + index" class="details-row">
+                <td colspan="7">
+                  <div class="prediction-details">
+                    <h4>📋 Analyse détaillée</h4>
+                    <div class="details-grid">
+                      <div class="detail-item">
+                        <span class="detail-label">Type de prédiction :</span>
+                        <span class="detail-value">{{ getPredictionType(prediction) }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Vainqueur prédit :</span>
+                        <span class="detail-value">{{ getPredictedWinner(prediction) }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Vainqueur réel :</span>
+                        <span class="detail-value">{{ getActualWinner(prediction) }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Écart total :</span>
+                        <span class="detail-value">{{ getTotalGoalDifference(prediction) }} buts</span>
+                      </div>
+                    </div>
+                    <div class="performance-indicator">
+                      <div class="indicator-label">Performance de l'IA</div>
+                      <div class="indicator-bar">
+                        <div class="indicator-fill" :class="getPerformanceClass(prediction)" 
+                             :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Global Score -->
-        <div class="global-score">
-          <span class="score-label">Score global : </span>
-          <span class="score-value">{{ globalScore }}%</span>
+        <!-- Performance Chart -->
+        <div class="chart-container">
+          <h3>📈 Évolution de la performance</h3>
+          <div class="performance-chart">
+            <div v-for="(prediction, index) in historyData" :key="index" 
+                 class="chart-bar"
+                 :class="getChartBarClass(prediction)">
+              <div class="bar-fill" :style="{height: getAccuracyPercentage(prediction) + '%'}"></div>
+              <div class="bar-label">{{ prediction.date }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -96,10 +197,9 @@ export default {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Main Content */
 .main-content {
   padding: 2rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -120,19 +220,84 @@ export default {
   text-align: center;
 }
 
+/* Statistics Dashboard */
+.stats-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Filters */
+.filters-container {
+  margin-bottom: 1.5rem;
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
 /* Table Styles */
 .table-container {
   overflow-x: auto;
   margin-bottom: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .history-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .history-table th {
@@ -141,7 +306,7 @@ export default {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -153,80 +318,224 @@ export default {
   font-size: 0.95rem;
 }
 
-.history-table tbody tr:hover {
-  background: rgba(102, 126, 234, 0.05);
+/* Row Classes */
+.row-correct {
+  background: rgba(40, 167, 69, 0.05);
 }
 
-.history-table tbody tr:last-child td {
-  border-bottom: none;
+.row-close {
+  background: rgba(255, 193, 7, 0.05);
 }
 
-/* Status Icons */
-.status-cell {
+.row-incorrect {
+  background: rgba(220, 53, 69, 0.05);
+}
+
+/* Cell Styles */
+.match-cell {
+  font-weight: 600;
+  color: #333;
+}
+
+.prediction-cell, .result-cell {
   text-align: center;
 }
 
-.status-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+.score-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 0.9rem;
 }
 
-.status-icon.correct {
-  background: #28a745;
-  color: white;
-}
-
-.status-icon.incorrect {
-  background: #dc3545;
-  color: white;
-}
-
-/* Global Score */
-.global-score {
-  text-align: center;
-  padding: 1.5rem;
+.score-badge.prediction {
   background: rgba(102, 126, 234, 0.1);
-  border-radius: 8px;
-  border: 2px solid rgba(102, 126, 234, 0.2);
+  color: #667eea;
+  border: 2px solid #667eea;
 }
 
-.score-label {
-  color: #555;
+.score-badge.result {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 2px solid #28a745;
+}
+
+.difference-cell {
+  text-align: center;
+  font-weight: bold;
+}
+
+.diff-perfect { color: #28a745; }
+.diff-good { color: #ffc107; }
+.diff-average { color: #fd7e14; }
+.diff-poor { color: #dc3545; }
+
+/* Accuracy Bar */
+.accuracy-cell {
+  padding: 0.5rem;
+}
+
+.accuracy-bar {
+  position: relative;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.accuracy-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #20c997);
+  transition: width 0.3s ease;
+}
+
+.accuracy-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Details Button */
+.details-btn {
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.details-btn:hover {
+  background: #5a6fd8;
+}
+
+/* Details Row */
+.details-row {
+  background: rgba(102, 126, 234, 0.02);
+}
+
+.prediction-details {
+  padding: 1.5rem;
+}
+
+.prediction-details h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
   font-size: 1.1rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.detail-value {
+  color: #333;
   font-weight: 500;
 }
 
-.score-value {
-  font-weight: bold;
-  color: #667eea;
-  font-size: 1.3rem;
+/* Performance Indicator */
+.performance-indicator {
+  margin-top: 1rem;
 }
 
-.logo-img {
-  height: 1.5rem;
-  width: auto;
+.indicator-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.indicator-bar {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.indicator-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.performance-excellent { background: linear-gradient(90deg, #28a745, #20c997); }
+.performance-good { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+.performance-average { background: linear-gradient(90deg, #fd7e14, #dc3545); }
+.performance-poor { background: #dc3545; }
+
+/* Performance Chart */
+.chart-container {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  text-align: center;
+}
+
+.performance-chart {
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+  height: 200px;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.02);
+  border-radius: 8px;
+}
+
+.chart-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  max-width: 60px;
+}
+
+.bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.bar-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #666;
+  text-align: center;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .nav-menu {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-  }
-
   .main-content {
     padding: 1rem;
   }
@@ -235,18 +544,30 @@ export default {
     padding: 1.5rem;
   }
 
+  .stats-dashboard {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
   .history-table {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .history-table th,
   .history-table td {
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.25rem;
   }
 
   .page-title {
     font-size: 1.5rem;
   }
 
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .performance-chart {
+    height: 150px;
+  }
 }
 </style>
