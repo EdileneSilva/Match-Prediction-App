@@ -73,6 +73,9 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // ⬇️ DÉSACTIVATION TEMPORAIRE DE L'AUTH — SUPPRIMER EN PRODUCTION
+  return next()
+
   const token = localStorage.getItem('token')
 
   if (to.meta.requiresAuth && !token) {

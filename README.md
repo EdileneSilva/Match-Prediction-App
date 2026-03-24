@@ -24,7 +24,7 @@ Ce README explique comment installer et lancer **les deux backends** et **le fro
 
 Créer les deux bases à partir des scripts SQL du dossier `Data/` :
 
-```bash
+```sh
 psql -U postgres -f Data/MCD.sql        # crée la base footballprediction_db (ML)
 psql -U postgres -f Data/MCD_app.sql    # crée la base footballapp_db (Application)
 ```
@@ -44,7 +44,7 @@ Cette API gère :
 
 Dans `FastAPI_App/`, créer un fichier `.env` :
 
-```bash
+```sh
 cd FastAPI_App
 cp .env.example .env  # si présent, sinon créer le fichier
 ```
@@ -60,7 +60,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 
 ### 3.2. Environnement virtuel & dépendances
 
-```bash
+```sh
 cd FastAPI_App
 python -m venv venv
 source venv/bin/activate
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 ### 3.3. Lancement de l’API Application
 
-```bash
+```sh
 cd FastAPI_App
 source venv/bin/activate
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -77,7 +77,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 Vérification :
 
-```bash
+```sh
 curl http://127.0.0.1:8000/health
 # -> {"status":"ok","service":"app-api"}
 ```
@@ -101,7 +101,7 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
 
 ### 4.2. Environnement virtuel & dépendances
 
-```bash
+```sh
 cd FastAPI_ML
 python -m venv venv
 source venv/bin/activate
@@ -110,7 +110,7 @@ pip install -r requirements.txt
 
 ### 4.3. Lancement de l’API ML
 
-```bash
+```sh
 cd FastAPI_ML
 source venv/bin/activate
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
@@ -118,7 +118,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 
 Vérification :
 
-```bash
+```sh
 curl http://127.0.0.1:8001/health
 # -> {"status":"ok","service":"ml-api"}
 ```
@@ -131,14 +131,14 @@ Ce projet Vue 3 consomme l’API Application (`http://localhost:8000`) via `src/
 
 ### 5.1. Installation des dépendances
 
-```bash
+```sh
 cd match_prediction_app-front
 npm install
 ```
 
 ### 5.2. Lancement du serveur de dev
 
-```bash
+```sh
 cd match_prediction_app-front
 npm run serve
 ```
@@ -175,4 +175,3 @@ Conséquence :
   - sa propre config `.env`.
 
 ---
-
