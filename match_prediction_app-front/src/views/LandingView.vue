@@ -10,8 +10,7 @@ import CtaSection from '@/components/landing/CtaSection.vue';
 import FooterSection from '@/components/landing/FooterSection.vue';
 
 onMounted(() => {
-  // Clear any potential leftover animations or canvas if needed
-  // For now, we just ensure a clean state
+  window.scrollTo(0, 0);
 });
 </script>
 
