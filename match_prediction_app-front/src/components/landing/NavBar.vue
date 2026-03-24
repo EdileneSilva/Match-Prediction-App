@@ -6,9 +6,12 @@ import { RouterLink } from 'vue-router';
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-logo">
-        <div class="logo-icon">M</div>
+        <div class="logo-icon">
+          <img src="@/assets/logo.png" alt="logo" />
+        </div>
         <span>Match Prediction</span>
       </div>
+
       <div class="nav-links">
         <RouterLink to="/login" class="nav-link">Connexion</RouterLink>
         <RouterLink to="/register" class="nav-btn">Essai Gratuit</RouterLink>
@@ -54,15 +57,21 @@ import { RouterLink } from 'vue-router';
 }
 
 .logo-icon {
-  width: 40px;
-  height: 40px;
+  width: 78px;
+  height: 78px;
   background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  overflow: hidden;
+}
+
+.logo-icon img {
+  width: 200%;
+  height: 200%;
+  object-fit: contain;
 }
 
 .nav-links {

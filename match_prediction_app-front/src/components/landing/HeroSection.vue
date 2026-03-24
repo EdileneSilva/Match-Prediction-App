@@ -9,7 +9,7 @@ import { RouterLink } from 'vue-router';
         <img src="@/assets/Ballon2.png" alt="Ballon" class="ballon-img" />
       </div>
       <div class="hero-content">
-        <div class="badge">Match Prediction v2.0 est arrivé</div>
+        <div class="badge">Match Prediction v1.0 est arrivé</div>
         <h1>L'Intelligence Artificielle au service de vos <span>Victoires</span></h1>
         <p>Les prédictions de football les plus précises grâce à nos modèles d'IA avancés et l'analyse de données en temps réel.</p>
         <div class="hero-actions">
@@ -48,12 +48,34 @@ import { RouterLink } from 'vue-router';
   justify-content: center;
 }
 
+.hero-image-top {
+  margin: 0 auto 3rem;
+  max-width: 1000px;
+  width: 95%;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  
+  /* Effet Néomorphisme sur le conteneur */
+  box-shadow: 
+    20px 20px 40px rgba(0, 0, 0, 0.25), 
+    -20px -20px 40px rgba(255, 255, 255, 0.05),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.1);
+    
+  transition: transform 0.3s ease;
+}
+
+.hero-image-top:hover {
+  transform: translateY(-5px);
+}
+
 .ballon-img {
-  max-width: 300px;
+  width: 100%;
   height: auto;
-  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
-  /* Ensure it blends if there's a white background */
-  mix-blend-mode: multiply;
+  display: block;
+  object-fit: cover; /* Remplit bien le rectangle */
 }
 
 .hero-content {
