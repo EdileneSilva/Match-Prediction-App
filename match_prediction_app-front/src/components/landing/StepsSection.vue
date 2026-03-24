@@ -77,7 +77,7 @@ h2 span.highlight {
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4rem;
+  gap: 6rem;
   position: relative;
 }
 
@@ -88,31 +88,32 @@ h2 span.highlight {
 }
 
 .step-icon-wrapper {
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 35px;
+  border-radius: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 2rem;
+  margin: 0 auto 2.5rem;
   position: relative;
 }
 
 .step-number {
   position: absolute;
-  top: -12px;
-  right: -12px;
-  width: 40px;
-  height: 40px;
+  top: -15px;
+  right: -15px;
+  width: 55px;
+  height: 55px;
   background: linear-gradient(135deg, #667eea, #764ba2);
-  border-radius: 12px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 800;
+  font-size: 1.2rem;
   box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
 }
 
@@ -124,8 +125,8 @@ h2 span.highlight {
 }
 
 .step-icon-img {
-  width: 65px;
-  height: 65px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 
@@ -143,7 +144,7 @@ h3 {
 
 .step-connector {
   position: absolute;
-  top: 60px;
+  top: 90px;
   right: -50%;
   width: 100%;
   height: 2px;
