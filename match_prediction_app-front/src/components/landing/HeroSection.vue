@@ -26,7 +26,7 @@ import { RouterLink } from 'vue-router';
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 100px 2rem 60px;
+  padding: 80px 2rem 40px;
   position: relative;
   overflow: hidden;
 }
@@ -42,15 +42,8 @@ import { RouterLink } from 'vue-router';
 }
 
 .hero-image-top {
-  margin-bottom: 2rem;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.hero-image-top {
-  margin: 0 auto 3rem;
-  max-width: 1000px;
+  margin: 0 auto 2rem;
+  max-width: 750px;
   width: 95%;
   border-radius: 25px;
   border: 1px solid rgba(255, 255, 255, 0.2);
