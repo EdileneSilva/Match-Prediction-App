@@ -1,34 +1,39 @@
 const API_BASE_URL = 'http://localhost:8000';
 
 async function request(endpoint, options = {}) {
-    const token = localStorage.getItem('token');
-    const headers = {
-        'Content-Type': 'application/json',
-        ...options.headers,
-    };
+  // ⬇️ Token désactivé — plus d'authentification
+  // const token = localStorage.getItem('token');
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
 
-    const config = {
-        ...options,
-        headers,
-    };
+  /*
+  // ⬇️ Bloc token désactivé
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  */
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Une erreur est survenue');
-    }
+  const config = {
+    ...options,
+    headers,
+  };
 
-    return response.json();
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Une erreur est survenue');
+  }
+
+  return response.json();
 }
 
 export const apiClient = {
-    get: (endpoint) => request(endpoint, { method: 'GET' }),
-    post: (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-    put: (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
-    delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
+  get: (endpoint) => request(endpoint, { method: 'GET' }),
+  post: (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
+  put: (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
 };
