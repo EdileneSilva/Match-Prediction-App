@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router';
   <section class="hero">
     <div class="hero-container">
       <div class="hero-image-top">
-        <img src="@/assets/Ballon.png" alt="Ballon" class="ballon-img" />
+        <img src="@/assets/Ballon2.png" alt="Ballon" class="ballon-img" />
       </div>
       <div class="hero-content">
         <div class="badge">Match Prediction v2.0 est arrivé</div>

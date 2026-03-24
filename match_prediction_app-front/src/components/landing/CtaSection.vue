@@ -7,7 +7,7 @@ import { RouterLink } from 'vue-router';
     <div class="cta-container">
       <div class="cta-card">
         <h2>Prêt à changer votre façon de <span>parier</span> ?</h2>
-        <p>Rejoignez des milliers de passionnés qui utilisent déjà Predictly pour optimiser leurs analyses sportives.</p>
+        <p>Rejoignez des milliers de passionnés qui utilisent déjà Match-Prediction pour optimiser leurs analyses sportives.</p>
         <div class="cta-actions">
           <RouterLink to="/register" class="primary-btn">Créer un compte gratuitement</RouterLink>
           <RouterLink to="/login" class="secondary-btn">Se connecter</RouterLink>
