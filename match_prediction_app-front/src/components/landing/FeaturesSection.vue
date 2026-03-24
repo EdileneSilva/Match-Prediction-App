@@ -14,7 +14,8 @@ import { FEATURES } from './constants';
       <div class="features-grid">
         <div v-for="(feature, index) in FEATURES" :key="index" class="feature-card">
           <div class="icon-box" :style="{ background: feature.gradient }">
-            <span class="feature-icon">{{ feature.icon }}</span>
+            <img v-if="feature.icon.includes('/')" :src="feature.icon" :alt="feature.title" class="feature-icon-img" />
+            <span v-else class="feature-icon">{{ feature.icon }}</span>
           </div>
           <h3>{{ feature.title }}</h3>
           <p>{{ feature.desc }}</p>
@@ -104,6 +105,13 @@ h2 span {
 
 .feature-icon {
   font-size: 2rem;
+}
+
+.feature-icon-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* Makes the icon white if it's black */
 }
 
 h3 {
