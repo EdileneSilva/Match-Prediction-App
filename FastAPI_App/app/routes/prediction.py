@@ -28,7 +28,8 @@ async def get_teams():
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
     request: PredictionRequest,
-    current_user: User = Depends(get_current_user),
+    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
+    # current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     # 1. Appel à l'API ML
@@ -58,9 +59,9 @@ async def predict_match(
                 detail=f"Erreur de communication avec le service ML: {str(e)}"
             )
 
-    # 2. Enregistrement dans l'historique
+    # 2. Enregistrement dans l'historique (user_id=1 en mode dev sans auth)
     new_prediction = PredictionHistory(
-        user_id=current_user.id,
+        user_id=1,
         home_team_name=request.home_team_name,
         away_team_name=request.away_team_name,
         predicted_result=ml_data["predicted_result"],
@@ -77,10 +78,12 @@ async def predict_match(
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    current_user: User = Depends(get_current_user),
+    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
+    # current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).all()
+    # Retourne tout l'historique en mode dev (sans filtre par user)
+    return db.query(PredictionHistory).all()
 
 def register_routes(app):
     app.include_router(router)

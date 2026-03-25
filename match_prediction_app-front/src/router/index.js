@@ -6,11 +6,18 @@ import PredictionView from '../views/PredictionView.vue'
 import HistoryView from '../views/HistoryView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ForgotView from '../views/ForgotView.vue'
+import LandingView from '../views/LandingView.vue'
 import ResetView from '../views/ResetView.vue'
 
 const routes = [
   {
     path: '/',
+    name: 'landing',
+    component: LandingView,
+    meta: { guestOnly: true }
+  },
+  {
+    path: '/dashboard',
     name: 'home',
     component: HomeView,
     meta: { requiresAuth: true }
@@ -69,7 +76,14 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 router.beforeEach((to, from, next) => {

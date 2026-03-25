@@ -14,3 +14,8 @@ __pycache__/
 
 # Cache de pytest
 .pytest_cache/
+
+# Bases de données SQLite
+*.db
+FastAPI_App/*.db
+FastAPI_ML/*.db
