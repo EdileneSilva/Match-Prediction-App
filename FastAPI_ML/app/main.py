@@ -31,26 +31,24 @@ db = SessionLocal()
 try:
     if db.query(Team).count() == 0:
         teams = [
-            Team(id=1, name="Arsenal"),
-            Team(id=2, name="Aston Villa"),
-            Team(id=3, name="Bournemouth"),
-            Team(id=4, name="Brentford"),
-            Team(id=5, name="Brighton"),
-            Team(id=6, name="Chelsea"),
-            Team(id=7, name="Crystal Palace"),
-            Team(id=8, name="Everton"),
-            Team(id=9, name="Fulham"),
-            Team(id=10, name="Liverpool"),
-            Team(id=11, name="Man City"),
-            Team(id=12, name="Man United"),
-            Team(id=13, name="Newcastle"),
-            Team(id=14, name="Nottingham Forest"),
-            Team(id=15, name="Sheffield United"),
-            Team(id=16, name="Tottenham"),
-            Team(id=17, name="West Ham"),
-            Team(id=18, name="Wolves"),
-            Team(id=19, name="Luton"),
-            Team(id=20, name="Burnley")
+            Team(id=1, name="Paris Saint-Germain"),
+            Team(id=2, name="Monaco"),
+            Team(id=3, name="Brest"),
+            Team(id=4, name="Lille"),
+            Team(id=5, name="Nice"),
+            Team(id=6, name="Lyon"),
+            Team(id=7, name="Lens"),
+            Team(id=8, name="Marseille"),
+            Team(id=9, name="Reims"),
+            Team(id=10, name="Rennes"),
+            Team(id=11, name="Toulouse"),
+            Team(id=12, name="Montpellier"),
+            Team(id=13, name="Strasbourg"),
+            Team(id=14, name="Le Havre"),
+            Team(id=15, name="Nantes"),
+            Team(id=16, name="Angers"),
+            Team(id=17, name="Saint-Étienne"),
+            Team(id=18, name="Auxerre")
         ]
         db.add_all(teams)
         db.commit()
