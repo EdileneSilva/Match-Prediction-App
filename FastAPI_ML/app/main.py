@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from .routes.predict import register_routes
-
-
 from .core.config import settings
 
 app = FastAPI(

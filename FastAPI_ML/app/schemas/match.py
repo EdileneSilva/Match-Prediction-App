@@ -22,14 +22,9 @@ class Match(MatchBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class PredictionRequest(BaseModel):
-    home_team_id: int
-    away_team_id: int
-
-
 class PredictionResponse(BaseModel):
     home_team_id: int
     away_team_id: int
-    predicted_result: str  # e.g., "HOME_WIN", "AWAY_WIN", "DRAW"
+    predicted_result: str
     confidence_score: float
 
