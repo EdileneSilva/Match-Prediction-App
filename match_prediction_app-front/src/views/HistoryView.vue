@@ -62,66 +62,67 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(prediction, index) in filteredData" :key="index" 
-                  :class="getRowClass(prediction)">
-                <td>{{ prediction.date }}</td>
-                <td class="match-cell">{{ prediction.match }}</td>
-                <td class="prediction-cell">
-                  <span class="score-badge prediction">{{ prediction.prediction }}</span>
-                </td>
-                <td class="result-cell">
-                  <span class="score-badge result">{{ prediction.result }}</span>
-                </td>
-                <td class="difference-cell">
-                  <span :class="getDifferenceClass(prediction)">
-                    {{ getGoalDifference(prediction) }}
-                  </span>
-                </td>
-                <td class="accuracy-cell">
-                  <div class="accuracy-bar">
-                    <div class="accuracy-fill" :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
-                    <span class="accuracy-text">{{ getAccuracyPercentage(prediction) }}%</span>
-                  </div>
-                </td>
-                <td class="details-cell">
-                  <button @click="toggleDetails(index)" class="details-btn">
-                    {{ showDetails[index] ? 'Masquer' : 'Voir' }}
-                  </button>
-                </td>
-              </tr>
-              <!-- Expanded Details Row -->
-              <tr v-if="showDetails[index]" :key="'details-' + index" class="details-row">
-                <td colspan="7">
-                  <div class="prediction-details">
-                    <h4>📋 Analyse détaillée</h4>
-                    <div class="details-grid">
-                      <div class="detail-item">
-                        <span class="detail-label">Type de prédiction :</span>
-                        <span class="detail-value">{{ getPredictionType(prediction) }}</span>
+              <template v-for="(prediction, index) in filteredData" :key="index">
+                <tr :class="getRowClass(prediction)">
+                  <td>{{ prediction.date }}</td>
+                  <td class="match-cell">{{ prediction.match }}</td>
+                  <td class="prediction-cell">
+                    <span class="score-badge prediction">{{ prediction.prediction }}</span>
+                  </td>
+                  <td class="result-cell">
+                    <span class="score-badge result">{{ prediction.result }}</span>
+                  </td>
+                  <td class="difference-cell">
+                    <span :class="getDifferenceClass(prediction)">
+                      {{ getGoalDifference(prediction) }}
+                    </span>
+                  </td>
+                  <td class="accuracy-cell">
+                    <div class="accuracy-bar">
+                      <div class="accuracy-fill" :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
+                      <span class="accuracy-text">{{ getAccuracyPercentage(prediction) }}%</span>
+                    </div>
+                  </td>
+                  <td class="details-cell">
+                    <button @click="toggleDetails(index)" class="details-btn">
+                      {{ showDetails[index] ? 'Masquer' : 'Voir' }}
+                    </button>
+                  </td>
+                </tr>
+                <!-- Expanded Details Row -->
+                <tr v-if="showDetails[index]" :key="'details-' + index" class="details-row">
+                  <td colspan="7">
+                    <div class="prediction-details">
+                      <h4>📋 Analyse détaillée</h4>
+                      <div class="details-grid">
+                        <div class="detail-item">
+                          <span class="detail-label">Type de prédiction :</span>
+                          <span class="detail-value">{{ getPredictionType(prediction) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Vainqueur prédit :</span>
+                          <span class="detail-value">{{ getPredictedWinner(prediction) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Vainqueur réel :</span>
+                          <span class="detail-value">{{ getActualWinner(prediction) }}</span>
+                        </div>
+                        <div class="detail-item">
+                          <span class="detail-label">Écart total :</span>
+                          <span class="detail-value">{{ getTotalGoalDifference(prediction) }} buts</span>
+                        </div>
                       </div>
-                      <div class="detail-item">
-                        <span class="detail-label">Vainqueur prédit :</span>
-                        <span class="detail-value">{{ getPredictedWinner(prediction) }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="detail-label">Vainqueur réel :</span>
-                        <span class="detail-value">{{ getActualWinner(prediction) }}</span>
-                      </div>
-                      <div class="detail-item">
-                        <span class="detail-label">Écart total :</span>
-                        <span class="detail-value">{{ getTotalGoalDifference(prediction) }} buts</span>
+                      <div class="performance-indicator">
+                        <div class="indicator-label">Performance de l'IA</div>
+                        <div class="indicator-bar">
+                          <div class="indicator-fill" :class="getPerformanceClass(prediction)" 
+                               :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
+                        </div>
                       </div>
                     </div>
-                    <div class="performance-indicator">
-                      <div class="indicator-label">Performance de l'IA</div>
-                      <div class="indicator-bar">
-                        <div class="indicator-fill" :class="getPerformanceClass(prediction)" 
-                             :style="{width: getAccuracyPercentage(prediction) + '%'}"></div>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>
