@@ -14,8 +14,7 @@ router = APIRouter(prefix="/predictions", tags=["Predictions"])
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
     request: PredictionRequest,
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
@@ -56,10 +55,10 @@ async def predict_match(
                 detail=f"Erreur de communication avec le service ML: {str(e)}"
             )
 
-    # 3. Enregistrement dans l'historique (user_id=1 en mode dev sans auth)
+    # 3. Enregistrement dans l'historique
     # On utilise prediction et confidence (nouveaux noms)
     new_prediction = PredictionHistory(
-        user_id=1,
+        user_id=current_user.id,
         home_team_name=home_team.name,
         away_team_name=away_team.name,
         prediction=ml_data.get("prediction"),
@@ -76,11 +75,10 @@ async def predict_match(
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    return db.query(PredictionHistory).all()
+    return db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).all()
 
 def register_routes(app):
     app.include_router(router)
