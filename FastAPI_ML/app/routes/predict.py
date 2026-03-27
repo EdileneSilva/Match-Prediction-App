@@ -16,9 +16,18 @@ def get_teams(db: Session = Depends(get_db)):
 @router.post("/predict")
 def predict(request: MatchRequest):
     """
-    Endpoint de prédiction ML.
-    Attend home_team, away_team, referee, season, round.
-    Retourne la prédiction, la confiance et les probabilités.
+    **Générer une Prédiction ML**
+    
+    Évalue l'issue probable du match en s'appuyant sur notre modèle Stacking
+    (combinant RandomForest, XGBoost, et Régression Logistique).
+    
+    - **home_team** : Nom de l'équipe à domicile.
+    - **away_team** : Nom de l'équipe à l'extérieur.
+    - **referee** : Nom de l'arbitre principal.
+    - **season** : Année de début de la saison (ex: 2024).
+    - **round** : Numéro de la journée du championnat.
+    
+    Retourne la `prediction`, la `confidence` globale, et les probabilités par issue.
     """
     prediction_result = ml_service.predict_match(
         request.home_team, 

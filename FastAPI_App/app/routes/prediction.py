@@ -18,7 +18,13 @@ async def predict_match(
     db: Session = Depends(get_db)
 ):
     """
-    Récupère les noms des équipes par ID, puis appelle l'API ML pour la prédiction.
+    **Effectuer une prédiction de match.**
+    
+    Prend en entrée les IDs des équipes domicile/extérieur via le frontend.
+    L'API traduit ces IDs en noms complets, puis appelle le modèle ML.
+    Le résultat de la prédiction est sauvegardé dans l'historique de l'utilisateur.
+    
+    *Nécessite d'être authentifié (Token JWT).*
     """
     # 1. Mapping IDs -> Noms
     from ..models.team import Team
@@ -78,6 +84,14 @@ def get_prediction_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    """
+    **Consulter l'historique des prédictions.**
+    
+    Retourne la liste des prédictions effectuées par l'utilisateur connecté,
+    incluant l'équipe domicile, l'équipe extérieur, le résultat prédit et l'indice de confiance.
+    
+    *Nécessite d'être authentifié (Token JWT).*
+    """
     return db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).all()
 
 def register_routes(app):
