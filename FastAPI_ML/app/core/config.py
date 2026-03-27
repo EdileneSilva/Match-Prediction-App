@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv(
         "DATABASE_ML_URL", 
-        "sqlite:///./ml_app.db"
+        "postgresql://postgres:postgres@localhost:5432/footballml_db"
     )
     
     CORS_ORIGINS: list = ["*"]

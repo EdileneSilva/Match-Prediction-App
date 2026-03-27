@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     
     DATABASE_URL: str = os.getenv(
         "DATABASE_APP_URL", 
-        "sqlite:///./app.db"
+        "postgresql://postgres:postgres@localhost:5432/footballapp_db"
     )
     
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me")
