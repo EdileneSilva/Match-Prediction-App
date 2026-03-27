@@ -39,8 +39,8 @@ class PredictionHistoryOut(BaseModel):
     id: int
     home_team_name: str
     away_team_name: str
-    predicted_result: Optional[str]
-    confidence_score: Optional[float]
+    prediction: Optional[str]
+    confidence: Optional[float]
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,14 +1,13 @@
 from pydantic import BaseModel
-
+from typing import Union
 
 class PredictionRequest(BaseModel):
     home_team_id: int
     away_team_id: int
-    home_team_name: str
-    away_team_name: str
-
+    referee: str = "TBD"
+    season: Union[str, int] = "2023-24"
+    round: int = 1
 
 class PredictionResponse(BaseModel):
-    predicted_result: str
-    confidence_score: float
-
+    prediction: str
+    confidence: float

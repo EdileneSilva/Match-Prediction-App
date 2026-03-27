@@ -26,8 +26,8 @@ class PredictionHistory(Base):
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     home_team_name = Column(String(100), nullable=False)
     away_team_name = Column(String(100), nullable=False)
-    predicted_result = Column(String(10), nullable=True)
-    confidence_score = Column(Numeric(5, 4), nullable=True)
+    prediction = Column(String(10), nullable=True)
+    confidence = Column(Numeric(5, 4), nullable=True)
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="prediction_history")

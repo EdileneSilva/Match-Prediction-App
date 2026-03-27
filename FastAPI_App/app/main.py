@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from .routes.base import register_routes
 
@@ -51,6 +53,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Montage du dossier statique pour les logos
+static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")
+os.makedirs(static_path, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 from .database import engine, Base, SessionLocal
 from .models.user import User

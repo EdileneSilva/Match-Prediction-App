@@ -11,42 +11,38 @@ from ..core.config import settings
 
 router = APIRouter(prefix="/predictions", tags=["Predictions"])
 
-@router.get("/teams")
-async def get_teams():
-    async with httpx.AsyncClient() as client:
-        try:
-            ml_url = f"http://localhost:8001/teams"
-            response = await client.get(ml_url)
-            response.raise_for_status()
-            return response.json()
-        except httpx.HTTPError as e:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Erreur de communication avec le service ML: {str(e)}"
-            )
-
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
     request: PredictionRequest,
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # 1. Appel à l'API ML
-    # Note: On suppose ici que le frontend envoie les IDs des équipes (que l'on récupérera via GET /teams de ML API via APP API proxy ou direct)
-    # Pour l'instant, simplifions : on cherche les IDs via FastAPI_ML/teams si besoin, 
-    # ou le frontend les a déjà. Admettons que le frontend envoie des IDs.
-    # On va modifier le schéma PredictionRequest pour accepter les IDs.
-    
+    """
+    Récupère les noms des équipes par ID, puis appelle l'API ML pour la prédiction.
+    """
+    # 1. Mapping IDs -> Noms
+    from ..models.team import Team
+    home_team = db.query(Team).filter(Team.id == request.home_team_id).first()
+    away_team = db.query(Team).filter(Team.id == request.away_team_id).first()
+
+    if not home_team or not away_team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="L'une ou les deux équipes sont introuvables dans la base de données."
+        )
+
+    # 2. Appel à l'API ML
     async with httpx.AsyncClient() as client:
         try:
-            # On simule l'appel à l'API ML
-            # ML_API_URL devrait être dans settings
+            # On utilise le nom complet pour l'API ML
             ml_url = f"http://localhost:8001/predict" 
             
             ml_request = {
-                "home_team_id": request.home_team_id,
-                "away_team_id": request.away_team_id
+                "home_team": home_team.name,
+                "away_team": away_team.name,
+                "referee": request.referee,
+                "season": request.season,
+                "round": request.round
             }
             
             response = await client.post(ml_url, json=ml_request)
@@ -59,31 +55,30 @@ async def predict_match(
                 detail=f"Erreur de communication avec le service ML: {str(e)}"
             )
 
-    # 2. Enregistrement dans l'historique (user_id=1 en mode dev sans auth)
+    # 3. Enregistrement dans l'historique
+    # On utilise prediction et confidence (nouveaux noms)
     new_prediction = PredictionHistory(
-        user_id=1,
-        home_team_name=request.home_team_name,
-        away_team_name=request.away_team_name,
-        predicted_result=ml_data["predicted_result"],
-        confidence_score=ml_data["confidence_score"]
+        user_id=current_user.id,
+        home_team_name=home_team.name,
+        away_team_name=away_team.name,
+        prediction=ml_data.get("prediction"),
+        confidence=ml_data.get("confidence")
     )
     db.add(new_prediction)
     db.commit()
     db.refresh(new_prediction)
 
     return {
-        "predicted_result": ml_data["predicted_result"],
-        "confidence_score": ml_data["confidence_score"]
+        "prediction": ml_data.get("prediction"),
+        "confidence": ml_data.get("confidence")
     }
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Retourne tout l'historique en mode dev (sans filtre par user)
-    return db.query(PredictionHistory).all()
+    return db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).all()
 
 def register_routes(app):
     app.include_router(router)

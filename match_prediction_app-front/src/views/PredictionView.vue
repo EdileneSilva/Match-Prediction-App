@@ -124,10 +124,10 @@ export default {
         // ou on adapte si possible.
         
         this.predictionResult = {
-          team1Win: response.predicted_result === 'HOME_WIN' ? response.confidence_score * 100 : (1 - response.confidence_score) * 50,
-          draw: response.predicted_result === 'DRAW' ? response.confidence_score * 100 : (1 - response.confidence_score) * 20,
-          team2Win: response.predicted_result === 'AWAY_WIN' ? response.confidence_score * 100 : (1 - response.confidence_score) * 30,
-          probableScore: "N/A" // Pas encore géré par le modèle stub
+          team1Win: response.prediction === 'HOME_WIN' ? response.confidence * 100 : (1 - response.confidence) * 50,
+          draw: response.prediction === 'DRAW' ? response.confidence * 100 : (1 - response.confidence) * 20,
+          team2Win: response.prediction === 'AWAY_WIN' ? response.confidence * 100 : (1 - response.confidence) * 30,
+          probableScore: "N/A"
         }
 
         // Normalisation à 100%
