@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
+from ..schemas.request import MatchRequest
 from ..database import get_db
-from ..schemas.match import PredictionRequest, PredictionResponse
 from ..schemas.team import Team as TeamSchema
 from ..services.ml_service import ml_service
 from ..models.match import Team
@@ -13,23 +13,32 @@ router = APIRouter(tags=["ML Prediction"])
 def get_teams(db: Session = Depends(get_db)):
     return db.query(Team).all()
 
-@router.post("/predict", response_model=PredictionResponse)
-def predict(request: PredictionRequest, db: Session = Depends(get_db)):
+@router.post("/predict")
+def predict(request: MatchRequest, db: Session = Depends(get_db)):
+    
     # Vérification que les équipes existent
-    home_team = db.query(Team).filter(Team.id == request.home_team_id).first()
-    away_team = db.query(Team).filter(Team.id == request.away_team_id).first()
+    # home_team = db.query(Team).filter(Team.id == request.home_team_id).first()
+    # away_team = db.query(Team).filter(Team.id == request.away_team_id).first()
     
-    if not home_team or not away_team:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="L'une ou les deux équipes sont introuvables."
-        )
+    # if not home_team or not away_team:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="L'une ou les deux équipes sont introuvables."
+    #     )
     
-    prediction = ml_service.predict_match(request.home_team_id, request.away_team_id)
+    prediction = ml_service.predict_match(
+        request.home_team, 
+        request.away_team,
+        request.referee,
+        request.season,
+        request.round,
+    )
     
     return {
-        "home_team_id": request.home_team_id,
-        "away_team_id": request.away_team_id,
+        "home_team": request.home_team,
+        "away_team": request.away_team,
+        "season": request.season,
+        "round": request.round,
         **prediction
     }
 
