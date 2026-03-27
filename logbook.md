@@ -29,7 +29,15 @@
 
 ---
 
-## Sprint précédent — Branche `data/seed-teams` (27 mars 2026)
+### Dernière Session (Documentation & Tests)
+**Objectif**: Réécrire le README pour une installation en < 15 min, enrichir la documentation Swagger OpenAPI, et intégrer la suite de tests complète (37 tests).
+- Création de la branche `docs/readme-and-api`
+- Réécriture exhaustive du `README.md`
+- Documentation de tous les endpoints dans `FastAPI_App` et `FastAPI_ML` via Swagger (`tags_metadata`, descriptions explicites)
+- Fusion de la branche `feature/tests` et validation locale avec DB en mémoire (`sqlite:///:memory:`)
+- Push de la branche sur GitHub et génération de la description pour la Pull Request
+
+### Sprint M (Sécurité, CI/CD, Déploiement) — Branche `data/seed-teams` (27 mars 2026)
 
 ### ☁️ Migration PostgreSQL
 
