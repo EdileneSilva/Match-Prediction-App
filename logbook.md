@@ -1,3 +1,53 @@
+# Logbook - Match Prediction App
+
+---
+
+## Sprint actuel — Branche `feature/tests` (27 mars 2026)
+
+### 🧪 Suite de tests complète (37 tests — 100% passed)
+
+**FastAPI_App (34 tests)**
+
+- `test_auth_routes.py` : Tests fonctionnels de toutes les routes `/auth/*` (inscription, login, profil, favoris, mot de passe, stats)
+- `test_auth_service.py` : Tests unitaires de la logique métier d'authentification
+- `test_prediction_flow.py` : Tests d'intégration du flux de prédiction (mapping ID→Nom, 401 sans token, erreur ML 503)
+- `test_e2e_scenarios.py` : Scénario complet — Inscription → Login → Prédiction → Historique → Stats
+
+**FastAPI_ML (3 tests)**
+
+- Health check, prédiction valide, validation des champs requis
+
+### 🔐 Authentification réactivée
+
+- Les routes `/predictions/predict` et `/predictions/history` requièrent un token JWT
+- L'historique est désormais **isolé par utilisateur** (fin du `user_id=1` hardcodé)
+
+### 🐛 Corrections
+
+- Migration PostgreSQL → SQLite en mémoire pour l'isolation des tests
+- `bcrypt` downgradé en `4.0.1` pour compatibilité avec `passlib`
+
+---
+
+## Sprint précédent — Branche `data/seed-teams` (27 mars 2026)
+
+### ☁️ Migration PostgreSQL
+
+- Deux bases distinctes : `footballapp_db` (FastAPI_App) et `footballml_db` (FastAPI_ML)
+- Mise à jour des `DATABASE_URL` dans les `config.py`
+
+### ⚽ Équipes Ligue 1
+
+- Modèle `Team` avec `name`, `short_name`, `logo_url`
+- Script `seed_teams.py` + service statique pour les logos (`/static/logos/`)
+
+### 🔁 Standardisation API
+
+- Champs uniformisés : `prediction` et `confidence` partout (App + ML + Frontend)
+- `FastAPI_App` agit comme proxy métier : reçoit des IDs, mappe vers des noms, appelle le ML
+
+---
+
 # Logbook - Feature: Futuristic Landing Page & Team Dev Access
 
 Ce logbook résume les modifications apportées à la branche `feature/futuristic-landing-page` pour optimiser le pipeline de prédiction et permettre un accès de développement facilité pour l'équipe.
