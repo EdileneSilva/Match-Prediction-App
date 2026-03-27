@@ -1,9 +1,94 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { RouterLink } from 'vue-router';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const heroRef = ref(null);
+let ctx;
+
+onMounted(() => {
+  ctx = gsap.context(() => {
+    // 1. Text Reveal with SplitType (Premium Mask Reveal)
+    const h1Element = heroRef.value.querySelector('h1');
+    const title = new SplitType(h1Element, { types: 'lines, words' });
+    
+    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+
+    // Ensure lines mask the words sliding up
+    gsap.set(title.lines, { overflow: 'hidden' });
+
+    // Initial state
+    gsap.set('.badge', { y: 20, opacity: 0 });
+    gsap.set(title.words, { y: 100, opacity: 0 });
+    gsap.set('p', { y: 20, opacity: 0 });
+    gsap.set('.hero-actions .primary-btn, .hero-actions .secondary-btn', { y: 20, opacity: 0 });
+    gsap.set('.hero-image-top', { clipPath: 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)' });
+    gsap.set('.ballon-img', { scale: 1.2 });
+
+    // Entrance Animation
+    tl.to('.hero-image-top', { 
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', 
+      duration: 1.5,
+      ease: 'power3.inOut'
+    })
+    .to('.ballon-img', {
+      scale: 1,
+      duration: 1.5,
+      ease: 'power3.inOut'
+    }, '<')
+    .to('.badge', {
+      y: 0,
+      opacity: 1,
+      duration: 0.8
+    }, '-=0.8')
+    .to(title.words, {
+      y: 0,
+      opacity: 1,
+      stagger: 0.05,
+      duration: 0.8,
+      ease: 'power4.out'
+    }, '-=0.6')
+    .to('p', {
+      y: 0,
+      opacity: 1,
+      duration: 0.8
+    }, '-=0.6')
+    .to('.hero-actions .primary-btn, .hero-actions .secondary-btn', {
+      y: 0,
+      opacity: 1,
+      stagger: 0.1,
+      duration: 0.8
+    }, '-=0.6');
+
+    // Parallax Effect on scroll (Desktop only)
+    let mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      gsap.to('.hero-image-top', {
+        yPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.value,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        }
+      });
+    });
+
+  }, heroRef.value);
+});
+
+onUnmounted(() => {
+  ctx.revert(); // clean up GSAP to prevent memory leaks
+});
 </script>
 
 <template>
-  <section class="hero">
+  <section class="hero" ref="heroRef">
     <div class="hero-container">
       <div class="hero-image-top">
         <img src="@/assets/Ballon2.png" alt="Ballon" class="ballon-img" />
@@ -57,11 +142,17 @@ import { RouterLink } from 'vue-router';
     inset 2px 2px 5px rgba(255, 255, 255, 0.1),
     inset -2px -2px 5px rgba(0, 0, 0, 0.1);
     
-  transition: transform 0.3s ease;
+  transition: box-shadow 0.3s ease; /* Removed transform to avoid GSAP conflict */
+  will-change: transform, clip-path; /* Perf optimization */
 }
 
 .hero-image-top:hover {
-  transform: translateY(-5px);
+  /* Only animate shadow on hover to avoid conflicting with GSAP's yPercent */
+  box-shadow: 
+    25px 25px 50px rgba(0, 0, 0, 0.3), 
+    -25px -25px 50px rgba(255, 255, 255, 0.05),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.1),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .ballon-img {
@@ -158,5 +249,12 @@ p {
   .hero-actions {
     justify-content: center;
   }
+}
+
+/* SplitType Masking */
+:deep(.word) {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 </style>

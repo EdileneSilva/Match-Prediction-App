@@ -1,15 +1,76 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { RouterLink } from 'vue-router';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const ctaRef = ref(null);
+const btnRef = ref(null);
+let ctx;
+
+onMounted(() => {
+  ctx = gsap.context(() => {
+    
+    // 1. Entrance animation
+    const ctaTitle = new SplitType('.cta-card h2', { types: 'words, chars' });
+    
+    gsap.set('.cta-card', { y: 100, opacity: 0, scale: 0.95 });
+    gsap.set(ctaTitle.chars, { y: 50, opacity: 0 });
+    gsap.set('.cta-card p', { y: 20, opacity: 0 });
+    gsap.set('.cta-actions > *', { y: 20, opacity: 0 });
+
+    const ctaTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.cta-container',
+        start: 'top 85%',
+      }
+    });
+
+    ctaTl.to('.cta-card', { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' })
+         .to(ctaTitle.chars, { y: 0, opacity: 1, stagger: 0.02, duration: 0.6, ease: 'power4.out' }, '-=0.4')
+         .to('.cta-card p', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+         .to('.cta-actions > *', { y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+
+    // 2. Magnetic Button Effect
+    if (btnRef.value && btnRef.value.$el) {
+      const btn = btnRef.value.$el;
+      
+      const xTo = gsap.quickTo(btn, "x", {duration: 0.4, ease: "power3"});
+      const yTo = gsap.quickTo(btn, "y", {duration: 0.4, ease: "power3"});
+
+      btn.addEventListener("mousemove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        xTo(x * 0.3); // Magnetic pull strength
+        yTo(y * 0.3);
+      });
+
+      btn.addEventListener("mouseleave", () => {
+        xTo(0);
+        yTo(0);
+      });
+    }
+
+  }, ctaRef.value);
+});
+
+onUnmounted(() => {
+  ctx.revert();
+});
 </script>
 
 <template>
-  <section class="cta">
+  <section class="cta" ref="ctaRef">
     <div class="cta-container">
       <div class="cta-card">
         <h2>Prêt à changer votre façon de <span>parier</span> ?</h2>
         <p>Rejoignez des milliers de passionnés qui utilisent déjà Match-Prediction pour optimiser leurs analyses sportives.</p>
         <div class="cta-actions">
-          <RouterLink to="/register" class="primary-btn">Créer un compte gratuitement</RouterLink>
+          <RouterLink to="/register" class="primary-btn" ref="btnRef">Créer un compte gratuitement</RouterLink>
           <RouterLink to="/login" class="secondary-btn">Se connecter</RouterLink>
         </div>
       </div>
@@ -117,5 +178,12 @@ p {
   .cta-card {
     padding: 4rem 2rem;
   }
+}
+
+/* SplitType Masking */
+:deep(.word) {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 </style>

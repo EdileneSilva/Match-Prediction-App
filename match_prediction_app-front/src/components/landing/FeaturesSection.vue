@@ -1,9 +1,61 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { FEATURES } from './constants';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const featuresRef = ref(null);
+let ctx;
+
+onMounted(() => {
+  ctx = gsap.context(() => {
+    
+    // 1. Header Animation
+    const headerTitle = new SplitType('.section-header h2', { types: 'words, chars' });
+    
+    gsap.set('.section-badge', { y: 20, opacity: 0 });
+    gsap.set(headerTitle.chars, { y: 50, opacity: 0 });
+    gsap.set('.section-header p', { y: 20, opacity: 0 });
+
+    const headerTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.section-header',
+        start: 'top 80%', // trigger when top of header is 80% down the viewport
+      }
+    });
+
+    headerTl.to('.section-badge', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' })
+            .to(headerTitle.chars, { y: 0, opacity: 1, stagger: 0.015, duration: 0.6, ease: 'power4.out' }, '-=0.4')
+            .to('.section-header p', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+
+    // 2. Cards Stagger Animation
+    gsap.set('.feature-card', { y: 80, opacity: 0 });
+
+    gsap.to('.feature-card', {
+      y: 0,
+      opacity: 1,
+      stagger: 0.15,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.features-grid',
+        start: 'top 75%',
+      }
+    });
+
+  }, featuresRef.value);
+});
+
+onUnmounted(() => {
+  ctx.revert();
+});
 </script>
 
 <template>
-  <section id="features" class="features">
+  <section id="features" class="features" ref="featuresRef">
     <div class="features-container">
       <div class="section-header">
         <div class="section-badge">Fonctionnalités</div>
@@ -129,5 +181,12 @@ h3 {
   h2 {
     font-size: 2.2rem;
   }
+}
+
+/* SplitType Masking */
+:deep(.word) {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 </style>

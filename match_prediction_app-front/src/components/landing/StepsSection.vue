@@ -1,9 +1,74 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { STEPS } from './constants';
+import gsap from 'gsap';
+import ScrollTrigger from 'gsap/ScrollTrigger';
+import SplitType from 'split-type';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const stepsRef = ref(null);
+let ctx;
+
+onMounted(() => {
+  ctx = gsap.context(() => {
+    
+    // 1. Header Animation
+    const headerTitle = new SplitType('.section-header h2', { types: 'words, chars' });
+    
+    gsap.set('.section-badge', { y: 20, opacity: 0 });
+    gsap.set(headerTitle.chars, { y: 50, opacity: 0 });
+    gsap.set('.section-header p', { y: 20, opacity: 0 });
+
+    const headerTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.section-header',
+        start: 'top 80%',
+      }
+    });
+
+    headerTl.to('.section-badge', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' })
+            .to(headerTitle.chars, { y: 0, opacity: 1, stagger: 0.015, duration: 0.6, ease: 'power4.out' }, '-=0.4')
+            .to('.section-header p', { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.4');
+
+    // 2. Steps and Connectors Animation
+    gsap.set('.step-item', { y: 50, opacity: 0 });
+    gsap.set('.step-connector', { scaleX: 0, transformOrigin: 'left center' });
+
+    const stepsTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.steps-grid',
+        start: 'top 75%',
+      }
+    });
+
+    // Stagger step items
+    stepsTl.to('.step-item', {
+      y: 0,
+      opacity: 1,
+      stagger: 0.3,
+      duration: 0.8,
+      ease: 'back.out(1.2)'
+    });
+
+    // Animate connectors in parallel with items
+    stepsTl.to('.step-connector', {
+      scaleX: 1,
+      stagger: 0.3,
+      duration: 0.8,
+      ease: 'power3.inOut'
+    }, 0.2); // start slightly after the first item starts appearing
+
+  }, stepsRef.value);
+});
+
+onUnmounted(() => {
+  ctx.revert();
+});
 </script>
 
 <template>
-  <section class="steps">
+  <section class="steps" ref="stepsRef">
     <div class="steps-container">
       <div class="section-header">
         <div class="section-badge">Processus</div>
@@ -162,5 +227,12 @@ h3 {
   .step-connector {
     display: none;
   }
+}
+
+/* SplitType Masking */
+:deep(.word) {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
 }
 </style>
