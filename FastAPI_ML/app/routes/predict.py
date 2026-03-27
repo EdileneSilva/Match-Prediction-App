@@ -14,19 +14,13 @@ def get_teams(db: Session = Depends(get_db)):
     return db.query(Team).all()
 
 @router.post("/predict")
-def predict(request: MatchRequest, db: Session = Depends(get_db)):
-    
-    # Vérification que les équipes existent
-    # home_team = db.query(Team).filter(Team.id == request.home_team_id).first()
-    # away_team = db.query(Team).filter(Team.id == request.away_team_id).first()
-    
-    # if not home_team or not away_team:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="L'une ou les deux équipes sont introuvables."
-    #     )
-    
-    prediction = ml_service.predict_match(
+def predict(request: MatchRequest):
+    """
+    Endpoint de prédiction ML.
+    Attend home_team, away_team, referee, season, round.
+    Retourne la prédiction, la confiance et les probabilités.
+    """
+    prediction_result = ml_service.predict_match(
         request.home_team, 
         request.away_team,
         request.referee,
@@ -34,13 +28,7 @@ def predict(request: MatchRequest, db: Session = Depends(get_db)):
         request.round,
     )
     
-    return {
-        "home_team": request.home_team,
-        "away_team": request.away_team,
-        "season": request.season,
-        "round": request.round,
-        **prediction
-    }
+    return prediction_result
 
 def register_routes(app):
     app.include_router(router)

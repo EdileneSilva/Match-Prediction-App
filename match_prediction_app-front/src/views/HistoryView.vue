@@ -164,8 +164,8 @@ export default {
         // Mocking some data since backend doesn't have actual results yet
         const mockIsCorrect = Math.random() > 0.3
         const mockResult = mockIsCorrect 
-          ? this.formatResult(item.predicted_result)
-          : (item.predicted_result === 'HOME_WIN' ? 'Match Nul' : 'Victoire Domicile')
+          ? this.formatResult(item.prediction)
+          : (item.prediction === 'HOME_WIN' ? 'Match Nul' : 'Victoire Domicile')
 
         return {
           id: item.id,
@@ -173,11 +173,11 @@ export default {
           match: `${item.home_team_name} - ${item.away_team_name}`,
           home_team: item.home_team_name,
           away_team: item.away_team_name,
-          prediction: this.formatResult(item.predicted_result),
-          predicted_result: item.predicted_result,
+          prediction: this.formatResult(item.prediction),
+          predicted_result: item.prediction,
           result: mockResult,
-          confidence: (item.confidence_score * 100).toFixed(1) + '%',
-          confidence_raw: item.confidence_score,
+          confidence: (item.confidence * 100).toFixed(1) + '%',
+          confidence_raw: item.confidence,
           isCorrect: mockIsCorrect,
           accuracy: mockIsCorrect ? 100 : Math.floor(Math.random() * 60 + 20)
         }
