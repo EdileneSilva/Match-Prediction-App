@@ -1,177 +1,119 @@
 ![Match Prediction App](docs/match-prediction-banner.jpg)
 
-# Match Prediction App
+# 🏆 Match Prediction App - MVP
 
+Cette application est un MVP (Minimum Viable Product) entrepreneurial permettant de prédire l'issue de matchs de Ligue 1 (Victoire Domicile, Nul, Victoire Extérieure) grâce à un modèle d'Intelligence Artificielle de classification.
 
-Application complète de prédiction de matchs de Ligue 1 avec :
-- 2 APIs FastAPI séparées (Application & ML)
-- 2 bases PostgreSQL séparées (users/historique & données de matchs)
-- 1 frontend Vue.js 3
-
-Ce README explique comment installer et lancer **les deux backends** et **le frontend** pour que toute l’équipe puisse travailler sans galérer.
+Ce projet a été conçu en 5 semaines avec une approche Agile et Lean Startup.
 
 ---
 
-## 1. Pré‑requis
+## 🏗️ Architecture du Projet
 
-- Python 3.12+
-- Node.js 18+ et npm
-- PostgreSQL (local) avec accès superuser `postgres` ou équivalent
+Le projet est composé de 3 microservices distincts pour une architecture moderne et scalable :
 
----
+1.  **FastAPI_App (Backend Principal)** : Gère l'authentification (JWT), l'historique utilisateur, les favoris, et sert de proxy (traduction des IDs d'équipes en noms) vers l'API ML.
+2.  **FastAPI_ML (Intelligence Engine)** : API d'inférence dédiée chargée d'exécuter le modèle de classification de stacking (Random Forest, XGBoost, Regression Logistique) et de renvoyer les probabilités.
+3.  **Frontend (Vue.js 3)** : Interface utilisateur fluide permettant la création de compte, la consultation de l'historique et la soumission de nouvelles prédictions.
 
-## 2. Bases de données PostgreSQL
-
-Créer les deux bases à partir des scripts SQL du dossier `Data/` :
-
-```sh
-psql -U postgres -f Data/MCD.sql        # crée la base footballprediction_db (ML)
-psql -U postgres -f Data/MCD_app.sql    # crée la base footballapp_db (Application)
-```
-
-Adapte l’utilisateur/mot de passe si besoin dans les URLs ci‑dessous.
+Chaque API possède sa propre base de données (**PostgreSQL** en production, **SQLite** en développement rapide).
 
 ---
 
-## 3. API Application – `FastAPI_App`
+## ⚡ Guide d'Installation Rapide (< 15 min)
 
-Cette API gère :
-- l’authentification JWT (`/auth/register`, `/auth/login`, `/auth/me`, etc.),
-- les utilisateurs, les favoris, l’historique,
-- les appels à l’API ML (plus tard).
+### Pré-requis
+- **Python 3.12+**
+- **Node.js 18+** et **npm**
+- Optionnel : PostgreSQL si vous souhaitez utiliser l'environnement de production. *Par défaut, l'application utilise SQLite in-memory pour un démarrage immédiat en local.*
 
-### 3.1. Configuration
+Ouvrez **3 terminaux séparés** à la racine du projet.
 
-Dans `FastAPI_App/`, créer un fichier `.env` :
-
-```sh
+### Terminal 1 : Backend Principal (FastAPI_App)
+```bash
 cd FastAPI_App
-cp .env.example .env  # si présent, sinon créer le fichier
-```
-
-Contenu minimal (à adapter) :
-
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballapp_db
-SECRET_KEY=change-me
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-```
-
-### 3.2. Environnement virtuel & dépendances
-
-```sh
-cd FastAPI_App
-python -m venv venv
-source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate  # Sur Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Lancement du serveur sur le port 8000
+python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+*La base de données SQLite `app.db` se créera automatiquement.*
 
-### 3.3. Lancement de l’API Application
-
-```sh
-cd FastAPI_App
-source venv/bin/activate
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-Vérification :
-
-```sh
-curl http://127.0.0.1:8000/health
-# -> {"status":"ok","service":"app-api"}
-```
-
----
-
-## 4. API ML – `FastAPI_ML`
-
-Cette API gère :
-- la base `footballprediction_db` (équipes, matchs, stats),
-- le modèle de classification (scikit‑learn),
-- les endpoints `/train`, `/predict`, `/metrics` (en cours de construction, stub existant).
-
-### 4.1. Configuration
-
-Dans `FastAPI_ML/`, créer un fichier `.env` :
-
-```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
-```
-
-### 4.2. Environnement virtuel & dépendances
-
-```sh
+### Terminal 2 : Moteur d'Intelligence Artificielle (FastAPI_ML)
+```bash
 cd FastAPI_ML
-python -m venv venv
-source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate  # Sur Windows: venv\Scripts\activate
 pip install -r requirements.txt
+
+# Lancement du serveur sur le port 8001
+python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 ```
+*La base de données SQLite `ml_app.db` se créera et se peuplera automatiquement avec les équipes.*
 
-### 4.3. Lancement de l’API ML
-
-```sh
-cd FastAPI_ML
-source venv/bin/activate
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
-```
-
-Vérification :
-
-```sh
-curl http://127.0.0.1:8001/health
-# -> {"status":"ok","service":"ml-api"}
-```
-
----
-
-## 5. Frontend Vue.js – `match_prediction_app-front`
-
-Ce projet Vue 3 consomme l’API Application (`http://localhost:8000`) via `src/api/client.js`.
-
-### 5.1. Installation des dépendances
-
-```sh
+### Terminal 3 : Frontend (Vue.js)
+```bash
 cd match_prediction_app-front
 npm install
-```
-
-### 5.2. Lancement du serveur de dev
-
-```sh
-cd match_prediction_app-front
 npm run serve
 ```
-
-Ouvre ensuite l’URL affichée (généralement `http://localhost:8080`).
-
----
-
-## 6. Flux d’authentification & redirections
-
-- À la connexion, le frontend appelle `POST /auth/login` et stocke le token JWT dans `localStorage`.
-- Tous les appels API passent par `src/api/client.js` qui ajoute automatiquement le header :
-  - `Authorization: Bearer <token>` si le token est présent.
-- Le routeur Vue (`src/router/index.js`) protège les pages :
-  - routes avec `meta.requiresAuth: true` → si **pas de token**, redirection automatique vers `/login`,
-  - routes avec `meta.guestOnly: true` → si **token présent**, redirection vers `/`.
-
-Conséquence :  
-> Si un utilisateur ouvre l’application sans compte ni token, il arrive **toujours** sur la page de connexion.
+*L'application UI est désormais accessible sur **http://localhost:8080** !*
 
 ---
 
-## 7. Notes d’architecture (résumé du logbook)
+## 📚 Documentation API (Swagger / OpenAPI)
 
-- Le dossier historique `FastAPI/` (monolithique) a été supprimé.
-- L’architecture est maintenant :
-  - `FastAPI_App/` : API Application (utilisateurs, auth, historique, favoris).
-  - `FastAPI_ML/` : API ML (données de matchs + modèle).
-  - `Data/` : scripts SQL des 2 BDD (`MCD.sql`, `MCD_app.sql`).
-  - `match_prediction_app-front/` : frontend Vue 3.
-- Chaque API a :
-  - son propre `requirements.txt`,
-  - son propre `venv`,
-  - sa propre config `.env`.
+Les deux APIs sont auto-documentées avec FastAPI, intégrant le standard OpenAPI. Une fois les serveurs lancés, accédez aux Swagger UIs :
+
+- 🔐 **FastAPI_App (Users, Historique, Proxy)** : [http://localhost:8000/docs](http://localhost:8000/docs)
+- 🧠 **FastAPI_ML (Modèle de Prédiction)** : [http://localhost:8001/docs](http://localhost:8001/docs)
 
 ---
+
+## 🧪 Tests Automatisés
+
+Le projet inclut une couverture de test complète via `pytest` (tests unitaires, d'intégration, et parcours E2E complet).
+
+```bash
+# Pour tester FastAPI_App (34 tests)
+cd FastAPI_App
+export PYTHONPATH=$PYTHONPATH:.
+pytest tests/ -v
+
+# Pour tester FastAPI_ML (3 tests)
+cd FastAPI_ML
+export PYTHONPATH=$PYTHONPATH:.
+pytest tests/ -v
+```
+
+---
+
+## 📊 Modèle Machine Learning & Données
+
+- **Classification Supervisée** : Le modèle prédit un résultat 1N2 (HOME_WIN, DRAW, AWAY_WIN).
+- **Architecture Modèle** : Ensemble de Stacking (Random Forest, XGBoost, LR) pour maximiser la résilience aux variations imprévisibles du football (Calibration active des probabilités).
+- **Sources de données** : API Football pour les statistiques et cotes, complétées par du web scraping et datasets CSV statiques pour les données d'historiques.
+
+---
+
+## ⚙️ Configuration Avancée (PostgreSQL)
+
+Pour utiliser PostgreSQL en production à la place de SQLite, configurez vos fichiers `.env` dans chaque dossier d'API.
+
+Dans `FastAPI_App/.env` :
+```env
+DATABASE_APP_URL=postgresql://root:password@localhost:5432/footballapp_db
+```
+
+Dans `FastAPI_ML/.env` :
+```env
+DATABASE_ML_URL=postgresql://root:password@localhost:5432/footballml_db
+```
+
+*Des scripts d'initialisation MCD sont disponibles dans le dossier `Data/`.*
+
+---
+
+*Projet développé dans le cadre d'un MVP Entrepreneurial.*

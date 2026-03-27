@@ -46,11 +46,23 @@ def get_current_user(
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    """
+    **Inscription d'un nouvel utilisateur.**
+    
+    Crée un compte avec email, nom d'utilisateur et mot de passe (qui sera haché).
+    Retourne les informations publiques de l'utilisateur créé.
+    """
     return AuthService.register_user(db, user_data)
 
 
 @router.post("/login", response_model=Token)
 def login(login_data: UserLogin, db: Session = Depends(get_db)):
+    """
+    **Connexion utilisateur.**
+    
+    Vérifie les identifiants et retourne un token JWT (Access Token)
+    nécessaire pour accéder aux routes protégées.
+    """
     user = AuthService.authenticate_user(db, login_data)
     if not user:
         raise HTTPException(
@@ -63,6 +75,11 @@ def login(login_data: UserLogin, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
+    """
+    **Profil utilisateur courant.**
+    
+    Récupère les informations de l'utilisateur actuellement connecté (via son token JWT).
+    """
     return current_user
 
 
@@ -109,6 +126,12 @@ def get_user_stats(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    **Statistiques de l'utilisateur.**
+    
+    Affiche le nombre total de prédictions effectuées par l'utilisateur
+    et le nombre d'équipes mises en favoris.
+    """
     total_preds = db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).count()
     fav_teams_count = db.query(UserFavoriteTeam).filter(UserFavoriteTeam.user_id == current_user.id).count()
     return {

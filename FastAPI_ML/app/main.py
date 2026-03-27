@@ -3,12 +3,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.predict import register_routes
 from .core.config import settings
 
+tags_metadata = [
+    {
+        "name": "Predictions",
+        "description": "API d'inférence du modèle ML. Effectue les prédictions en fonction de caractéristiques de l'équipe et du match.",
+    },
+    {
+        "name": "Health",
+        "description": "Vérification de l'état de l'API ML.",
+    },
+]
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="API ML (données de matchs, entraînement et prédiction) pour la Match Prediction App.",
-    version=settings.PROJECT_VERSION,
-)
+    description="""
+API d'Intelligence Artificielle de la **Match Prediction App**.
 
+Cette API se charge uniquement des aspects algorithmiques :
+* Vérifie et stocke les données liées aux matchs.
+* Appelle le modèle pré-entraîné Scikit-Learn pour générer des prédictions.
+* Ne gère ni l'authentification ni l'historique utilisateur (ces aspects sont gérés par FastAPI_App).
+    """,
+    version=settings.PROJECT_VERSION,
+    openapi_tags=tags_metadata,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

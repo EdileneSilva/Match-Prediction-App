@@ -6,12 +6,38 @@ from .routes.base import register_routes
 
 from .core.config import settings
 
+tags_metadata = [
+    {
+        "name": "Auth & Users",
+        "description": "Opérations d'authentification (login, register) et gestion de profil utilisateur.",
+    },
+    {
+        "name": "Predictions",
+        "description": "Proxy vers le modèle ML pour effectuer des prédictions et consulter l'historique.",
+    },
+    {
+        "name": "Health",
+        "description": "Vérification de l'état de l'API.",
+    },
+]
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    description="API Application (utilisateurs, historique, favoris, prédictions) pour la Match Prediction App.",
-    version=settings.PROJECT_VERSION,
-)
+    description="""
+API principale de la **Match Prediction App**.
 
+Cette API agit comme backend front-facing :
+* Gère les utilisateurs et l'authentification sécurisée via JWT.
+* Sauvegarde l'historique et les favoris.
+* Sert de proxy vers l'API ML pour lancer les prédictions en traduisant les identifiants d'équipes en noms réels.
+    """,
+    version=settings.PROJECT_VERSION,
+    openapi_tags=tags_metadata,
+    contact={
+        "name": "Équipe Produit",
+        "email": "contact@matchprediction.com",
+    }
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
