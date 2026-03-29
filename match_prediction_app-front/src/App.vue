@@ -128,12 +128,12 @@ h2 span.highlight .char {
 }
  
 html, body {
-  height: 100%;
-  width: 100%;
+  min-height: 100%;
   background: var(--bg-cosmic);
   background-attachment: fixed;
   color: var(--text-primary);
   transition: background 0.5s ease, color 0.5s ease;
+  overflow-x: hidden;
 }
 
 

@@ -74,3 +74,21 @@ npm run serve
   - **Solution A** : Correction du mapping dans le backend principal.
   - **Problème B (Base de données désynchronisée)** : Plantage complet lors de la sauvegarde d'historique (renvoyant une autre erreur CORS masquée en "Load failed" sur le frontend) car la table PostgreSQL `prediction_history` manquait de 4 colonnes récemment ajoutées aux ORM (`home_team_logo_url`, `away_team_logo_url`, `predicted_result`, `confidence_score`).
   - **Solution B** : Exécution de séquences directes `ALTER TABLE` via `psql` pour injecter immédiatement ces colonnes dans la base locale et débloquer les sauvegardes sans toucher à la structure de migration de base.
+
+---
+
+## 📊 Expansion du Dashboard & Synchronisation ML
+
+### 1. Dashboard de Ligue 1 Complet
+- **Classement National** : Intégration d'un scraper LFP robuste pour afficher le classement officiel de la Ligue 1 en temps réel (Points, MJ, GA).
+- **Matchs à Venir** : Extension de la liste des rencontres (passage de 3 à 15 matchs) pour couvrir l'intégralité d'une journée de championnat.
+- **Rafraîchissement Dynamique** : Ajout d'un bouton d'actualisation avec animations GSAP pour synchroniser les données sans recharger la page.
+
+### 2. Fiabilité de l'Intelligence Artificielle
+- **Mapping des Équipes** : Création d'un utilitaire de mapping (`team_mapper.py`) pour faire la jonction entre les noms complets LFP et les noms abrégés du modèle ML (ex: "Paris Saint-Germain" ➔ "Paris SG").
+- **Fin des Fallbacks Aléatoires** : Suppression des valeurs de confiance aléatoires. Le dashboard affiche désormais le véritable indice de probabilité (XGBoost) ou une valeur neutre explicite en cas d'absence de données.
+- **Transparence UI** : Ajout d'une icône d'information sur les cartes de match expliquant l'origine de l'indice de confiance IA.
+
+### 3. Optimisation de l'Expérience Utilisateur (UX)
+- **Correction du Scroll** : Suppression des contraintes CSS (`height: 100%`) et des zones de défilement imbriquées qui bloquaient la navigation au trackpad/finger-scroll. La page défile désormais de manière fluide et naturelle.
+- **Design Premium** : Amélioration des contrastes et de l'accessibilité visuelle des badges de prédiction.

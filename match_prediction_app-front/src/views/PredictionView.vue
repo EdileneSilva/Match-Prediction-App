@@ -166,6 +166,25 @@ export default {
       this.animateEntrance();
       this.initMagneticButtons();
     }, this.$el);
+
+    // Auto-fill and auto-predict from Dashboard queries
+    const qHome = this.$route.query.home;
+    const qAway = this.$route.query.away;
+    if (qHome && qAway && this.teams.length > 0) {
+      // Fuzzy matching to link LFP names with local DB names
+      const findTeam = (name) => {
+        const lowerName = name.toLowerCase().replace(/ fc| olympique| stade| asc| as /g, '');
+        return this.teams.find(t => t.name.toLowerCase().includes(lowerName) || lowerName.includes(t.name.toLowerCase()));
+      };
+      
+      this.selectedTeam1 = findTeam(qHome) || this.teams[0];
+      this.selectedTeam2 = findTeam(qAway) || this.teams[1];
+      
+      // Lancer directement l'analyse !
+      this.$nextTick(() => {
+         this.launchPrediction();
+      });
+    }
   },
   unmounted() {
     if (this.ctx) this.ctx.revert();
