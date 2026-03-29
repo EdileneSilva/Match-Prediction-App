@@ -16,6 +16,13 @@ onMounted(() => {
     // 1. Header Animation
     const headerTitle = new SplitType('.section-header h2', { types: 'words, chars' });
     
+    // Restore highlight to specific words that SplitType might have stripped tags from
+    headerTitle.words.forEach(word => {
+      if (word.textContent.includes('marche')) {
+        word.classList.add('text-highlight');
+      }
+    });
+    
     gsap.set('.section-badge', { y: 20, opacity: 0 });
     gsap.set(headerTitle.chars, { y: 50, opacity: 0 });
     gsap.set('.section-header p', { y: 20, opacity: 0 });
@@ -130,9 +137,11 @@ h2 {
   font-weight: 800;
 }
 
+/* Rely on global styles in App.vue */
 h2 span.highlight {
-  color: #fbbf24;
+  display: inline-block;
 }
+
 
 .section-header p {
   color: rgba(255, 255, 255, 0.85);
@@ -155,14 +164,47 @@ h2 span.highlight {
 .step-icon-wrapper {
   width: 180px;
   height: 180px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
   border-radius: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 2.5rem;
   position: relative;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 212, 255, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.step-item:hover .step-icon-wrapper {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2), 0 0 20px rgba(0, 212, 255, 0.1);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.step-icon-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: scanline 4s infinite;
+}
+
+@keyframes scanline {
+  0% { left: -100%; }
+  100% { left: 200%; }
 }
 
 .step-number {
@@ -171,7 +213,7 @@ h2 span.highlight {
   right: -15px;
   width: 55px;
   height: 55px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   border-radius: 15px;
   display: flex;
   align-items: center;
@@ -179,8 +221,9 @@ h2 span.highlight {
   color: white;
   font-weight: 800;
   font-size: 1.2rem;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(224, 38, 255, 0.4);
 }
+
 
 .step-icon {
   font-size: 2.5rem;
@@ -213,10 +256,11 @@ h3 {
   right: -50%;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, #667eea, transparent);
-  opacity: 0.2;
+  background: linear-gradient(90deg, var(--accent-secondary), transparent);
+  opacity: 0.3;
   z-index: -1;
 }
+
 
 @media (max-width: 992px) {
   .steps-grid {

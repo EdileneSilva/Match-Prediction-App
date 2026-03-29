@@ -45,8 +45,9 @@
 <style scoped>
 .footer {
   padding: 80px 2rem 40px;
-  background: rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(5, 7, 10, 0.8);
+  border-top: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
 }
 
 .footer-container {
@@ -67,31 +68,32 @@
   gap: 0.8rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
 }
 
 .logo-icon {
   width: 35px;
   height: 35px;
-  background: #fbbf24;
-  color: #764ba2;
+  background: var(--accent-gradient);
+  color: white;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 1rem;
+  box-shadow: 0 4px 10px rgba(224, 38, 255, 0.3);
 }
 
 .footer-info p {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   line-height: 1.6;
   max-width: 250px;
 }
 
 h4 {
-  color: white;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -108,26 +110,29 @@ ul li {
 }
 
 ul li a {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   font-size: 0.95rem;
 }
 
 ul li a:hover {
-  color: white;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
 }
 
 .footer-bottom {
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--glass-border);
   text-align: center;
 }
 
 .footer-bottom p {
-  color: #718096;
+  color: var(--text-secondary);
   font-size: 0.9rem;
+  opacity: 0.6;
 }
+
 
 @media (max-width: 768px) {
   .footer-grid {

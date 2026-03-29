@@ -63,9 +63,17 @@ h2 {
   font-weight: 800;
 }
 
+/* Rely on global styles in App.vue */
 h2 span {
-  color: #fbbf24;
+  display: inline-block;
 }
+
+/* Base adjustment for words if needed */
+:deep(.word) {
+  display: inline-block;
+  vertical-align: top;
+}
+
 
 .section-header p {
   color: rgba(255, 255, 255, 0.85);
@@ -79,22 +87,27 @@ h2 span {
 }
 
 .testimonial-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   padding: 3rem 2rem;
   border-radius: 30px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   transition: all 0.3s ease;
   position: relative;
 }
 
 .testimonial-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: var(--glass-hover);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
 }
+
 
 .quote-icon {
   font-size: 5rem;
-  color: #667eea;
+  color: var(--accent-secondary);
+
   font-family: serif;
   line-height: 1;
   position: absolute;
@@ -118,6 +131,7 @@ h2 span {
 }
 
 .user-avatar {
+
   width: 50px;
   height: 50px;
   border-radius: 15px;

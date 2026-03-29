@@ -16,6 +16,13 @@ onMounted(() => {
     // 1. Header Animation
     const headerTitle = new SplitType('.section-header h2', { types: 'words, chars' });
     
+    // Restore highlight to specific words that SplitType might have stripped tags from
+    headerTitle.words.forEach(word => {
+      if (word.textContent.includes('résultats') || word.textContent.includes('réels')) {
+        word.classList.add('text-highlight');
+      }
+    });
+    
     gsap.set('.section-badge', { y: 20, opacity: 0 });
     gsap.set(headerTitle.chars, { y: 50, opacity: 0 });
     gsap.set('.section-header p', { y: 20, opacity: 0 });
@@ -113,8 +120,9 @@ h2 {
   font-weight: 800;
 }
 
+/* Rely on global styles in App.vue */
 h2 span {
-  color: #fbbf24;
+  display: inline-block;
 }
 
 .section-header p {
@@ -130,10 +138,12 @@ h2 span {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   padding: 3rem 2rem;
   border-radius: 30px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -141,8 +151,32 @@ h2 span {
 
 .feature-card:hover {
   transform: translateY(-10px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(102, 126, 234, 0.3);
+  background: var(--glass-hover);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.step-icon-wrapper {
+  width: 180px;
+  height: 180px;
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2.5rem;
+  position: relative;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(0, 212, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.step-item:hover .step-icon-wrapper {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 15px 45px rgba(0, 212, 255, 0.2);
+  transform: translateY(-5px);
 }
 
 .icon-box {
@@ -153,7 +187,34 @@ h2 span {
   align-items: center;
   justify-content: center;
   margin-bottom: 2.5rem;
+  background: var(--accent-gradient) !important;
+  box-shadow: 0 10px 20px rgba(224, 38, 255, 0.2);
+  position: relative;
+  overflow: hidden;
 }
+
+.icon-box::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: scanline 3s infinite;
+}
+
+@keyframes scanline {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
 
 .feature-icon {
   font-size: 2rem;

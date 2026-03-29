@@ -29,10 +29,10 @@ import { RouterLink } from 'vue-router';
   left: 0;
   right: 0;
   height: 80px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -54,25 +54,25 @@ import { RouterLink } from 'vue-router';
   gap: 0.8rem;
   font-size: 1.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
   text-decoration: none;
 }
 
 .logo-icon {
   width: 78px;
   height: 78px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(224, 38, 255, 0.3);
   overflow: hidden;
 }
 
 .logo-icon img {
-  width: 200%;
-  height: 200%;
+  width: 140%;
+  height: 140%;
   object-fit: contain;
 }
 
@@ -83,30 +83,32 @@ import { RouterLink } from 'vue-router';
 }
 
 .nav-link {
-  color: #a0aec0;
+  color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .nav-link:hover {
-  color: white;
+  color: var(--accent-secondary);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 
 .nav-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   color: white;
   padding: 0.8rem 1.8rem;
   border-radius: 50px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(224, 38, 255, 0.3);
 }
 
 .nav-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(224, 38, 255, 0.5);
+  filter: brightness(1.1);
 }
 
 @media (max-width: 768px) {
@@ -114,4 +116,5 @@ import { RouterLink } from 'vue-router';
     gap: 1rem;
   }
 }
+
 </style>

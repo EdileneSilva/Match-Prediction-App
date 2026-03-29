@@ -17,6 +17,13 @@ onMounted(() => {
     // 1. Entrance animation
     const ctaTitle = new SplitType('.cta-card h2', { types: 'words, chars' });
     
+    // Restore highlight to specific words that SplitType might have stripped tags from
+    ctaTitle.words.forEach(word => {
+      if (word.textContent.includes('parier')) {
+        word.classList.add('text-highlight');
+      }
+    });
+    
     gsap.set('.cta-card', { y: 100, opacity: 0, scale: 0.95 });
     gsap.set(ctaTitle.chars, { y: 50, opacity: 0 });
     gsap.set('.cta-card p', { y: 20, opacity: 0 });
@@ -89,14 +96,19 @@ onUnmounted(() => {
 }
 
 .cta-card {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   padding: 6rem 4rem;
   border-radius: 40px;
   text-align: center;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  background-image: linear-gradient(rgba(10, 10, 26, 0.7), rgba(10, 10, 26, 0.8)), url("@/assets/ballon5.jpg");
+  background-size: cover;
+  background-position: center;
 }
 
 .cta-card::before {
@@ -106,24 +118,25 @@ onUnmounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(224, 38, 255, 0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 
 h2 {
   font-size: 3.5rem;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
   font-weight: 800;
   line-height: 1.1;
 }
 
+/* Rely on global .text-highlight styles in App.vue */
 h2 span {
-  color: #fbbf24;
+  display: inline-block;
 }
 
 p {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
   font-size: 1.25rem;
   max-width: 600px;
   margin: 0 auto 3rem;
@@ -138,37 +151,40 @@ p {
 }
 
 .primary-btn {
-  background: white;
-  color: #667eea;
-  padding: 1rem 2.5rem;
+  background: var(--accent-gradient);
+  color: white;
+  padding: 1.2rem 3rem;
   border-radius: 50px;
   font-weight: 700;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(224, 38, 255, 0.3);
 }
 
 .primary-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  background: #f8f9fa;
+  box-shadow: 0 15px 35px rgba(224, 38, 255, 0.5);
+  filter: brightness(1.1);
 }
 
 .secondary-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   color: white;
-  padding: 1rem 2.5rem;
+  padding: 1.2rem 3rem;
   border-radius: 50px;
   font-weight: 700;
   text-decoration: none;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
 .secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--glass-hover);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
+
 
 @media (max-width: 768px) {
   h2 {

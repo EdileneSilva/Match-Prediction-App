@@ -6,79 +6,119 @@
       </div>
 
       <!-- Team Selection Container -->
-      <div class="prediction-container gsap-entrance">
+      <div v-if="!isPredicting && !predictionResult" class="prediction-container gsap-entrance">
         <h1 class="page-title">Arena de Prédiction</h1>
 
         <div class="selection-section">
           <div class="team-selectors">
-            <div class="form-group">
-              <label for="team1">Équipe Domicile</label>
-              <select id="team1" v-model="selectedTeam1" class="glow-input team-select">
-                <option :value="null">Sélectionner équipe</option>
-                <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
-              </select>
+            <div class="form-group team-card" :class="{ 'has-selection': selectedTeam1 }">
+              <label for="team1">Domicile</label>
+              <div class="select-wrapper-hero">
+                <div class="logo-placeholder">
+                  <img v-if="selectedTeam1?.logo_url" :src="selectedTeam1.logo_url" class="team-logo-giant" alt="">
+                  <div v-else class="empty-logo">?</div>
+                </div>
+                <select id="team1" v-model="selectedTeam1" class="glow-input team-select">
+                  <option :value="null">Choisir l'équipe</option>
+                  <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
+                </select>
+              </div>
             </div>
 
-            <div class="vs-indicator">
+            <div class="vs-indicator-hero">
+              <div class="vs-ring"></div>
               <span class="vs-text">VS</span>
             </div>
 
-            <div class="form-group">
-              <label for="team2">Équipe Extérieur</label>
-              <select id="team2" v-model="selectedTeam2" class="glow-input team-select">
-                <option :value="null">Sélectionner équipe</option>
-                <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
-              </select>
+            <div class="form-group team-card" :class="{ 'has-selection': selectedTeam2 }">
+              <label for="team2">Extérieur</label>
+              <div class="select-wrapper-hero">
+                <div class="logo-placeholder">
+                  <img v-if="selectedTeam2?.logo_url" :src="selectedTeam2.logo_url" class="team-logo-giant" alt="">
+                  <div v-else class="empty-logo">?</div>
+                </div>
+                <select id="team2" v-model="selectedTeam2" class="glow-input team-select">
+                  <option :value="null">Choisir l'équipe</option>
+                  <option v-for="team in teams" :key="team.id" :value="team">{{ team.name }}</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <button class="predict-btn magnetic-btn" @click="launchPrediction"
-            :disabled="!selectedTeam1 || !selectedTeam2 || isPredicting"
-            :class="{ 'is-loading': isPredicting }">
-            <span class="btn-text" v-if="!isPredicting">Lancer la prédiction IA</span>
-            <div class="loader" v-else></div>
+          <button class="predict-btn-hero magnetic-btn" @click="launchPrediction"
+            :disabled="!selectedTeam1 || !selectedTeam2">
+            <span class="btn-text">Lancer l'Analyse IA</span>
           </button>
         </div>
       </div>
 
-      <!-- Prediction Results (Dynamic Reveal) -->
-      <div v-if="predictionResult" class="results-container gsap-results">
-        <h2 class="result-title">Résultats de l'analyse</h2>
+      <!-- AI Scanning Arena -->
+      <div v-if="isPredicting" class="scanning-arena">
+        <div class="scanning-content">
+          <div class="scanning-logos">
+            <img :src="selectedTeam1?.logo_url" class="scan-logo logo-left" alt="">
+            <div class="scanning-ray"></div>
+            <img :src="selectedTeam2?.logo_url" class="scan-logo logo-right" alt="">
+          </div>
+          <h2 class="scanning-title">Analyse Neuronale en cours...</h2>
+          <div class="scanning-bar-container">
+            <div class="scanning-bar-fill"></div>
+          </div>
+          <p class="scanning-subtitle">Traitement des statistiques et probabilités historiques</p>
+        </div>
+      </div>
 
-        <div class="prediction-stats">
-          <div class="stat-item">
+      <!-- Prediction Results (Dramatic Reveal) -->
+      <div v-if="predictionResult && !isPredicting" class="results-container gsap-results">
+        <div class="winner-reveal">
+          <h2 class="reveal-badge">Vainqueur Probable</h2>
+          <div class="winner-logo-container">
+             <div class="winner-glow"></div>
+             <img v-if="winnerTeam.logo_url" :src="winnerTeam.logo_url" class="winner-logo-reveal" alt="">
+             <div v-else class="draw-icon">🤝</div>
+          </div>
+          <h3 class="winner-name">{{ winnerTeam.name }}</h3>
+        </div>
+
+        <div class="prediction-stats-grid">
+          <div class="stat-card">
             <span class="stat-label">Victoire {{ selectedTeam1?.name }}</span>
-            <div class="progress-bar">
-              <div class="progress" ref="barT1" :style="{ backgroundColor: getColor('t1') }"></div>
+            <div class="progress-bar-hero">
+              <div class="progress-fill" ref="barT1" :style="{ backgroundColor: getColor('t1') }"></div>
             </div>
-            <span class="stat-value" ref="valT1" :style="{ color: getColor('t1') }">0%</span>
+            <span class="stat-value-hero" ref="valT1" :style="{ color: getColor('t1') }">0%</span>
           </div>
 
-          <div class="stat-item">
-            <span class="stat-label">Match nul</span>
-            <div class="progress-bar">
-              <div class="progress" ref="barDraw" :style="{ backgroundColor: getColor('draw') }"></div>
+          <div class="stat-card">
+            <span class="stat-label">Match Nul</span>
+            <div class="progress-bar-hero">
+              <div class="progress-fill" ref="barDraw" :style="{ backgroundColor: getColor('draw') }"></div>
             </div>
-            <span class="stat-value" ref="valDraw" :style="{ color: getColor('draw') }">0%</span>
+            <span class="stat-value-hero" ref="valDraw" :style="{ color: getColor('draw') }">0%</span>
           </div>
 
-          <div class="stat-item">
+          <div class="stat-card">
             <span class="stat-label">Victoire {{ selectedTeam2?.name }}</span>
-            <div class="progress-bar">
-              <div class="progress" ref="barT2" :style="{ backgroundColor: getColor('t2') }"></div>
+            <div class="progress-bar-hero">
+              <div class="progress-fill" ref="barT2" :style="{ backgroundColor: getColor('t2') }"></div>
             </div>
-            <span class="stat-value" ref="valT2" :style="{ color: getColor('t2') }">0%</span>
+            <span class="stat-value-hero" ref="valT2" :style="{ color: getColor('t2') }">0%</span>
           </div>
         </div>
 
-        <div class="score-prediction">
-          <span class="score-label">Score Probable :</span>
-          <span class="score-value">{{ predictionResult.probableScore }}</span>
+        <div class="score-summary">
+          <span class="score-label">Probabilité de score</span>
+          <span class="score-value-hero">{{ predictionResult.probableScore }}</span>
         </div>
 
-        <button class="save-btn magnetic-btn" @click="savePrediction">
-          <span class="btn-text">Enregistrer ce ticket</span>
-        </button>
+        <div class="actions-group">
+          <button class="save-btn-hero magnetic-btn" @click="savePrediction">
+            <span class="btn-text">Enregistrer la Prédiction</span>
+          </button>
+          <button class="reset-btn" @click="resetArena">
+            Nouvelle Analyse
+          </button>
+        </div>
       </div>
     </main>
   </div>
@@ -102,6 +142,19 @@ export default {
       ctx: null
     }
   },
+  computed: {
+    winnerTeam() {
+      if (!this.predictionResult) return null;
+      const { team1Win, draw, team2Win } = this.predictionResult;
+      const max = Math.max(team1Win, draw, team2Win);
+      
+      if (draw === max && draw > team1Win && draw > team2Win) {
+         return { name: 'Match Nul', logo_url: null };
+      }
+      if (team1Win >= team2Win && team1Win >= draw) return this.selectedTeam1;
+      return this.selectedTeam2;
+    }
+  },
   async mounted() {
     try {
       this.teams = await apiClient.get('/predictions/teams')
@@ -110,11 +163,7 @@ export default {
     }
 
     this.ctx = gsap.context(() => {
-      // Animation d'entrée du container de selection
-      gsap.fromTo('.gsap-entrance',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: 'power3.out' }
-      );
+      this.animateEntrance();
       this.initMagneticButtons();
     }, this.$el);
   },
@@ -122,17 +171,23 @@ export default {
     if (this.ctx) this.ctx.revert();
   },
   methods: {
+    animateEntrance() {
+      gsap.fromTo('.gsap-entrance',
+        { y: 60, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: 'expo.out' }
+      );
+    },
     initMagneticButtons() {
       const btns = gsap.utils.toArray('.magnetic-btn');
       btns.forEach(btn => {
-        const xTo = gsap.quickTo(btn, "x", {duration: 0.4, ease: "power3", duration: 0.4});
-        const yTo = gsap.quickTo(btn, "y", {duration: 0.4, ease: "power3", duration: 0.4});
+        const xTo = gsap.quickTo(btn, "x", {duration: 0.4, ease: "power3"});
+        const yTo = gsap.quickTo(btn, "y", {duration: 0.4, ease: "power3"});
         
         btn.addEventListener('mousemove', (e) => {
           if (btn.disabled) return;
           const rect = btn.getBoundingClientRect();
-          const x = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
-          const y = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
+          const x = (e.clientX - (rect.left + rect.width / 2)) * 0.35;
+          const y = (e.clientY - (rect.top + rect.height / 2)) * 0.35;
           xTo(x); yTo(y);
         });
         
@@ -144,40 +199,40 @@ export default {
       if (!res) return '#64748b';
       const max = Math.max(res.team1Win, res.draw, res.team2Win);
 
-      if (type === 't1') {
-        return (res.team1Win === max && max > 0) ? '#10b981' : '#ef4444'; // Green or Red
-      }
-      if (type === 't2') {
-        return (res.team2Win === max && max > 0) ? '#10b981' : '#ef4444'; // Green or Red
-      }
-      if (type === 'draw') {
-        return (res.draw === max && max > 0) ? '#f59e0b' : '#64748b'; // Yellow or Gray
-      }
+      if (type === 't1') return (res.team1Win === max) ? 'var(--accent-primary)' : '#475569';
+      if (type === 't2') return (res.team2Win === max) ? 'var(--accent-secondary)' : '#475569';
+      if (type === 'draw') return (res.draw === max) ? '#f59e0b' : '#334155';
     },
     async launchPrediction() {
       if (!this.selectedTeam1 || !this.selectedTeam2) return;
 
-      const btn = document.querySelector('.predict-btn');
-      if (btn) gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
-
       this.isPredicting = true;
       this.predictionResult = null;
       this.error = null;
+
+      // Start scanning animation
+      await nextTick();
+      this.animateScanning();
 
       try {
         const response = await apiClient.post('/predictions/predict', {
           home_team_id: this.selectedTeam1.id,
           away_team_id: this.selectedTeam2.id,
           home_team_name: this.selectedTeam1.name,
-          away_team_name: this.selectedTeam2.name
+          home_team_logo_url: this.selectedTeam1.logo_url,
+          away_team_name: this.selectedTeam2.name,
+          away_team_logo_url: this.selectedTeam2.logo_url
         });
+
+        // Synthetic delay for "Analysis" feel
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
         const cScore = response.confidence_score;
         this.predictionResult = {
           team1Win: response.predicted_result === 'HOME_WIN' ? cScore * 100 : (1 - cScore) * 50,
           draw: response.predicted_result === 'DRAW' ? cScore * 100 : (1 - cScore) * 20,
           team2Win: response.predicted_result === 'AWAY_WIN' ? cScore * 100 : (1 - cScore) * 30,
-          probableScore: "N/A"
+          probableScore: "2 - 1" // Mock score for now
         };
 
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win;
@@ -185,46 +240,61 @@ export default {
         this.predictionResult.draw = Math.round((this.predictionResult.draw / total) * 100);
         this.predictionResult.team2Win = 100 - this.predictionResult.team1Win - this.predictionResult.draw;
 
+        this.isPredicting = false;
         await nextTick();
-        this.initMagneticButtons(); // re-init since new buttons might exist
         this.animateResults();
       } catch (err) {
         this.error = err.message;
-      } finally {
         this.isPredicting = false;
       }
     },
+    animateScanning() {
+      gsap.fromTo('.scanning-logos', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.8 });
+      gsap.to('.scanning-ray', { left: '100%', duration: 1.5, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      gsap.to('.scan-logo', { filter: 'brightness(1.5)', duration: 0.5, repeat: -1, yoyo: true });
+    },
     animateResults() {
-      // Extreme Wow Effect Reveal
-      gsap.fromTo('.gsap-results', 
-         { scale: 0.8, opacity: 0, y: 50 },
-         { scale: 1, opacity: 1, y: 0, duration: 1.2, ease: 'elastic.out(1, 0.75)' }
+      const tl = gsap.timeline();
+      
+      tl.fromTo('.winner-reveal', 
+        { scale: 0, opacity: 0, rotate: -10 },
+        { scale: 1, opacity: 1, rotate: 0, duration: 1, ease: 'back.out(1.7)' }
       );
 
+      tl.fromTo('.winner-glow', 
+        { opacity: 0, scale: 0.5 },
+        { opacity: 1, scale: 1, duration: 1, repeat: -1, yoyo: true },
+        "-=0.5"
+      );
+
+      tl.fromTo('.stat-card', 
+        { x: -30, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.6, stagger: 0.2, ease: 'power2.out' },
+        "-=0.4"
+      );
+
+      // Progress bars
       const t1 = this.predictionResult.team1Win;
       const draw = this.predictionResult.draw;
       const t2 = this.predictionResult.team2Win;
 
-      // Progress bar growing effect
-      gsap.fromTo(this.$refs.barT1, { width: "0%" }, { width: `${t1}%`, duration: 2, ease: 'power4.out', delay: 0.3 });
-      gsap.fromTo(this.$refs.barDraw, { width: "0%" }, { width: `${draw}%`, duration: 2, ease: 'power4.out', delay: 0.3 });
-      gsap.fromTo(this.$refs.barT2, { width: "0%" }, { width: `${t2}%`, duration: 2, ease: 'power4.out', delay: 0.3 });
+      tl.fromTo(this.$refs.barT1, { width: "0%" }, { width: `${t1}%`, duration: 1.5, ease: 'power4.out' }, "-=0.5");
+      tl.fromTo(this.$refs.barDraw, { width: "0%" }, { width: `${draw}%`, duration: 1.5, ease: 'power4.out' }, "-=1.3");
+      tl.fromTo(this.$refs.barT2, { width: "0%" }, { width: `${t2}%`, duration: 1.5, ease: 'power4.out' }, "-=1.3");
 
-      // Count up numbers
-      gsap.fromTo(this.$refs.valT1, { innerHTML: 0 }, { innerHTML: t1, roundProps: "innerHTML", duration: 2, ease: 'power3.out', delay: 0.3, onUpdate() { this.targets()[0].innerHTML += '%' } });
-      gsap.fromTo(this.$refs.valDraw, { innerHTML: 0 }, { innerHTML: draw, roundProps: "innerHTML", duration: 2, ease: 'power3.out', delay: 0.3, onUpdate() { this.targets()[0].innerHTML += '%' } });
-      gsap.fromTo(this.$refs.valT2, { innerHTML: 0 }, { innerHTML: t2, roundProps: "innerHTML", duration: 2, ease: 'power3.out', delay: 0.3, onUpdate() { this.targets()[0].innerHTML += '%' } });
-      
-      // Pulse background effect on the highest score
-      const max = Math.max(t1, draw, t2);
-      if (t1 === max) gsap.to(this.$refs.valT1, { scale: 1.2, duration: 0.5, yoyo: true, repeat: 1, delay: 2.2 });
-      if (t2 === max) gsap.to(this.$refs.valT2, { scale: 1.2, duration: 0.5, yoyo: true, repeat: 1, delay: 2.2 });
-      if (draw === max && draw > 0) gsap.to(this.$refs.valDraw, { scale: 1.2, duration: 0.5, yoyo: true, repeat: 1, delay: 2.2 });
+      // Numbers
+      tl.fromTo(this.$refs.valT1, { innerHTML: 0 }, { innerHTML: t1, roundProps: "innerHTML", duration: 1.5, onUpdate() { this.targets()[0].innerHTML += '%' } }, "-=1.5");
+      tl.fromTo(this.$refs.valDraw, { innerHTML: 0 }, { innerHTML: draw, roundProps: "innerHTML", duration: 1.5, onUpdate() { this.targets()[0].innerHTML += '%' } }, "-=1.5");
+      tl.fromTo(this.$refs.valT2, { innerHTML: 0 }, { innerHTML: t2, roundProps: "innerHTML", duration: 1.5, onUpdate() { this.targets()[0].innerHTML += '%' } }, "-=1.5");
+    },
+    resetArena() {
+      this.predictionResult = null;
+      this.selectedTeam1 = null;
+      this.selectedTeam2 = null;
+      nextTick(() => this.animateEntrance());
     },
     savePrediction() {
-      gsap.to('.save-btn', { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1, onComplete: () => {
-        this.$router.push('/history');
-      }});
+      this.$router.push('/history');
     }
   }
 }
@@ -233,327 +303,391 @@ export default {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  /* Premium Dark Glassmorphism */
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #f8fafc;
-  padding-bottom: 3rem;
+  background-image: linear-gradient(rgba(10, 10, 26, 0.7), rgba(10, 10, 26, 0.9)), url("@/assets/ballon3.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-content {
-  padding: 2rem;
-  max-width: 850px;
+  width: 100%;
+  max-width: 1100px;
+  padding: 140px 2rem 60px;
   margin: 0 auto;
 }
 
-/* Base Glassmorphism Container */
-.prediction-container, .results-container {
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 2rem;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Ambient glow */
-.results-container::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%; width: 200%; height: 200%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-  z-index: -1;
-  pointer-events: none;
+/* Prediction Container */
+.prediction-container, .results-container, .scanning-arena {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 32px;
+  padding: 4rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), inset 0 0 80px rgba(255, 255, 255, 0.02);
 }
 
 .page-title {
-  margin: 0 0 2rem 0;
-  color: #f8fafc;
-  font-size: 2.2rem;
-  font-weight: 700;
+  font-size: 3.5rem;
+  font-weight: 900;
   text-align: center;
-  background: linear-gradient(135deg, #fff, #94a3b8);
+  margin-bottom: 4rem;
+  background: linear-gradient(to right, #fff, var(--accent-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-.result-title {
-  margin: 0 0 2.5rem 0;
-  color: #f8fafc;
-  font-size: 1.8rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.error-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  text-align: center;
-}
-
-.selection-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  letter-spacing: -2px;
 }
 
 .team-selectors {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+.team-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 2.5rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.team-card.has-selection {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 20px 40px rgba(0, 212, 255, 0.1);
+}
+
+.team-card label {
+  display: block;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.select-wrapper-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 2rem;
 }
 
-.form-group {
-  flex: 1;
+.logo-placeholder {
+  width: 140px;
+  height: 140px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
-.form-group label {
-  font-weight: 500;
-  color: #cbd5e1;
-  font-size: 1rem;
+.team-logo-giant {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.4));
+}
+
+.empty-logo {
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.1);
 }
 
 .glow-input {
-  padding: 1rem 1.2rem;
+  width: 100%;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.03);
-  color: #f8fafc;
-  cursor: pointer;
-  appearance: none; /* Hide default dropdown arrow for custom styling */
-}
-
-.glow-input:focus {
-  outline: none;
-  border-color: #818cf8;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
-}
-
-.glow-input option {
-  background: #1e293b;
   color: white;
+  font-weight: 700;
+  text-align: center;
 }
 
-.vs-indicator {
+/* VS Indicator */
+.vs-indicator-hero {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1.5rem;
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.05);
+  width: 100px;
+  height: 100px;
+}
+
+.vs-ring {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 2px solid var(--accent-secondary);
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  animation: pulseVS 2s infinite;
+}
+
+@keyframes pulseVS {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 .vs-text {
-  font-weight: 800;
-  color: #818cf8;
-  font-size: 1.1rem;
+  font-size: 2rem;
+  font-weight: 950;
+  color: var(--accent-secondary);
+  font-style: italic;
+  z-index: 2;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
 }
 
-/* Magnetic Buttons */
-.magnetic-btn {
-  position: relative;
+.predict-btn-hero {
+  width: 100%;
+  padding: 2rem;
+  background: var(--accent-gradient);
   border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 20px;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
   cursor: pointer;
-  z-index: 1;
-  overflow: hidden;
-  transition: box-shadow 0.3s ease, opacity 0.3s ease;
+  box-shadow: 0 20px 50px rgba(224, 38, 255, 0.3);
+}
+
+.predict-btn-hero:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+/* Scanning Arena */
+.scanning-arena {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.scanning-logos {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4rem;
+  position: relative;
+  height: 200px;
 }
 
-.magnetic-btn::before {
-  content: '';
+.scan-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.scanning-ray {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-  border-radius: 12px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--accent-secondary);
+  box-shadow: 0 0 30px var(--accent-secondary), 0 0 60px var(--accent-secondary);
+  height: 100%;
 }
 
-.magnetic-btn:hover::before { opacity: 1; }
-
-.predict-btn {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+.scanning-title {
+  font-size: 2.5rem;
+  font-weight: 800;
   color: white;
-  padding: 1.2rem;
+}
+
+.scanning-bar-container {
   width: 100%;
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.predict-btn:hover:not(:disabled) {
-  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+.scanning-bar-fill {
+  width: 40%;
+  height: 100%;
+  background: var(--accent-gradient);
+  animation: moveScanBar 2s infinite ease-in-out;
 }
 
-.predict-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #475569;
-  box-shadow: none;
+@keyframes moveScanBar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
 }
 
-.predict-btn.is-loading {
-  cursor: wait;
+/* Results Reveal */
+.winner-reveal {
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
-.save-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  padding: 1.2rem;
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-}
-
-.save-btn:hover {
-  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
-}
-
-.btn-text {
+.reveal-badge {
   display: inline-block;
-  pointer-events: none;
+  padding: 0.5rem 2rem;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid #10b981;
+  border-radius: 50px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
 }
 
-/* Loader Animation */
-.loader {
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top: 3px solid white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Results Prediction Stats */
-.prediction-stats {
+.winner-logo-container {
+  position: relative;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.winner-logo-reveal {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.5));
+  z-index: 2;
+}
+
+.draw-icon {
+  font-size: 8rem;
+  z-index: 2;
+}
+
+.winner-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.winner-name {
+  font-size: 3rem;
+  font-weight: 900;
+  color: white;
+}
+
+.prediction-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2rem;
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stat-label {
-  flex: 0 0 180px;
-  font-weight: 500;
-  color: #e2e8f0;
-  font-size: 1.1rem;
+  display: block;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
 }
 
-.stat-value {
-  flex: 0 0 70px;
-  font-weight: 800;
-  font-size: 1.5rem;
-  text-align: right;
-  text-shadow: 0 0 10px currentColor; /* glow matches color */
-}
-
-.progress-bar {
-  flex: 1;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.progress {
-  height: 100%;
-  border-radius: 10px;
-  background-color: #64748b; /* overwritten dynamically */
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2), 0 0 10px currentColor;
-}
-
-.score-prediction {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 1rem;
-}
-
-.score-label {
-  color: #cbd5e1;
-  font-size: 1.2rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.score-value {
+.stat-value-hero {
+  display: block;
+  font-size: 2.5rem;
   font-weight: 900;
-  color: #f8fafc;
-  font-size: 2rem;
-  text-shadow: 0 0 15px rgba(255,255,255,0.4);
+  margin-top: 1rem;
 }
 
-/* Responsive Design */
+.progress-bar-hero {
+  height: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+}
+
+.score-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 3rem;
+  border-radius: 24px;
+  margin-bottom: 3rem;
+}
+
+.score-value-hero {
+  font-size: 5rem;
+  font-weight: 950;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.actions-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.save-btn-hero {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.reset-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-secondary);
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
   .team-selectors {
     flex-direction: column;
-    gap: 1.5rem;
+    align-items: center;
   }
-  
-  .vs-indicator {
-    margin: 0;
+  .prediction-stats-grid {
+    grid-template-columns: 1fr;
   }
-  
-  .stat-item {
-    flex-wrap: wrap;
-    justify-content: space-between;
+  .actions-group {
+    grid-template-columns: 1fr;
   }
-  
-  .stat-label {
-    flex: 1 0 50%;
+  .page-title {
+    font-size: 2.5rem;
   }
-
-  .stat-value {
-    flex: 1 0 30%;
-  }
-  
-  .progress-bar {
-    flex: 0 0 100%;
-    order: 3;
-    margin-top: 0.5rem;
+  .winner-logo-reveal {
+    width: 120px;
+    height: 120px;
   }
 }
+
 </style>

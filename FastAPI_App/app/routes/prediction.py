@@ -28,8 +28,7 @@ async def get_teams():
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
     request: PredictionRequest,
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     # 1. Appel à l'API ML
@@ -45,8 +44,11 @@ async def predict_match(
             ml_url = f"http://localhost:8001/predict" 
             
             ml_request = {
-                "home_team_id": request.home_team_id,
-                "away_team_id": request.away_team_id
+                "home_team": request.home_team_name,
+                "away_team": request.away_team_name,
+                "referee": "Unknown",  # Valeur par défaut
+                "season": 2024,        # Valeur par défaut
+                "round": 1             # Valeur par défaut
             }
             
             response = await client.post(ml_url, json=ml_request)
@@ -59,31 +61,32 @@ async def predict_match(
                 detail=f"Erreur de communication avec le service ML: {str(e)}"
             )
 
-    # 2. Enregistrement dans l'historique (user_id=1 en mode dev sans auth)
+    # 2. Enregistrement dans l'historique
     new_prediction = PredictionHistory(
-        user_id=1,
+        user_id=current_user.id,
         home_team_name=request.home_team_name,
+        home_team_logo_url=request.home_team_logo_url,
         away_team_name=request.away_team_name,
-        predicted_result=ml_data["predicted_result"],
-        confidence_score=ml_data["confidence_score"]
+        away_team_logo_url=request.away_team_logo_url,
+        predicted_result=ml_data["prediction"],
+        confidence_score=ml_data["confidence"]
     )
     db.add(new_prediction)
     db.commit()
     db.refresh(new_prediction)
 
     return {
-        "predicted_result": ml_data["predicted_result"],
-        "confidence_score": ml_data["confidence_score"]
+        "predicted_result": ml_data["prediction"],
+        "confidence_score": ml_data["confidence"]
     }
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Retourne tout l'historique en mode dev (sans filtre par user)
-    return db.query(PredictionHistory).all()
+    # Retourne l'historique filtré par utilisateur
+    return db.query(PredictionHistory).filter(PredictionHistory.user_id == current_user.id).all()
 
 def register_routes(app):
     app.include_router(router)

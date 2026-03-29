@@ -8,7 +8,7 @@ Base = declarative_base()
 
 
 def get_db():
-    """Dependency FastAPI — session vers footballprediction_db."""
+    """Dependency FastAPI — session vers footballml_db."""
     db = SessionLocal()
     try:
         yield db
