@@ -14,5 +14,8 @@ class Settings(BaseSettings):
     )
     
     CORS_ORIGINS: list = ["*"]
+    DATA_DIR: str = os.getenv("DATA_DIR", "../Data/dataset")
+    MODEL_PATH:   str = os.getenv("MODEL_PATH",   "model/match_model_v1.joblib")
+    DATASET_PATH: str = os.getenv("DATASET_PATH", "model/football_stats_reference.csv")
 
 settings = Settings()

@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict
 from sqlalchemy.orm import Session
 
-from ..models.match import MatchData
+from ..models.match import FootballMatch
 from ..core.config import settings
 
 
@@ -319,22 +319,49 @@ class PreparationService:
 
         return df
     
-    # Étape 6 — Persistance dans MatchData (Raw Data Store)
+    # Étape 6 — Persistance dans FootballMatch (Raw Data Store)
 
+    def _seed_teams(self, df: pd.DataFrame, db: Session) -> None:
+        from ..models.match import Team
+
+        all_teams = set(df["HomeTeam"].unique()) | set(df["AwayTeam"].unique())
+
+        for name in sorted(all_teams):
+            exists = db.query(Team).filter(Team.name == name).first()
+            if not exists:
+                db.add(Team(name=name))
+
+        db.commit()
 
     def _persist(self, df: pd.DataFrame, db: Session) -> int:
         """
-        Insère les matchs dans la table match_data.
-        Ignore les doublons via (date, home_team, away_team).
+        Insère les matchs dans football_matches et les features dans match_stats.
+        Ignore les doublons via (date, home_team_id, away_team_id).
         Retourne le nombre de nouvelles lignes insérées.
         """
+        from ..models.match import Team, MatchStats
+
+        # Seed automatique des équipes
+        self._seed_teams(df, db)
+
+        # Cache des équipes en mémoire pour éviter N+1 queries
+        teams_cache = {t.name: t.id for t in db.query(Team).all()}
+
         inserted = 0
 
         for _, row in df.iterrows():
-            exists = db.query(MatchData).filter(
-                MatchData.date      == row["Date"],
-                MatchData.home_team == row["HomeTeam"],
-                MatchData.away_team == row["AwayTeam"],
+            home_team_id = teams_cache.get(row["HomeTeam"])
+            away_team_id = teams_cache.get(row["AwayTeam"])
+
+            # Ignorer si l'équipe n'existe pas
+            if not home_team_id or not away_team_id:
+                continue
+
+            # Vérifier les doublons
+            exists = db.query(FootballMatch).filter(
+                FootballMatch.date         == str(row["Date"]),
+                FootballMatch.home_team_id == home_team_id,
+                FootballMatch.away_team_id == away_team_id,
             ).first()
 
             if exists:
@@ -343,15 +370,37 @@ class PreparationService:
             def safe(col: str) -> float | None:
                 return float(row[col]) if col in row.index and pd.notna(row[col]) else None
 
-            db.add(MatchData(
-                date       = row["Date"],
-                season     = int(row["league.season"]),
-                round_num  = int(row["Round"]) if "Round" in row.index and pd.notna(row.get("Round")) else 0,
-                home_team  = row["HomeTeam"],
-                away_team  = row["AwayTeam"],
-                home_score = int(row["HomeScore"]) if pd.notna(row.get("HomeScore")) else None,
-                away_score = int(row["AwayScore"]) if pd.notna(row.get("AwayScore")) else None,
-                result     = row.get("Result"),
+            # Insertion dans football_matches (données brutes)
+            match = FootballMatch(
+                date          = str(row["Date"]),
+                league_season = int(row["league.season"]),
+                home_team_id  = home_team_id,
+                away_team_id  = away_team_id,
+                home_score    = int(row["HomeScore"]) if pd.notna(row.get("HomeScore")) else None,
+                away_score    = int(row["AwayScore"]) if pd.notna(row.get("AwayScore")) else None,
+                result        = row.get("Result"),
+                halftime_home_goals = safe("HalftimeHomeGoals"),
+                halftime_away_goals = safe("HalftimeAwayGoals"),
+                halftime_result     = row.get("HalftimeResult"),
+                home_shot           = safe("HomeShot"),
+                away_shot           = safe("AwayShot"),
+                home_shot_target    = safe("HomeShotTarget"),
+                away_shot_target    = safe("AwayShotTarget"),
+                home_team_fouls     = safe("HomeTeamFouls"),
+                away_team_fouls     = safe("AwayTeamFouls"),
+                home_team_corners   = safe("HomeTeamCorners"),
+                away_team_corners   = safe("AwayTeamCorners"),
+                home_yellow_cards   = safe("HomeYellowCards"),
+                away_yellow_cards   = safe("AwayYellowCards"),
+                home_red_cards      = safe("HomeRedCards"),
+                away_red_cards      = safe("AwayRedCards"),
+            )
+            db.add(match)
+            db.flush()  # ← gera o match.id antes de criar o MatchStats
+
+            # Insertion dans match_stats (features calculées)
+            stats = MatchStats(
+                match_id                 = match.id,
                 home_goals_scored_home   = safe("home_goals_scored_home"),
                 home_goals_conceded_home = safe("home_goals_conceded_home"),
                 home_win_rate_home       = safe("home_win_rate_home"),
@@ -366,7 +415,8 @@ class PreparationService:
                 away_rolling_scored      = safe("away_rolling_scored"),
                 away_rolling_conceded    = safe("away_rolling_conceded"),
                 away_rolling_win_rate    = safe("away_rolling_win_rate"),
-            ))
+            )
+            db.add(stats)
             inserted += 1
 
         db.commit()
@@ -384,7 +434,7 @@ class PreparationService:
             3. Nettoyage
             4. Feature engineering — stats par lieu
             5. Feature engineering — rolling averages
-            6. Persistance dans MatchData
+            6. Persistance dans FootballMatch
 
         Returns:
             dict avec le nombre de matchs insérés et le total en base.
@@ -398,7 +448,7 @@ class PreparationService:
         inserted = self._persist(final_df, db)
 
         from sqlalchemy import func
-        total = db.query(func.count(MatchData.id)).scalar()
+        total = db.query(func.count(FootballMatch.id)).scalar()
 
         return {
             "status":   "success",
@@ -407,6 +457,4 @@ class PreparationService:
             "message":  f"{inserted} nouveaux matchs importés. Total en base : {total}.",
         }
 
-
-# Singleton
 preparation_service = PreparationService()

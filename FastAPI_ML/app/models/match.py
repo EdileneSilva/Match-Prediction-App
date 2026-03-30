@@ -8,7 +8,6 @@ from datetime import datetime
 from ..database import Base
 
 class Team(Base):
-    """Équipes de Ligue 1 — utilisées pour la validation des requêtes."""
     __tablename__ = "teams"
 
     id   = Column(Integer, primary_key=True, index=True)
@@ -89,8 +88,8 @@ class MatchStats(Base):
     away_goals_scored_away   = Column(Float, nullable=True)
     away_goals_conceded_away = Column(Float, nullable=True)
     away_win_rate_away       = Column(Float, nullable=True)
-    result_home   = Column(Float, nullable=True)   
-    result_away   = Column(Float, nullable=True)        
+    # result_home   = Column(Float, nullable=True)   
+    # result_away   = Column(Float, nullable=True)        
 
     # Classement
     home_season_rank = Column(Integer, nullable=True)
