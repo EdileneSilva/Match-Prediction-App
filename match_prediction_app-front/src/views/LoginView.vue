@@ -161,14 +161,17 @@ export default {
       gsap.to(this.$refs.magneticBtn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 })
 
       try {
+        // Étape 1 : récupère le token
         const response = await apiClient.post('/auth/login', {
           email: this.email,
           password: this.password
         })
-        
         localStorage.setItem('token', response.access_token)
-        localStorage.setItem('user', JSON.stringify(response.user))
-        
+
+        // Étape 2 : récupère les infos de l'utilisateur connecté
+        const me = await apiClient.get('/auth/me')
+        localStorage.setItem('user', JSON.stringify(me))
+
         this.$router.push('/')
       } catch (error) {
         this.errorMessage = error.message
