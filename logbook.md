@@ -130,3 +130,11 @@ npm run serve
 ### 2. Infrastructure & Base de Données
 - **Validation PostgreSQL** : Confirmation que l'application utilise exclusivement les bases PostgreSQL actives (`footballapp_db` et `footballml_db`). Les tables d'utilisateurs et d'historique sont bien synchronisées sur Postgres.
 - **Nettoyage** : Suppression définitive du fichier `app.db` (SQLite) résiduel dans le dossier backend pour éviter toute ambiguïté sur la source de vérité des données.
+
+### 3. Correction Critique — Erreur 500 sur Inscription/Connexion
+
+**Cause racine** : `passlib 1.7.4` est **incompatible** avec `bcrypt 4.x+`. La librairie `bcrypt` a supprimé son attribut `__about__` dans sa version 4.0, ce qui fait crasher `passlib` silencieusement avec une `ValueError: password cannot be longer than 72 bytes` lors de chaque appel à `get_password_hash()` ou `verify_password()`. Ce crash 500 côté serveur n'envoyait aucun header CORS dans la réponse d'erreur, ce qui faisait apparaître une erreur "Load failed" dans le navigateur (masquant le vrai problème).
+
+**Solution** : Remplacement de `passlib.context.CryptContext` par des appels directs à `bcrypt.hashpw()` et `bcrypt.checkpw()` dans `FastAPI_App/app/core/security.py`.
+
+**Bug Secondaire** : `LoginView.vue` tentait de lire `response.user` après la connexion, mais le schéma `Token` ne retourne que `{access_token, token_type}`. Correction : stockage du token, puis appel à `GET /auth/me` pour récupérer les données utilisateur.
