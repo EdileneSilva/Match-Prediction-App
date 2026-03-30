@@ -92,3 +92,10 @@ npm run serve
 ### 3. Optimisation de l'Expérience Utilisateur (UX)
 - **Correction du Scroll** : Suppression des contraintes CSS (`height: 100%`) et des zones de défilement imbriquées qui bloquaient la navigation au trackpad/finger-scroll. La page défile désormais de manière fluide et naturelle.
 - **Design Premium** : Amélioration des contrastes et de l'accessibilité visuelle des badges de prédiction.
+
+### 4. Ajustements Prédictions et Logique Frontend
+- **Suppression du Mock Score** : Retrait de l'affichage statique "Probabilité de score : 2 - 1" dans l'UI de prédiction afin d'éviter d'induire l'utilisateur en erreur, le modèle ML actuel (classification) ne fournissant pas de prédiction de score exact.
+- **Sécurisation de la Saisie** : Ajout d'une règle bloquante empêchant l'utilisateur de lancer une analyse si la même équipe est sélectionnée à domicile et à l'extérieur.
+- **Bypass de Sécurité (Dev)** : Désactivation temporaire de la vérification du token JWT (`get_current_user`) sur l'API pour faciliter les tests de la pipeline ML depuis l'interface sans nécessiter de compte persistant.
+
+---

@@ -45,8 +45,11 @@
             </div>
           </div>
 
+          <div v-if="selectedTeam1 && selectedTeam2 && selectedTeam1.id === selectedTeam2.id" style="color: #ef4444; font-weight: bold; margin-bottom: 2rem; text-align: center;">
+            <i class="fas fa-exclamation-triangle"></i> Veuillez choisir deux équipes différentes (pas de match contre soi-même).
+          </div>
           <button class="predict-btn-hero magnetic-btn" @click="launchPrediction"
-            :disabled="!selectedTeam1 || !selectedTeam2">
+            :disabled="!selectedTeam1 || !selectedTeam2 || selectedTeam1?.id === selectedTeam2?.id">
             <span class="btn-text">Lancer l'Analyse IA</span>
           </button>
         </div>
@@ -104,11 +107,6 @@
             </div>
             <span class="stat-value-hero" ref="valT2" :style="{ color: getColor('t2') }">0%</span>
           </div>
-        </div>
-
-        <div class="score-summary">
-          <span class="score-label">Probabilité de score</span>
-          <span class="score-value-hero">{{ predictionResult.probableScore }}</span>
         </div>
 
         <div class="actions-group">
@@ -250,8 +248,7 @@ export default {
         this.predictionResult = {
           team1Win: response.predicted_result === 'HOME_WIN' ? cScore * 100 : (1 - cScore) * 50,
           draw: response.predicted_result === 'DRAW' ? cScore * 100 : (1 - cScore) * 20,
-          team2Win: response.predicted_result === 'AWAY_WIN' ? cScore * 100 : (1 - cScore) * 30,
-          probableScore: "2 - 1" // Mock score for now
+          team2Win: response.predicted_result === 'AWAY_WIN' ? cScore * 100 : (1 - cScore) * 30
         };
 
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win;
@@ -644,24 +641,6 @@ export default {
 
 .progress-fill {
   height: 100%;
-}
-
-.score-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 3rem;
-  border-radius: 24px;
-  margin-bottom: 3rem;
-}
-
-.score-value-hero {
-  font-size: 5rem;
-  font-weight: 950;
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .actions-group {
