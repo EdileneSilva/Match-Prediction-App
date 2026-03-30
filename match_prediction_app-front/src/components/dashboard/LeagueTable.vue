@@ -104,10 +104,7 @@ export default {
 
 .table-wrapper {
   overflow-x: auto;
-  max-height: 600px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent-secondary) transparent;
+  /* Retrait de la limite de hauteur pour afficher tout le classement (18 équipes) */
 }
 
 .table-wrapper::-webkit-scrollbar {

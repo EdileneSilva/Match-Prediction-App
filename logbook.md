@@ -104,3 +104,17 @@ npm run serve
 - **Renommage Variable `round`** : Modification du paramètre de Pydantic `round` en `league_round` dans les schémas de requêtes et les routes FastAPI. Le mot "round" étant une fonction native Python (built-in), il apparaissait surligné dans l'éditeur et pouvait potentiellement créer une confusion ou un masquage de la fonctionnalité d'origine de Python.
 
 ---
+
+## 🔝 Actualisation Saison 2025/2026 & Correction Dashboard
+
+### 1. Alignement des Clubs (Saison Actuelle)
+- **Liste Officielle** : Mise à jour de la liste des 18 clubs dans le backend ML (`FastAPI_ML/app/main.py`) pour correspondre strictement à la saison 2025/2026 fournie par l'utilisateur (incluant le **Paris FC**, **FC Lorient**, **FC Metz**, etc.).
+- **Auto-Reseeding** : Ajout d'une logique de nettoyage/re-seeding automatique si le nombre d'équipes en base ne correspond pas à 18, assurant une transition fluide vers la nouvelle saison.
+
+### 2. Fiabilité des Données & Mapping
+- **Mapping 1:1** : Simplification et mise à jour de `team_mapper.py` pour garantir que le scraper LFP et le moteur de prédiction parlent le même langage sans ambiguïté sur les noms de clubs.
+- **Proxy Teams** : Vérification du bon fonctionnement du proxy `/predictions/teams` qui alimente les listes déroulantes du frontend.
+
+### 3. Optimisation de l'Interface (Dashboard)
+- **Visibilité Totale du Classement** : Suppression de la contrainte CSS `max-height: 600px` dans `LeagueTable.vue`. Le classement de Ligue 1 s'affiche désormais intégralement de la 1ère à la 18ème place, offrant une vue d'ensemble immédiate sans scroll vertical interne.
+- **Correction des Prédictions** : Synchronisation des listes d'équipes dans le simulateur de match pour éviter les erreurs d'équipes manquantes ou obsolètes.
