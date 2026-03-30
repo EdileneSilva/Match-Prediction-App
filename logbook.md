@@ -118,3 +118,15 @@ npm run serve
 ### 3. Optimisation de l'Interface (Dashboard)
 - **Visibilité Totale du Classement** : Suppression de la contrainte CSS `max-height: 600px` dans `LeagueTable.vue`. Le classement de Ligue 1 s'affiche désormais intégralement de la 1ère à la 18ème place, offrant une vue d'ensemble immédiate sans scroll vertical interne.
 - **Correction des Prédictions** : Synchronisation des listes d'équipes dans le simulateur de match pour éviter les erreurs d'équipes manquantes ou obsolètes.
+
+---
+
+## 🔐 Correction Auth & Support PostgreSQL
+
+### 1. Résolution de l'Erreur d'Inscription ("Load failed")
+- **Frontend** : Modification de `src/api/client.js` pour utiliser explicitement `127.0.0.1` à la place de `localhost`. Cela résout les échecs de résolution DNS IPv6 (::1) sur macOS qui interrompaient les requêtes `POST` avant d'atteindre le serveur.
+- **Optimisation CORS** : Remplacement du regex générique par une déclaration explicite des origines autorisées (`http://localhost:8080`, etc.) dans `main.py`, garantissant une compatibilité totale avec l'envoi de cookies et d'en-têtes d'autorisation (`allow_credentials=True`).
+
+### 2. Infrastructure & Base de Données
+- **Validation PostgreSQL** : Confirmation que l'application utilise exclusivement les bases PostgreSQL actives (`footballapp_db` et `footballml_db`). Les tables d'utilisateurs et d'historique sont bien synchronisées sur Postgres.
+- **Nettoyage** : Suppression définitive du fichier `app.db` (SQLite) résiduel dans le dossier backend pour éviter toute ambiguïté sur la source de vérité des données.
