@@ -27,7 +27,7 @@ async def get_prediction_confidence(home_team: str, away_team: str) -> Dict[str,
                 "away_team": norm_away,
                 "referee": "Unknown",
                 "season": 2024, # Saison de référence dans le modèle
-                "round": 1
+                "league_round": 1
             }
             # Appel à l'endpoint de FastAPI_ML
             response = await client.post(f"{ML_SERVICE_URL}/predict", json=payload)

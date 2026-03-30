@@ -5,4 +5,4 @@ class MatchRequest(BaseModel):
     away_team: str
     referee: str
     season: int
-    round: int
+    league_round: int

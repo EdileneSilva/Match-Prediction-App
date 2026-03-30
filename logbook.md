@@ -99,3 +99,8 @@ npm run serve
 - **Bypass de Sécurité (Dev)** : Désactivation temporaire de la vérification du token JWT (`get_current_user`) sur l'API pour faciliter les tests de la pipeline ML depuis l'interface sans nécessiter de compte persistant.
 
 ---
+
+### 5. Correction de Résolution de Nom (Shadowing)
+- **Renommage Variable `round`** : Modification du paramètre de Pydantic `round` en `league_round` dans les schémas de requêtes et les routes FastAPI. Le mot "round" étant une fonction native Python (built-in), il apparaissait surligné dans l'éditeur et pouvait potentiellement créer une confusion ou un masquage de la fonctionnalité d'origine de Python.
+
+---

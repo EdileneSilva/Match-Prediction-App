@@ -31,14 +31,14 @@ def predict(request: MatchRequest, db: Session = Depends(get_db)):
         request.away_team,
         request.referee,
         request.season,
-        request.round,
+        request.league_round,
     )
     
     return {
         "home_team": request.home_team,
         "away_team": request.away_team,
         "season": request.season,
-        "round": request.round,
+        "league_round": request.league_round,
         **prediction
     }
 

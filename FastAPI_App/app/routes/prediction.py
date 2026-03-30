@@ -48,7 +48,7 @@ async def predict_match(
                 "away_team": request.away_team_name,
                 "referee": "Unknown",  # Valeur par défaut
                 "season": 2024,        # Valeur par défaut
-                "round": 1             # Valeur par défaut
+                "league_round": 1             # Valeur par défaut
             }
             
             response = await client.post(ml_url, json=ml_request)
