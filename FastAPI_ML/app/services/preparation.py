@@ -331,8 +331,7 @@ class PreparationService:
 
         # Seed automatique des équipes
         self._seed_teams(df, db)
-
-        # Cache des équipes en mémoire pour éviter N+1 queries
+        
         teams_cache = {t.name: t.id for t in db.query(Team).all()}
 
         inserted = 0
@@ -384,7 +383,7 @@ class PreparationService:
                 away_red_cards      = safe("AwayRedCards"),
             )
             db.add(match)
-            db.flush()  # ← gera o match.id antes de criar o MatchStats
+            db.flush()
 
             # Insertion dans match_stats (features calculées)
             stats = MatchStats(
