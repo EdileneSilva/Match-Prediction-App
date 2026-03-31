@@ -344,20 +344,31 @@ export default {
   
   methods: {
     async loadStatisticsData() {
-      this.loading = true
+      this.loading = true;
       try {
-        // Appel API pour charger les données réelles
-        // const ranking = await apiClient.get('/statistics/ranking')
-        // const form = await apiClient.get('/statistics/form')
-        // const goals = await apiClient.get('/statistics/goals')
-        
-        // Pour l'instant, utilise les données mock
-        console.log('Chargement des données statistiques...')
+        const response = await apiClient.get('/dashboard/standings');
+        if (response.status === 'success' && response.data) {
+          this.rankingData = response.data.map(item => ({
+            id: item.position,
+            position: item.position,
+            name: item.team,
+            logo: item.logo || '⚽',
+            matchesPlayed: item.played,
+            wins: item.wins,
+            draws: item.draws,
+            losses: item.losses,
+            goalsFor: item.goals_for,
+            goalsAgainst: item.goals_against,
+            goalDifference: item.goals_diff,
+            points: item.points,
+            form: [] // Le scraper ne fournit pas encore la forme détaillée ('V', 'D', etc.)
+          }));
+        }
       } catch (err) {
-        this.error = "Erreur lors du chargement des statistiques"
-        console.error(err)
+        this.error = "Erreur lors du chargement des statistiques";
+        console.error(err);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
     

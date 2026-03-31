@@ -1,7 +1,11 @@
-const API_BASE_URL = `http://127.0.0.1:8000`;
+const AUTH_URL = `http://127.0.0.1:8000`;
+const ML_URL = `http://127.0.0.1:8001`;
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token');
+  
+  // Automagical routing based on endpoint prefix
+  const baseUrl = endpoint.startsWith('/auth') ? AUTH_URL : ML_URL;
 
   const headers = {
     'Content-Type': 'application/json',
@@ -17,7 +21,7 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const response = await fetch(`${baseUrl}${endpoint}`, config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

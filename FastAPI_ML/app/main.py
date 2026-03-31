@@ -1,76 +1,51 @@
+from contextlib import asynccontextmanager
+from .services.ml_service import ml_service
 from fastapi import FastAPI
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
-
-
 from .routes.predict import register_routes
+from .routes.train import register_routes as register_train_routes
+from .routes.dashboard import register_dashboard_routes
 from .core.config import settings
+from .database import engine, Base, SessionLocal
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    Base.metadata.create_all(bind=engine)
+
+    if Path(settings.MODEL_PATH).exists():
+        try:
+            ml_service.load_model()
+            db = SessionLocal()
+            try:
+                ml_service.load_stats_from_db(db)
+            finally:
+                db.close()
+            print("Modèle chargé avec succès.")
+        except Exception as e:
+
+            print(f"Avertissement — modèle non chargé : {e}")
+    else:
+        print(f"Avertissement — modèle introuvable : {settings.MODEL_PATH}")
+        print("Lancez POST /train pour entraîner le premier modèle.")
+
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API ML (données de matchs, entraînement et prédiction) pour la Match Prediction App.",
     version=settings.PROJECT_VERSION,
+    lifespan= lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:8082",
-        "http://127.0.0.1:8082",
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-from .database import engine, Base, SessionLocal
-from .models.match import Team
-
-# Création des tables (pour le mode dev/démo sans PostgreSQL)
-Base.metadata.create_all(bind=engine)
-
-# Seeding des équipes si la table est vide
-db = SessionLocal()
-try:
-    if db.query(Team).count() != 18:
-        # On nettoie si le compte n'est plus bon (pour forcer le re-seed 2025/2026)
-        db.query(Team).delete()
-        teams = [
-            Team(name="Angers SCO", logo_url="https://media.api-sports.io/football/teams/77.png"),
-            Team(name="AJ Auxerre", logo_url="https://media.api-sports.io/football/teams/108.png"),
-            Team(name="Stade Brestois 29", logo_url="https://media.api-sports.io/football/teams/106.png"),
-            Team(name="Le Havre AC", logo_url="https://media.api-sports.io/football/teams/111.png"),
-            Team(name="RC Lens", logo_url="https://media.api-sports.io/football/teams/116.png"),
-            Team(name="LOSC Lille", logo_url="https://media.api-sports.io/football/teams/79.png"),
-            Team(name="FC Lorient", logo_url="https://media.api-sports.io/football/teams/97.png"),
-            Team(name="Olympique Lyonnais", logo_url="https://media.api-sports.io/football/teams/80.png"),
-            Team(name="Olympique de Marseille", logo_url="https://media.api-sports.io/football/teams/81.png"),
-            Team(name="FC Metz", logo_url="https://media.api-sports.io/football/teams/112.png"),
-            Team(name="AS Monaco", logo_url="https://media.api-sports.io/football/teams/91.png"),
-            Team(name="FC Nantes", logo_url="https://media.api-sports.io/football/teams/83.png"),
-            Team(name="OGC Nice", logo_url="https://media.api-sports.io/football/teams/84.png"),
-            Team(name="Paris FC", logo_url="https://media.api-sports.io/football/teams/269.png"),
-            Team(name="Paris Saint-Germain", logo_url="https://media.api-sports.io/football/teams/85.png"),
-            Team(name="Stade Rennais FC", logo_url="https://media.api-sports.io/football/teams/94.png"),
-            Team(name="RC Strasbourg Alsace", logo_url="https://media.api-sports.io/football/teams/95.png"),
-            Team(name="Toulouse FC", logo_url="https://media.api-sports.io/football/teams/96.png")
-        ]
-        db.add_all(teams)
-        db.commit()
-finally:
-    db.close()
-
 register_routes(app)
-
-
-@app.get("/health", tags=["Health"])
-def health_check():
-    return {"status": "ok", "service": "ml-api"}
-
+register_train_routes(app)
+register_dashboard_routes(app)

@@ -155,7 +155,7 @@ export default {
   },
   async mounted() {
     try {
-      this.teams = await apiClient.get('/predictions/teams')
+      this.teams = await apiClient.get('/teams')
     } catch (err) {
       this.error = "Impossible de charger les équipes"
     }
@@ -232,13 +232,10 @@ export default {
       this.animateScanning();
 
       try {
-        const response = await apiClient.post('/predictions/predict', {
-          home_team_id: this.selectedTeam1.id,
-          away_team_id: this.selectedTeam2.id,
-          home_team_name: this.selectedTeam1.name,
-          home_team_logo_url: this.selectedTeam1.logo_url,
-          away_team_name: this.selectedTeam2.name,
-          away_team_logo_url: this.selectedTeam2.logo_url
+        const response = await apiClient.post('/predict', {
+          home_team: this.selectedTeam1.name,
+          away_team: this.selectedTeam2.name,
+          season: 2025
         });
 
         // Synthetic delay for "Analysis" feel
