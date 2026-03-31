@@ -407,8 +407,7 @@ export default {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-top: 80px;
 }
 
 .main-content {
@@ -418,20 +417,25 @@ export default {
 }
 
 .statistics-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
+  background: var(--glass-bg);
+  border-radius: 20px;
   padding: 2.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
 }
 
 .page-title {
   margin: 0 0 2rem 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Onglets */
@@ -440,7 +444,7 @@ export default {
   justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 1px solid var(--glass-border);
   padding-bottom: 0;
 }
 
@@ -449,7 +453,7 @@ export default {
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -458,13 +462,13 @@ export default {
 }
 
 .tab-button:hover {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  color: var(--accent-secondary);
+  background: rgba(0, 212, 255, 0.05);
 }
 
 .tab-button.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
+  color: var(--accent-secondary);
+  border-bottom-color: var(--accent-secondary);
   font-weight: 600;
 }
 
@@ -473,10 +477,10 @@ export default {
 }
 
 .tab-panel h2 {
-  color: #333;
+  color: var(--text-primary);
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid var(--accent-secondary);
   padding-bottom: 0.5rem;
 }
 
@@ -489,17 +493,19 @@ export default {
 
 .filter-select, .team-select {
   padding: 0.75rem 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
   font-size: 1rem;
-  background: white;
+  background: var(--glass-bg);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.3s;
 }
 
 .filter-select:focus, .team-select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
 }
 
 /* Tableau de classement */
@@ -512,11 +518,11 @@ export default {
 .ranking-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: transparent;
 }
 
 .ranking-table th {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   color: white;
   padding: 1rem;
   text-align: center;
@@ -527,8 +533,8 @@ export default {
 .ranking-table td {
   padding: 0.75rem;
   text-align: center;
-  border-bottom: 1px solid #e0e0e0;
-  color: #333;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-primary);
 }
 
 .position {
@@ -557,7 +563,7 @@ export default {
 .points {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #667eea;
+  color: var(--accent-secondary);
 }
 
 /* Classes de rang */
@@ -604,18 +610,20 @@ export default {
 }
 
 .form-card, .goals-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--glass-shadow);
   display: flex;
   align-items: center;
   gap: 1rem;
-  transition: transform 0.2s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-card:hover, .goals-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 212, 255, 0.2);
 }
 
 .form-icon, .goals-icon {
@@ -625,19 +633,19 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   border-radius: 50%;
 }
 
 .form-value, .goals-value {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .form-label, .goals-label {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
   margin-top: 0.25rem;
 }
 
@@ -653,18 +661,19 @@ export default {
   grid-template-columns: 80px 1fr 80px 60px;
   align-items: center;
   padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
 }
 
-.match-win { background: rgba(40, 167, 69, 0.05); border-color: #28a745; }
-.match-draw { background: rgba(255, 193, 7, 0.05); border-color: #ffc107; }
-.match-loss { background: rgba(220, 53, 69, 0.05); border-color: #dc3545; }
+.match-win { background: rgba(40, 167, 69, 0.08); border-color: rgba(40, 167, 69, 0.4); }
+.match-draw { background: rgba(255, 193, 7, 0.08); border-color: rgba(255, 193, 7, 0.4); }
+.match-loss { background: rgba(220, 53, 69, 0.08); border-color: rgba(220, 53, 69, 0.4); }
 
-.match-date { font-weight: 600; color: #666; }
-.match-opponent { font-weight: 500; }
-.match-score { font-weight: bold; }
-.match-result { font-weight: bold; }
+.match-date { font-weight: 600; color: var(--text-secondary); }
+.match-opponent { font-weight: 500; color: var(--text-primary); }
+.match-score { font-weight: bold; color: var(--text-primary); }
+.match-result { font-weight: bold; color: var(--text-primary); }
 
 /* Buteurs */
 .scorers-list {
@@ -677,14 +686,15 @@ export default {
   display: flex;
   align-items: center;
   padding: 1rem;
-  border-radius: 8px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.2s;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .scorer-item:hover {
   transform: translateX(5px);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.15);
 }
 
 .scorer-rank {
@@ -698,8 +708,8 @@ export default {
   margin-right: 1rem;
 }
 
-.scorer-first .scorer-rank { background: gold; color: #333; }
-.scorer-second .scorer-rank { background: silver; color: #333; }
+.scorer-first .scorer-rank { background: gold; color: #1a1a2e; }
+.scorer-second .scorer-rank { background: silver; color: #1a1a2e; }
 .scorer-third .scorer-rank { background: #cd7f32; color: white; }
 
 .scorer-info {
@@ -708,12 +718,12 @@ export default {
 
 .scorer-name {
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .scorer-team {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .scorer-stats {
@@ -723,12 +733,12 @@ export default {
 .scorer-goals {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #667eea;
+  color: var(--accent-secondary);
 }
 
 .scorer-matches {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* Distribution des buts */
@@ -747,25 +757,25 @@ export default {
 
 .period-label {
   font-weight: 500;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .period-bar {
   height: 20px;
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  transition: width 0.3s ease;
+  background: var(--accent-gradient);
+  transition: width 0.5s ease;
 }
 
 .period-value {
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
   text-align: right;
 }
 
@@ -773,7 +783,7 @@ export default {
 .no-selection {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.1rem;
 }
 
@@ -793,13 +803,13 @@ export default {
   }
 
   .tab-button {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--glass-border);
     border-right: none;
     margin-bottom: 0;
   }
 
   .tab-button.active {
-    border-bottom-color: #667eea;
+    border-bottom-color: var(--accent-secondary);
     border-right: none;
   }
 
