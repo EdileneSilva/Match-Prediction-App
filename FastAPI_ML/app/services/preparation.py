@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from datetime import datetime
 from typing import Dict
+from pandas import DataFrame
 from sqlalchemy.orm import Session
 
 from ..models.match import FootballMatch
@@ -122,6 +122,17 @@ class PreparationService:
 
     # Étape 2 — Harmonisation et fusion
 
+    def _harmonise_ext(
+        self,
+        dataset: pd.DataFrame
+    ) -> pd.DataFrame:
+
+        dataset["Date"] = pd.to_datetime(dataset["Date"], dayfirst=True).dt.date
+        dataset.replace(self._TEAM_NAMES_EXT, inplace=True)
+        dataset.rename(columns=self._RENAME_EXT, inplace=True)
+
+        return dataset
+
     def _harmonise_and_merge(
         self,
         dataset1: pd.DataFrame,
@@ -156,7 +167,11 @@ class PreparationService:
         existing_cols = [c for c in self._COLS_TO_DROP if c in df.columns]
         df = df.drop(columns=existing_cols)
 
-        df["league.season"] = df["league.season"].fillna("2025")
+        if "league.season" in df.columns:
+            df["league.season"] = df["league.season"].fillna("2025")
+        else:
+            print("Warning: 'league.season' column missing, defaulting to 2025")
+            df["league.season"] = 2025
         
         df = df.dropna(subset=["Result"]).copy()
 
@@ -411,7 +426,7 @@ class PreparationService:
 
     # Point d'entrée public
 
-    def run(self, db: Session) -> Dict:
+    def run(self, db: Session, df: DataFrame) -> Dict:
         """
         Exécute le pipeline complet de préparation des données.
 
@@ -426,9 +441,11 @@ class PreparationService:
         Returns:
             dict avec le nombre de matchs insérés et le total en base.
         """
-        dataset1, dataset2 = self._load_sources()
-        merged_df          = self._harmonise_and_merge(dataset1, dataset2)
-        clean_df           = self._clean(merged_df)
+        # dataset1, dataset2 = self._load_sources()
+        # merged_df          = self._harmonise_and_merge(dataset1, dataset2)
+
+        harmonized_df      = self._harmonise_ext(df)
+        clean_df           = self._clean(harmonized_df)
         stats_df           = self._add_season_stats(clean_df)
         final_df           = self._add_rolling_features(stats_df)
 

@@ -19,3 +19,10 @@ __pycache__/
 *.db
 FastAPI_App/*.db
 FastAPI_ML/*.db
+
+# Modèles
+*.joblib
+
+# IntelliJ
+.idea/
+.idea

@@ -1,16 +1,40 @@
+from contextlib import asynccontextmanager
+from .services.ml_service import ml_service
 from fastapi import FastAPI
+from pathlib import Path
 from fastapi.middleware.cors import CORSMiddleware
 from .routes.predict import register_routes
-from .routes.data import router as data_router
 from .routes.train import register_routes as register_train_routes
 from .core.config import settings
-from .database import engine, Base
-from .models.match import Team, FootballMatch, MatchStats, TeamStatsReference, TrainLog
+from .database import engine, Base, SessionLocal
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    Base.metadata.create_all(bind=engine)
+
+    if Path(settings.MODEL_PATH).exists():
+        try:
+            ml_service.load_model()
+            db = SessionLocal()
+            try:
+                ml_service.load_stats_from_db(db)
+            finally:
+                db.close()
+            print("Modèle chargé avec succès.")
+        except Exception as e:
+
+            print(f"Avertissement — modèle non chargé : {e}")
+    else:
+        print(f"Avertissement — modèle introuvable : {settings.MODEL_PATH}")
+        print("Lancez POST /train pour entraîner le premier modèle.")
+
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="API ML (données de matchs, entraînement et prédiction) pour la Match Prediction App.",
     version=settings.PROJECT_VERSION,
+    lifespan= lifespan,
 )
 
 app.add_middleware(
@@ -21,17 +45,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
-
-
 register_routes(app)
-app.include_router(data_router)
 register_train_routes(app)
-
-
-@app.get("/health", tags=["Health"])
-def health_check():
-    return {"status": "ok", "service": "ml-api"}
