@@ -42,21 +42,23 @@ Cette API gère :
 
 ### 3.1. Configuration
 
-Dans `FastAPI_App/`, créer un fichier `.env` :
+Dans la racine du projet (ex: `Match-Prediction-App/.env`), créer un fichier `.env` :
 
 ```sh
-cd FastAPI_App
-cp .env.example .env  # si présent, sinon créer le fichier
+cp .env.example .env
 ```
 
 Contenu minimal (à adapter) :
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballapp_db
+DATABASE_APP_URL=postgresql://postgres:postgres@localhost:5432/footballapp_db
+DATABASE_ML_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
 SECRET_KEY=change-me
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
+
+> Remarque : ce fichier `.env` est unique et se crée à la racine du projet.
 
 ### 3.2. Environnement virtuel & dépendances
 
@@ -93,11 +95,13 @@ Cette API gère :
 
 ### 4.1. Configuration
 
-Dans `FastAPI_ML/`, créer un fichier `.env` :
+Dans `Match-Prediction-App/`, le `.env` unique à la racine contient aussi la config de l’API ML :
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
+DATABASE_ML_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
 ```
+
+> Remarque : ce fichier `.env` est unique et se crée à la racine du projet.
 
 ### 4.2. Environnement virtuel & dépendances
 
@@ -172,6 +176,6 @@ Conséquence :
 - Chaque API a :
   - son propre `requirements.txt`,
   - son propre `venv`,
-  - sa propre config `.env`.
+  - mais une configuration `.env` unique à la racine du projet.
 
 ---

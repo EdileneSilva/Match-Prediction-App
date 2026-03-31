@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.base import register_routes
 
-
 from .core.config import settings
 
 app = FastAPI(

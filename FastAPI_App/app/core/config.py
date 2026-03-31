@@ -1,22 +1,31 @@
-import os
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
 
-load_dotenv()
+from pydantic import AliasChoices, Field
 
-class Settings(BaseSettings):
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from shared.config.base_settings import CommonSettings
+
+
+class Settings(CommonSettings):
     PROJECT_NAME: str = "Match Prediction App - Application API"
-    PROJECT_VERSION: str = "0.1.0"
-    
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_APP_URL", 
-        "postgresql://localhost/footballapp_db"
+
+    # On mappe automatiquement :
+    # - `DATABASE_APP_URL` (nouvelle convention)
+    # - `DATABASE_URL` (ancienne convention)
+    DATABASE_URL: str = Field(
+        default="postgresql://localhost/footballapp_db",
+        validation_alias=AliasChoices("DATABASE_APP_URL", "DATABASE_URL"),
     )
-    
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me")
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"]
+
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
 
 settings = Settings()

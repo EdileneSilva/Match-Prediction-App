@@ -138,3 +138,14 @@ npm run serve
 **Solution** : Remplacement de `passlib.context.CryptContext` par des appels directs à `bcrypt.hashpw()` et `bcrypt.checkpw()` dans `FastAPI_App/app/core/security.py`.
 
 **Bug Secondaire** : `LoginView.vue` tentait de lire `response.user` après la connexion, mais le schéma `Token` ne retourne que `{access_token, token_type}`. Correction : stockage du token, puis appel à `GET /auth/me` pour récupérer les données utilisateur.
+
+---
+## 🌌 Refactor Config & .env Unique (Pro)
+
+- Mise en place d’une config commune factorisée via `shared/config/base_settings.py` (`CommonSettings`) pour éviter la duplication entre `FastAPI_App` et `FastAPI_ML`.
+- Passage à un **seul** fichier `.env` à la racine (chargement via `env_file` sur `CommonSettings`), au lieu de `.env` dupliqués par API.
+- Harmonisation des variables DB avec alias :
+  - `FastAPI_App` utilise `DATABASE_APP_URL`
+  - `FastAPI_ML` utilise `DATABASE_ML_URL`
+  - avec fallback sur `DATABASE_URL` pour conserver la compatibilité avec l’ancienne doc.
+- Mise à jour de la doc (`README.md`) pour refléter la convention “1 `.env` à la racine”.

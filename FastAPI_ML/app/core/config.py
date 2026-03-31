@@ -1,18 +1,27 @@
-import os
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
 
-load_dotenv()
+from pydantic import AliasChoices, Field
 
-class Settings(BaseSettings):
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from shared.config.base_settings import CommonSettings
+
+
+class Settings(CommonSettings):
     PROJECT_NAME: str = "Match Prediction App - ML API"
-    PROJECT_VERSION: str = "0.1.0"
-    
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_ML_URL", 
-        "postgresql://localhost/footballml_db"
+
+    # On mappe automatiquement :
+    # - `DATABASE_ML_URL` (nouvelle convention)
+    # - `DATABASE_URL` (ancienne convention)
+    DATABASE_URL: str = Field(
+        default="postgresql://localhost/footballml_db",
+        validation_alias=AliasChoices("DATABASE_ML_URL", "DATABASE_URL"),
     )
-    
-    CORS_ORIGINS: list = ["*"]
+
+    CORS_ORIGINS: list[str] = ["*"]
+
 
 settings = Settings()
