@@ -101,6 +101,7 @@
 
 <script>
 import { apiClient } from "@/api/client";
+import { gsap } from "gsap";
 
 export default {
   name: "ProfileView",
@@ -117,6 +118,20 @@ export default {
   },
   async mounted() {
     await this.fetchProfile();
+    
+    this.$nextTick(() => {
+      // Entrance container animation
+      gsap.fromTo('.profile-container',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+      )
+      
+      // Stagger elements
+      gsap.fromTo(['.photo-section', '.form-group', '.action-buttons'],
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.2 }
+      )
+    })
   },
   methods: {
     async fetchProfile() {
@@ -177,111 +192,72 @@ export default {
 <style scoped>
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Navigation (same as other views) */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-}
-
-.nav-menu {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-item {
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.nav-item:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.nav-item.active {
-  color: white;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.nav-item.exit {
-  background: rgba(255, 67, 54, 0.3);
-  color: #ff4336;
-}
-
-.nav-item.exit:hover {
-  background: rgba(255, 67, 54, 0.5);
+  background-image: linear-gradient(rgba(10, 10, 26, 0.4), rgba(10, 10, 26, 0.6)), url("@/assets/stadium1.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  font-family: "Inter", sans-serif;
+  color: var(--text-primary);
 }
 
 /* Main Content */
 .main-content {
-  padding: 2rem;
-  max-width: 600px;
+  padding: 100px 2rem 2rem;
+  max-width: 650px;
   margin: 0 auto;
 }
 
 .profile-container {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  padding: 2.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg);
+  border-radius: 28px;
+  padding: 3.5rem;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
 }
 
 .page-title {
-  margin: 0 0 2rem 0;
-  color: #333;
-  font-size: 2rem;
-  font-weight: 600;
+  margin: 0 0 3rem 0;
+  color: var(--text-primary);
+  font-size: 2.5rem;
+  font-weight: 800;
   text-align: center;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
 }
 
 /* Profile Form */
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 .photo-section {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: rgba(102, 126, 234, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  gap: 2.5rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
 }
 
 .photo-placeholder {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #667eea;
-  background: white;
+  border: 4px solid var(--accent-secondary);
+  background: var(--glass-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
 }
 
 .profile-photo {
@@ -290,147 +266,136 @@ export default {
   object-fit: cover;
 }
 
-.default-avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.default-avatar svg path {
+  fill: var(--accent-secondary);
+  opacity: 0.6;
 }
 
 /* Form Fields */
 .form-fields {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.8rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
 .form-group label {
-  font-weight: 500;
-  color: #555;
-  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-input {
-  padding: 0.875rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 1.1rem 1.4rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--accent-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .photo-input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  background: white;
-}
-
-.photo-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  padding: 0.6rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
 }
 
 /* Action Buttons */
 .action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  gap: 1.2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--glass-border);
 }
 
 .save-btn {
   width: 100%;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   color: white;
   border: none;
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1.2rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(224, 38, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .save-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(224, 38, 255, 0.5);
+  filter: brightness(1.1);
 }
 
 .save-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #334155;
+  box-shadow: none;
 }
 
 .delete-btn {
   width: 100%;
   background: transparent;
-  color: #dc3545;
-  border: 1px solid #dc3545;
-  padding: 0.875rem;
-  border-radius: 8px;
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  padding: 1rem;
+  border-radius: 16px;
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .delete-btn:hover {
-  background: #dc3545;
-  color: white;
-}
-
-.logo-img {
-  height: 1.5rem;
-  width: auto;
+  background: rgba(248, 113, 113, 0.05);
+  border-color: #f87171;
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.1);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  .nav-menu {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-  }
-
   .main-content {
-    padding: 1rem;
+    padding: 100px 1rem 2rem;
   }
 
   .profile-container {
-    padding: 1.5rem;
+    padding: 2rem;
   }
 
   .photo-section {
     flex-direction: column;
     text-align: center;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
+    gap: 1.5rem;
   }
 }
+
 </style>

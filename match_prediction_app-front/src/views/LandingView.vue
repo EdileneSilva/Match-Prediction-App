@@ -36,27 +36,16 @@ onMounted(() => {
 </template>
 
 <style>
-/* Global styles for the landing page to ensure consistency */
-:root {
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-}
-
 .landing-page {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: var(--bg-cosmic);
+  color: var(--text-primary);
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-/* Base styles for buttons used across sections if not scoped */
-.primary-btn {
+.primary-btn, .secondary-btn {
   cursor: pointer;
 }
 
-.secondary-btn {
-  cursor: pointer;
-}
 </style>

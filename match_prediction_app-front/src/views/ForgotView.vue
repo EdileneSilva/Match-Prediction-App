@@ -1,10 +1,10 @@
 <template>
   <div class="auth-container">
     <div class="auth-box">
-      <h1 class="auth-title">Mot de passe oublié</h1>
-      <p class="auth-subtitle">Saisissez votre email pour recevoir un lien de réinitialisation (simulé dans la console).</p>
+      <h1 class="auth-title gsap-reveal">Mot de passe oublié</h1>
+      <p class="auth-subtitle gsap-reveal">Saisissez votre email pour recevoir un lien de réinitialisation (simulé dans la console).</p>
       
-      <form @submit.prevent="handleForgot" class="auth-form">
+      <form @submit.prevent="handleForgot" class="auth-form gsap-reveal">
         <div class="form-group">
           <label for="email">Email</label>
           <input 
@@ -13,7 +13,7 @@
             v-model="email" 
             placeholder="votre@email.com" 
             required
-            class="form-input"
+            class="glow-input"
           >
         </div>
         
@@ -25,7 +25,7 @@
         </button>
       </form>
       
-      <div class="auth-footer">
+      <div class="auth-footer gsap-reveal">
         <router-link to="/login" class="footer-link">Retour à la connexion</router-link>
       </div>
     </div>
@@ -34,6 +34,7 @@
 
 <script>
 import { apiClient } from '@/api/client'
+import { gsap } from 'gsap'
 
 export default {
   name: 'ForgotView',
@@ -44,6 +45,16 @@ export default {
       error: '',
       isLoading: false
     }
+  },
+  mounted() {
+    gsap.fromTo('.auth-box',
+      { opacity: 0, scale: 0.95, y: 20 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    gsap.fromTo('.gsap-reveal',
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.1, delay: 0.2, ease: 'power2.out' }
+    )
   },
   methods: {
     async handleForgot() {
@@ -66,120 +77,166 @@ export default {
 <style scoped>
 .auth-container {
   min-height: 100vh;
+  background: var(--bg-cosmic);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  padding: 2rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+  top: -150px;
+  left: -150px;
+  z-index: 0;
 }
 
 .auth-box {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 3.5rem;
+  border-radius: 32px;
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
+  position: relative;
+  z-index: 10;
 }
 
 .auth-title {
-  font-size: 1.75rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 0.5rem;
+  font-size: 2.2rem;
+  font-weight: 800;
   text-align: center;
+  margin-bottom: 1rem;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
 }
 
 .auth-subtitle {
-  color: #666;
+  color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
+  margin-bottom: 2.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.8rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #555;
-  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.form-input {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.glow-input {
+  padding: 1.1rem 1.4rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
-.form-input:focus {
+.glow-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .auth-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   color: white;
   border: none;
-  padding: 0.875rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1.2rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
   margin-top: 1rem;
+  box-shadow: 0 10px 30px rgba(224, 38, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .auth-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(224, 38, 255, 0.5);
+  filter: brightness(1.1);
 }
 
 .auth-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #334155;
+  box-shadow: none;
 }
 
 .success-message {
-  color: #28a745;
-  background: #d4edda;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  color: var(--accent-secondary);
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .error-message {
-  color: #dc3545;
-  background: #f8d7da;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.05);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .auth-footer {
-  margin-top: 1.5rem;
+  margin-top: 2.5rem;
   text-align: center;
 }
 
 .footer-link {
-  color: #667eea;
+  color: var(--accent-secondary);
   text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 800;
+  transition: all 0.3s ease;
 }
 
 .footer-link:hover {
-  text-decoration: underline;
+  filter: brightness(1.2);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
+
 </style>

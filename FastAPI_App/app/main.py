@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.base import register_routes
 
-
 from .core.config import settings
 
 app = FastAPI(
@@ -15,10 +14,15 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
         "http://localhost:8080",
-        "http://localhost:5173",
         "http://127.0.0.1:8080",
+        "http://localhost:8082",
+        "http://127.0.0.1:8082",
+        "http://localhost:8081",
+        "http://127.0.0.1:8081",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5173",
         "http://127.0.0.1:5173",
     ],
     allow_credentials=True,

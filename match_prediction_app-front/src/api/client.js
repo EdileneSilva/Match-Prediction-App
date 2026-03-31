@@ -1,20 +1,16 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = `http://127.0.0.1:8000`;
 
 async function request(endpoint, options = {}) {
-  // ⬇️ Token désactivé — plus d'authentification
-  // const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
 
-  /*
-  // ⬇️ Bloc token désactivé
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-  */
 
   const config = {
     ...options,

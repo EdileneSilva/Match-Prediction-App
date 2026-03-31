@@ -38,7 +38,9 @@ class UserOut(BaseModel):
 class PredictionHistoryOut(BaseModel):
     id: int
     home_team_name: str
+    home_team_logo_url: Optional[str] = None
     away_team_name: str
+    away_team_logo_url: Optional[str] = None
     predicted_result: Optional[str]
     confidence_score: Optional[float]
     created_at: datetime

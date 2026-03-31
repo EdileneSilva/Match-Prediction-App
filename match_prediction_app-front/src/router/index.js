@@ -15,13 +15,13 @@ const routes = [
     path: '/',
     name: 'landing',
     component: LandingView,
-    meta: { guestOnly: true }
+    meta: { guestOnly: true, transition: 'fade' }
   },
   {
     path: '/dashboard',
     name: 'home',
     component: HomeView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, transition: 'slide' }
   },
   {
     path: '/statistics',
@@ -33,43 +33,43 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginView,
-    meta: { guestOnly: true }
+    meta: { guestOnly: true, transition: 'fade' }
   },
   {
     path: '/register',
     name: 'register',
     component: RegisterView,
-    meta: { guestOnly: true }
+    meta: { guestOnly: true, transition: 'fade' }
   },
   {
     path: '/predictions',
     name: 'predictions',
     component: PredictionView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, transition: 'scale' }
   },
   {
     path: '/history',
     name: 'history',
     component: HistoryView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, transition: 'slide' }
   },
   {
     path: '/profile',
     name: 'profile',
     component: ProfileView,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, transition: 'slide' }
   },
   {
     path: '/forgot-password',
     name: 'forgot-password',
     component: ForgotView,
-    meta: { guestOnly: true }
+    meta: { guestOnly: true, transition: 'fade' }
   },
   {
     path: '/reset-password',
     name: 'reset-password',
     component: ResetView,
-    meta: { guestOnly: true }
+    meta: { guestOnly: true, transition: 'fade' }
   },
   {
     path: '/exit',
@@ -94,9 +94,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  // ⬇️ DÉSACTIVATION TEMPORAIRE DE L'AUTH — SUPPRIMER EN PRODUCTION
-  return next()
-
   const token = localStorage.getItem('token')
 
   if (to.meta.requiresAuth && !token) {
