@@ -8,6 +8,7 @@ import ProfileView from '../views/ProfileView.vue'
 import ForgotView from '../views/ForgotView.vue'
 import LandingView from '../views/LandingView.vue'
 import ResetView from '../views/ResetView.vue'
+import StatisticsView from '../views/StatisticsView.vue'
 
 const routes = [
   {
@@ -20,6 +21,12 @@ const routes = [
     path: '/dashboard',
     name: 'home',
     component: HomeView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/statistics',
+    name: 'statistics',
+    component: StatisticsView,
     meta: { requiresAuth: true }
   },
   {
