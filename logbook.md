@@ -149,3 +149,19 @@ npm run serve
   - `FastAPI_ML` utilise `DATABASE_ML_URL`
   - avec fallback sur `DATABASE_URL` pour conserver la compatibilité avec l’ancienne doc.
 - Mise à jour de la doc (`README.md`) pour refléter la convention “1 `.env` à la racine”.
+
+---
+
+## 🛠️ Stabilisation & Fix Logos (Sprint Actuel)
+
+### 1. Correction Connectivité & CORS
+- **Compatibilité Safari (Port 8082)** : Suite à des erreurs de connexion sur le port `8080` (Safari macOS), le frontend a été migré sur le port **8082** via `npm run serve -- --port 8082 --host 127.0.0.1`.
+- **Mise à jour Whitelist CORS** : Ajout explicite des origines `http://localhost:8082` et `http://127.0.0.1:8082` dans `FastAPI_App/app/main.py` et `FastAPI_ML/app/main.py`.
+
+### 2. Synchronisation Base de Données
+- **Rectification Nom de BDD** : Correction d'une divergence entre le code et la réalité physique du serveur PostgreSQL. Le script de configuration pointait vers `footballprediction_db` alors que la base effective est **`footballml_db`**. Mise à jour du fichier `.env` à la racine.
+- **Script de Test** : Création de `test_db_ml.py` pour valider instantanément la connexion à la base ML et le compte des équipes.
+
+### 3. Validation de l'Arène de Prédiction
+- **Affichage des Logos** : Confirmation du bon fonctionnement de la récupération des logos via l'endpoint `/predictions/teams`. Les icônes s'affichent désormais correctement dans les sélecteurs et le scanner de l'Arène de Prédiction.
+- **Révision `api.js`** : Correction d'une régression dans `match_prediction_app-front/src/services/api.js` qui tentait indûment d'appeler le port 8080 au lieu de 8000.

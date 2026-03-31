@@ -51,14 +51,14 @@ cp .env.example .env
 Contenu minimal (à adapter) :
 
 ```env
-DATABASE_APP_URL=postgresql://postgres:postgres@localhost:5432/footballapp_db
-DATABASE_ML_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
+DATABASE_APP_URL=postgresql://amaury@localhost:5432/footballapp_db
+DATABASE_ML_URL=postgresql://amaury@localhost:5432/footballml_db
 SECRET_KEY=change-me
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
 
-> Remarque : ce fichier `.env` est unique et se crée à la racine du projet.
+> Remarque : ce fichier `.env` est unique et se crée à la racine du projet. Utilisez `footballml_db` pour le ML.
 
 ### 3.2. Environnement virtuel & dépendances
 
