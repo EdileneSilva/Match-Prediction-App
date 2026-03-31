@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, nextTick } from 'vue';
-import NavBar from '@/components/landing/NavBar.vue';
+import NavBar from '@/components/NavigationBar.vue';
 import HeroSection from '@/components/landing/HeroSection.vue';
 import StatsSection from '@/components/landing/StatsSection.vue';
 import FeaturesSection from '@/components/landing/FeaturesSection.vue';
