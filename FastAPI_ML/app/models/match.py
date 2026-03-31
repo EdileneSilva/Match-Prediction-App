@@ -26,9 +26,7 @@ class Team(Base):
 
 class FootballMatch(Base):
     """
-    Données brutes importées depuis le CSV — Raw Data Store.
-    Contient exactement ce qui sort du CSV après harmonisation,
-    avant le calcul des features ML.
+    Données brutes importées depuis le CSV après traitement
     """
     __tablename__ = "football_matches"
 
@@ -40,7 +38,7 @@ class FootballMatch(Base):
     away_score    = Column(Integer, nullable=True)
     date          = Column(String(50), nullable=True)
     time          = Column(String(20), nullable=True)
-    result        = Column(String(10), nullable=True)   # H, D, A
+    result        = Column(String(10), nullable=True)
 
     # Stats brutes du match
     halftime_home_goals  = Column(Integer, nullable=True)
@@ -67,9 +65,7 @@ class FootballMatch(Base):
 
 class MatchStats(Base):
     """
-    Features calculées par le PreparationService — Feature Store par match.
-    Liée à football_matches via match_id.
-    Sert de source pour l'entraînement du modèle dans le PipelineService.
+    Features calculées par le PreparationService
     """
     __tablename__ = "match_stats"
 
@@ -109,8 +105,6 @@ class MatchStats(Base):
 class TeamStatsReference(Base):
     """
     Features agrégées par équipe par saison — consommées par le PredictionService.
-    Peuplée après chaque entraînement par le PipelineService.
-    Remplace la lecture du CSV en mémoire dans ml_service.
     """
     __tablename__ = "team_stats_reference"
 

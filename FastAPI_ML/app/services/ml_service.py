@@ -14,8 +14,6 @@ class MLService:
         self.model:           object = None
         self.is_model_loaded: bool   = False
 
-        # Tables de référence — peuplées depuis team_stats_reference (Feature Store)
-        # Initialisées à None, chargées par load_stats_from_db() après le premier /train
         self.home_stats:   pd.DataFrame | None = None
         self.away_stats:   pd.DataFrame | None = None
         self.standings:    pd.DataFrame | None = None
@@ -25,8 +23,6 @@ class MLService:
     def load_model(self) -> None:
         """
         Charge le modèle depuis le fichier joblib défini dans la configuration.
-        Appelé au démarrage de l'API si le fichier existe,
-        et après chaque re-entraînement par le PipelineService.
         """
         model_path = Path(settings.MODEL_PATH)
 
@@ -40,15 +36,7 @@ class MLService:
 
     def load_stats_from_db(self, db) -> None:
         """
-        Charge les statistiques de référence depuis team_stats_reference (Feature Store).
-        Remplace la lecture du CSV en mémoire.
-
-        Construit les mêmes cinq tables qu'avant, mais depuis la BD :
-            home_stats    — stats de l'équipe quand elle joue à domicile
-            away_stats    — stats de l'équipe quand elle joue à l'extérieur
-            standings     — classement final par saison
-            rolling_home  — forme récente (perspective domicile)
-            rolling_away  — forme récente (perspective extérieur)
+        Charge les statistiques de référence depuis team_stats_reference
         """
         from ..models.match import TeamStatsReference
 
@@ -116,10 +104,7 @@ class MLService:
         source: pd.DataFrame,
     ) -> float:
         """
-        Récupère une statistique depuis une table de référence indexée
-        par (league.season, Team).
-
-        Retourne 0.0 si l'équipe ou la saison n'est pas trouvée.
+        Récupère une statistique depuis une table de référence
         """
         try:
             return source.set_index(["league.season", "Team"]).loc[(season, team), col]
@@ -134,13 +119,6 @@ class MLService:
     ) -> pd.DataFrame:
         """
         Construit le DataFrame d'entrée pour le modèle.
-
-        Les features correspondent exactement à celles utilisées lors de
-        l'entraînement dans ML_pipeline_final.ipynb :
-            - Stats saison séparées par lieu (domicile / extérieur)
-            - Rolling averages (5 derniers matchs)
-            - Saison (league_season)
-            - Noms des équipes (HomeTeam, AwayTeam) pour le OneHotEncoder
         """
         return pd.DataFrame([{
             # Stats saison — équipe à domicile jouant chez elle
@@ -175,14 +153,6 @@ class MLService:
     ) -> Dict:
         """
         Prédit le résultat d'un match à partir des noms des équipes et de la saison.
-
-        Les noms des équipes sont résolus depuis la BD par le router avant cet appel.
-        Les statistiques sont lues depuis team_stats_reference (Feature Store).
-
-        Retourne :
-            prediction   — HOME_WIN, DRAW ou AWAY_WIN
-            confidence   — probabilité du résultat prédit
-            probabilities — probabilités pour chaque résultat
         """
         # Mapping LabelEncoder : A=0, D=1, H=2
         labels = {0: "AWAY_WIN", 1: "DRAW", 2: "HOME_WIN"}
@@ -202,6 +172,4 @@ class MLService:
             },
         }
 
-
-# Singleton — instance partagée dans toute l'application
 ml_service = MLService()

@@ -1,15 +1,3 @@
-"""
-PipelineService — pipeline complet d'entraînement du modèle ML.
-
-Traduit fidèlement ML_pipeline_final.ipynb en service Python :
-    1. Chargement des données depuis match_stats (Feature Store par match)
-    2. Entraînement du modèle (RandomForest calibré)
-    3. Évaluation via validation croisée (accuracy + log loss)
-    4. Sauvegarde du modèle en fichier joblib
-    5. Population de team_stats_reference (Feature Store par équipe/saison)
-    6. Enregistrement des métriques dans train_log (Model Registry)
-"""
-
 import joblib
 import pandas as pd
 import numpy as np
@@ -32,10 +20,8 @@ from ..core.config import settings
 
 class PipelineService:
 
-    # Features catégorielles — HomeTeam et AwayTeam encodées en OneHot
     _CAT_FEATURES = ["HomeTeam", "AwayTeam"]
 
-    # Features numériques — exactement celles du notebook ML_pipeline_final.ipynb
     _NUM_FEATURES = [
         "home_goals_scored_home",   "home_goals_conceded_home",   "home_win_rate_home",
         "away_goals_scored_away",   "away_goals_conceded_away",   "away_win_rate_away",
@@ -45,17 +31,12 @@ class PipelineService:
         "league_season",
     ]
 
-    # ─────────────────────────────────────────────────────────────────────
     # Étape 1 — Chargement depuis la base de données
-    # ─────────────────────────────────────────────────────────────────────
 
     def _load_from_db(self, db: Session) -> pd.DataFrame:
         """
         Charge les données d'entraînement depuis match_stats (Feature Store)
         en jointure avec football_matches et teams.
-
-        Deux alias sont nécessaires pour joindre la table teams deux fois :
-        une fois pour home_team et une fois pour away_team.
         """
         # Deux alias distincts pour éviter l'ambiguïté dans le double join
         HomeTeam = aliased(Team, name="home_team_alias")
@@ -98,16 +79,11 @@ class PipelineService:
             "away_rolling_scored",      "away_rolling_conceded",      "away_rolling_win_rate",
         ])
 
-    # ─────────────────────────────────────────────────────────────────────
     # Étape 2 — Construction du pipeline sklearn
-    # ─────────────────────────────────────────────────────────────────────
 
     def _build_pipeline(self) -> CalibratedClassifierCV:
         """
-        Construit le pipeline sklearn identique au notebook :
-            ColumnTransformer (StandardScaler + OneHotEncoder)
-            → RandomForestClassifier (balanced_subsample)
-            → CalibratedClassifierCV (sigmoid)
+        Construit le pipeline
         """
         preprocessor = ColumnTransformer(transformers=[
             ("num", StandardScaler(),                       self._NUM_FEATURES),
@@ -132,15 +108,13 @@ class PipelineService:
             cv=5,
         )
 
-    # ─────────────────────────────────────────────────────────────────────
     # Étape 3 — Sauvegarde du modèle
-    # ─────────────────────────────────────────────────────────────────────
 
     def _save_model(self, model: CalibratedClassifierCV, version: str) -> None:
         """
         Sauvegarde le modèle en deux fichiers :
-            - match_model_<version>.joblib  ← archive versionnée
-            - match_model_v1.joblib         ← modèle courant
+            - match_model_<version>.joblib  -> archive versionnée
+            - match_model_v1.joblib         -> modèle courant
         """
         model_dir = Path(settings.MODEL_PATH).parent
         model_dir.mkdir(exist_ok=True)
@@ -148,17 +122,12 @@ class PipelineService:
         joblib.dump(model, model_dir / f"match_model_{version}.joblib")
         joblib.dump(model, Path(settings.MODEL_PATH))
 
-    # ─────────────────────────────────────────────────────────────────────
     # Étape 4 — Population de la Feature Store (TeamStatsReference)
-    # ─────────────────────────────────────────────────────────────────────
 
     def _populate_feature_store(self, df: pd.DataFrame, db: Session) -> None:
         """
         Calcule les features agrégées par équipe/saison et les persiste
         dans team_stats_reference.
-
-        Supprime les entrées existantes avant de recalculer pour garantir
-        que les valeurs sont toujours à jour après un re-entraînement.
         """
         seasons = df["league_season"].unique()
 
@@ -167,7 +136,6 @@ class PipelineService:
                 TeamStatsReference.season == int(season)
             ).delete()
 
-        # Stats domicile — dernière valeur de la saison (la plus complète)
         home_stats = df.groupby(["league_season", "HomeTeam"]).agg(
             goals_scored_home     = ("home_goals_scored_home",   "last"),
             goals_conceded_home   = ("home_goals_conceded_home", "last"),
@@ -181,7 +149,6 @@ class PipelineService:
             "league_season": "season",
         })
 
-        # Stats extérieur
         away_stats = df.groupby(["league_season", "AwayTeam"]).agg(
             goals_scored_away     = ("away_goals_scored_away",   "last"),
             goals_conceded_away   = ("away_goals_conceded_away", "last"),
@@ -194,7 +161,6 @@ class PipelineService:
             "league_season": "season",
         })
 
-        # Fusion des deux perspectives par équipe/saison
         merged = pd.merge(home_stats, away_stats, on=["season", "team"], how="outer")
 
         for _, row in merged.iterrows():
@@ -218,9 +184,7 @@ class PipelineService:
 
         db.commit()
 
-    # ─────────────────────────────────────────────────────────────────────
     # Étape 5 — Enregistrement dans TrainLog
-    # ─────────────────────────────────────────────────────────────────────
 
     def _save_train_log(
         self,
@@ -240,25 +204,12 @@ class PipelineService:
         ))
         db.commit()
 
-    # ─────────────────────────────────────────────────────────────────────
+
     # Point d'entrée public — entraînement
-    # ─────────────────────────────────────────────────────────────────────
 
     def train(self, db: Session) -> Dict:
         """
         Exécute le pipeline complet d'entraînement.
-
-        Étapes :
-            1. Chargement depuis match_stats
-            2. Construction du pipeline sklearn
-            3. Évaluation par validation croisée (accuracy + log loss)
-            4. Entraînement final sur toutes les données
-            5. Sauvegarde du modèle joblib
-            6. Population de team_stats_reference
-            7. Enregistrement dans train_log
-
-        Raises:
-            ValueError: si aucun match n'est disponible en base.
         """
         # 1. Chargement
         df = self._load_from_db(db)
@@ -312,9 +263,8 @@ class PipelineService:
             "n_samples":     len(df),
         }
 
-    # ─────────────────────────────────────────────────────────────────────
+
     # Point d'entrée public — historique
-    # ─────────────────────────────────────────────────────────────────────
 
     def get_history(self, db: Session, limit: int = 20) -> list:
         """Retourne l'historique des entraînements depuis train_log."""
@@ -332,6 +282,4 @@ class PipelineService:
             "status":        l.status,
         } for l in logs]
 
-
-# Singleton
 pipeline_service = PipelineService()

@@ -9,14 +9,6 @@ router = APIRouter(tags=["ML Training"])
 
 @router.post("/train")
 def train_model(db: Session = Depends(get_db)):
-    """
-    Lance le pipeline complet d'entraînement :
-    1. Lit les données depuis match_stats
-    2. Entraîne le modèle
-    3. Sauvegarde le joblib
-    4. Peuple team_stats_reference
-    5. Enregistre les métriques dans train_log
-    """
     try:
         result = pipeline_service.train(db)
         return result
@@ -35,7 +27,6 @@ def train_model(db: Session = Depends(get_db)):
 
 @router.get("/train/history")
 def get_train_history(limit: int = 20, db: Session = Depends(get_db)):
-    """Retourne l'historique des entraînements avec leurs métriques."""
     return pipeline_service.get_history(db, limit=limit)
 
 

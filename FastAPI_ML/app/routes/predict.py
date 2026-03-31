@@ -19,13 +19,7 @@ def get_teams(db: Session = Depends(get_db)):
 
 @router.post("/predict")
 def predict(request: MatchRequest, db: Session = Depends(get_db)):
-    """
-    Prédit le résultat d'un match entre deux équipes.
-
-    Les noms des équipes sont validés en base avant d'appeler le modèle ML.
-    Les statistiques sont lues depuis team_stats_reference (Feature Store).
-    """
-    # Validation des équipes en base
+    
     home_team = db.query(Team).filter(Team.name == request.home_team).first()
     away_team = db.query(Team).filter(Team.name == request.away_team).first()
 
@@ -35,14 +29,12 @@ def predict(request: MatchRequest, db: Session = Depends(get_db)):
             detail="L'une ou les deux équipes sont introuvables."
         )
 
-    # Vérification que le modèle est chargé
     if not ml_service.is_model_loaded:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Modèle ML non chargé. Lancez POST /train d'abord."
         )
 
-    # Vérification que les stats sont disponibles
     if ml_service.home_stats is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

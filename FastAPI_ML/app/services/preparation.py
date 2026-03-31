@@ -100,8 +100,8 @@ class PreparationService:
         """
         Charge et concatène les fichiers CSV des deux sources.
 
-        Source 1 (part1/) : API Football — saisons 2022, 2023, 2024
-        Source 2 (part2/) : football-data.co.uk — saisons 2022 à 2025/26
+        Source 1 : API Football
+        Source 2 : football-data.co.uk
         """
         base = Path(settings.DATA_DIR)
 
@@ -157,16 +157,13 @@ class PreparationService:
         df = df.drop(columns=existing_cols)
 
         df["league.season"] = df["league.season"].fillna("2025")
-
-        # Supprimer les lignes sans résultat (matchs non encore joués)
+        
         df = df.dropna(subset=["Result"]).copy()
 
-        # Conversion en entier
         for col in self._COLS_INT:
             if col in df.columns:
                 df[col] = df[col].astype(int)
 
-        # Tri chronologique — obligatoire avant le calcul des rolling averages
         df["Date"] = pd.to_datetime(df["Date"])
         df = df.sort_values("Date").reset_index(drop=True)
 
@@ -186,11 +183,6 @@ class PreparationService:
         """
         Calcule les statistiques séparées selon le lieu de jeu (domicile / extérieur)
         et insère les features dans le DataFrame via mapping (league.season, team).
-
-        Features ajoutées :
-            home_goals_scored_home, home_goals_conceded_home, home_win_rate_home
-            away_goals_scored_away, away_goals_conceded_away, away_win_rate_away
-            home_season_rank, away_season_rank
         """
         # Stats domicile
         home_stats = df.groupby(["league.season", "HomeTeam"]).agg(
@@ -266,10 +258,6 @@ class PreparationService:
 
         Le .shift(1) garantit qu'aucune information du match courant n'est incluse
         dans son propre calcul — principe fondamental anti-data leakage.
-
-        Features ajoutées :
-            home_rolling_scored, home_rolling_conceded, home_rolling_win_rate
-            away_rolling_scored, away_rolling_conceded, away_rolling_win_rate
         """
         df = df.copy()
 
