@@ -37,8 +37,8 @@ Adapte l’utilisateur/mot de passe si besoin dans les URLs ci‑dessous.
 
 Cette API gère :
 - l’authentification JWT (`/auth/register`, `/auth/login`, `/auth/me`, etc.),
-- les utilisateurs, les favoris, l’historique,
-- les appels à l’API ML (plus tard).
+- les utilisateurs, les favoris, l’historique des prédictions (`/predictions/history`),
+- le proxy vers l'API ML pour la liste des équipes (`/predictions/teams`).
 
 ### 3.1. Configuration
 

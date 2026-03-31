@@ -165,3 +165,9 @@ npm run serve
 ### 3. Validation de l'Arène de Prédiction
 - **Affichage des Logos** : Confirmation du bon fonctionnement de la récupération des logos via l'endpoint `/predictions/teams`. Les icônes s'affichent désormais correctement dans les sélecteurs et le scanner de l'Arène de Prédiction.
 - **Révision `api.js`** : Correction d'une régression dans `match_prediction_app-front/src/services/api.js` qui tentait indûment d'appeler le port 8080 au lieu de 8000.
+
+### 4. Rétablissement de la Sauvegarde d'Historique
+- **Déconnexion Frontend-Backend** : Le bouton "Enregistrer la prédiction" (`savePrediction`) dans l'interface redirigeait simplement vers l'historique sans jamais envoyer de requête POST. L'API Principale (`FastAPI_App`) avait perdu sa route `/predictions/history` suite à la séparation avec l'API ML.
+- **Correction du Backend (FastAPI_App)** : Restauration et refactoring du routeur `prediction.py` pour y inclure spécifiquement un endpoint `POST /history` qui sauvegarde la prédiction complète en base de données.
+- **Routage API Client** : Mise à jour du client `apiClient.js` (Frontend) afin que toutes les requêtes commençant par `/predictions` (qui incluent la sauvegarde et la consultation de l'historique) soient routées vers l'API Principale (Port 8000) et non vers le moteur ML.
+

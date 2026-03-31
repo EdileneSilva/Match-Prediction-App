@@ -5,7 +5,7 @@ async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token');
   
   // Automagical routing based on endpoint prefix
-  const baseUrl = endpoint.startsWith('/auth') ? AUTH_URL : ML_URL;
+  const baseUrl = (endpoint.startsWith('/auth') || endpoint.startsWith('/predictions')) ? AUTH_URL : ML_URL;
 
   const headers = {
     'Content-Type': 'application/json',

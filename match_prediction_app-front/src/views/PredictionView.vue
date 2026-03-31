@@ -241,11 +241,10 @@ export default {
         // Synthetic delay for "Analysis" feel
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const cScore = response.confidence_score;
         this.predictionResult = {
-          team1Win: response.predicted_result === 'HOME_WIN' ? cScore * 100 : (1 - cScore) * 50,
-          draw: response.predicted_result === 'DRAW' ? cScore * 100 : (1 - cScore) * 20,
-          team2Win: response.predicted_result === 'AWAY_WIN' ? cScore * 100 : (1 - cScore) * 30
+          team1Win: response.probabilities.HOME * 100,
+          draw: response.probabilities.DRAW * 100,
+          team2Win: response.probabilities.AWAY * 100
         };
 
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win;
@@ -306,8 +305,31 @@ export default {
       this.selectedTeam2 = null;
       nextTick(() => this.animateEntrance());
     },
-    savePrediction() {
-      this.$router.push('/history');
+    async savePrediction() {
+      if (!this.predictionResult) return;
+
+      try {
+        const winningTeam = this.predictionResult.team1Win >= this.predictionResult.team2Win && this.predictionResult.team1Win >= this.predictionResult.draw 
+            ? 'HOME_WIN' 
+            : this.predictionResult.team2Win > this.predictionResult.team1Win && this.predictionResult.team2Win >= this.predictionResult.draw
+            ? 'AWAY_WIN' : 'DRAW';
+
+        // We use the raw prediction confidence
+        const cScore = Math.max(this.predictionResult.team1Win, this.predictionResult.draw, this.predictionResult.team2Win) / 100;
+
+        await apiClient.post('/predictions/history', {
+          home_team_name: this.selectedTeam1.name,
+          home_team_logo_url: this.selectedTeam1.logo_url,
+          away_team_name: this.selectedTeam2.name,
+          away_team_logo_url: this.selectedTeam2.logo_url,
+          predicted_result: winningTeam,
+          confidence_score: cScore
+        });
+
+        this.$router.push('/history');
+      } catch (err) {
+        this.error = "Erreur lors de la sauvegarde : " + err.message;
+      }
     }
   }
 }
