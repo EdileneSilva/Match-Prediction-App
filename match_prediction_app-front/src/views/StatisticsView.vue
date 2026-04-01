@@ -353,18 +353,12 @@ export default {
       ],
       
       currentForm: {
-        winRate: 73,
-        avgGoals: 2.4,
-        cleanSheets: 5
+        winRate: 0,
+        avgGoals: 0,
+        cleanSheets: 0
       },
       
-      recentMatches: [
-        { date: '15/12', opponent: 'Lyon', score: '3-1', result: 'V' },
-        { date: '08/12', opponent: 'Nice', score: '2-0', result: 'V' },
-        { date: '01/12', opponent: 'Monaco', score: '1-1', result: 'N' },
-        { date: '24/11', opponent: 'Lille', score: '4-2', result: 'V' },
-        { date: '17/11', opponent: 'Bordeaux', score: '2-0', result: 'V' }
-      ],
+      recentMatches: [],
       
       // Données de buts
       totalGoals: 0,
@@ -383,6 +377,14 @@ export default {
         { label: '60-75 min', goals: 0, percentage: 0 },
         { label: '75-90 min', goals: 0, percentage: 0 }
       ]
+    }
+  },
+
+  watch: {
+    selectedTeam(newVal) {
+      if (newVal) {
+        this.updateTeamSpecificStats(newVal);
+      }
     }
   },
   
@@ -430,6 +432,7 @@ export default {
           losses: item.losses,
           goalsFor: item.goals_for,
           goalsAgainst: item.goals_against,
+          cleanSheets: item.no_goal_conceded || 0,
           goalDifference: item.goals_diff,
           points: item.points,
           form: item.form || []
@@ -440,8 +443,32 @@ export default {
         
         if (!this.selectedTeam && this.teamsList.length > 0) {
           this.selectedTeam = this.teamsList[0].id;
+        } else if (this.selectedTeam) {
+            this.updateTeamSpecificStats(this.selectedTeam);
         }
       }
+    },
+
+    updateTeamSpecificStats(teamId) {
+        const team = this.rankingData.find(t => t.id === teamId);
+        if (!team) return;
+
+        // Calcul des stats de forme
+        const played = team.matchesPlayed || 1;
+        this.currentForm = {
+            winRate: Math.round((team.wins / played) * 100),
+            avgGoals: (team.goalsFor / played).toFixed(1),
+            cleanSheets: team.cleanSheets || 0
+        };
+
+        // Mapping des derniers matchs (à partir de la forme LFP)
+        // Comme on n'a que les lettres V/N/D, on génère une vue simplifiée
+        this.recentMatches = team.form.map((res, index) => ({
+            date: `R-${team.form.length - index}`,
+            opponent: 'Match L1',
+            score: res === 'V' ? 'Gagné' : (res === 'N' ? 'Nul' : 'Perdu'),
+            result: res
+        })).reverse(); // On veut les plus récents en haut si possible, ou selon l'ordre UI
     },
 
     async loadTopScorers() {

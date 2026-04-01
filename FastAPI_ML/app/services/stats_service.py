@@ -47,12 +47,12 @@ class StatsService:
             
             # Forme : 'w', 'd', 'l' -> 'V', 'N', 'D'
             form_history = []
-            for res in team.get("seasonResults", [])[-5:]: # 5 derniers matchs
+            for res in team.get("seasonResults", [])[-10:]: # 10 derniers matchs (plus pour calculs)
                 letter = res.get("resultLetter", "").upper()
                 if letter == "W": form_history.append("V")
                 elif letter == "D": form_history.append("N")
-                else: form_history.append("D")
-
+                elif letter == "L": form_history.append("D")
+            
             results.append({
                 "id": identity.get("id"), # l1_championship_club_2025_XX
                 "position": team.get("rank"),
@@ -64,6 +64,7 @@ class StatsService:
                 "losses": team.get("losses"),
                 "goals_for": team.get("forGoals"),
                 "goals_against": team.get("againstGoals"),
+                "no_goal_conceded": team.get("noGoalConceded"), # Clean sheets
                 "goals_diff": team.get("goalsDifference"),
                 "points": team.get("points"),
                 "form": form_history
@@ -102,15 +103,20 @@ class StatsService:
                     if status_id not in status_map: continue
                     
                     p_id = p_status.get("playerId")
-                    player_info = players_data.get(p_id, {})
+                    # On tente de récupérer les infos même si p_id est un entier ou string
+                    player_info = players_data.get(str(p_id)) or players_data.get(p_id) or {}
                     identity = player_info.get("identity", {})
                     
+                    first_name = identity.get('firstName', '')
+                    last_name = identity.get('lastName', '')
+                    full_name = f"{first_name} {last_name}".strip()
+
                     reason_dict = p_status.get("reason") or {}
                     reason = reason_dict.get("fr-FR") or "Non spécifié"
 
                     news_by_club[club_id].append({
                         "player_id": p_id,
-                        "name": f"{identity.get('firstName', '')} {identity.get('lastName', '')}".strip() or "Joueur inconnu",
+                        "name": full_name or "Joueur inconnu",
                         "status": status_map[status_id]["label"],
                         "color": status_map[status_id]["color"],
                         "emoji": status_map[status_id]["emoji"],
