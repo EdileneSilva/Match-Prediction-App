@@ -254,16 +254,20 @@
                 </div>
               </div>
 
-              <!-- Répartition des buts -->
-              <div class="goals-distribution">
-                <h3>📈 Répartition des Buts</h3>
-                <div class="distribution-chart">
-                  <div class="chart-item" v-for="(period, index) in goalsDistribution" :key="index">
-                    <div class="period-label">{{ period.label }}</div>
-                    <div class="period-bar">
-                      <div class="bar-fill" :style="{width: period.percentage + '%'}"></div>
+              <!-- Classement xG (Expected Goals) -->
+              <div class="top-scorers" v-if="topXG.length > 0">
+                <h3>📊 Expected Goals (xG)</h3>
+                <div class="scorers-list">
+                  <div v-for="(player, index) in topXG" :key="player.id" 
+                       class="scorer-item" :class="getScorerClass(index)">
+                    <div class="scorer-rank">{{ index + 1 }}</div>
+                    <div class="scorer-info">
+                      <div class="scorer-name">{{ player.name }}</div>
+                      <div class="scorer-team">{{ player.team }}</div>
                     </div>
-                    <div class="period-value">{{ period.goals }} buts</div>
+                    <div class="scorer-stats">
+                      <div class="scorer-goals">{{ player.value.toFixed(2) }} xG</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -367,16 +371,8 @@ export default {
       
       topScorers: [],
       topAssisters: [],
+      topXG: [],
       squadNews: {}, // Nouvelles données des effectifs
-      
-      goalsDistribution: [
-        { label: '0-15 min', goals: 0, percentage: 0 },
-        { label: '15-30 min', goals: 0, percentage: 0 },
-        { label: '30-45 min', goals: 0, percentage: 0 },
-        { label: '45-60 min', goals: 0, percentage: 0 },
-        { label: '60-75 min', goals: 0, percentage: 0 },
-        { label: '75-90 min', goals: 0, percentage: 0 }
-      ]
     }
   },
 
@@ -407,6 +403,7 @@ export default {
           this.loadStandings(),
           this.loadTopScorers(),
           this.loadTopAssisters(),
+          this.loadTopXG(),
           this.loadStatsOverview(),
           this.loadSquadNews()
         ]);
@@ -499,6 +496,18 @@ export default {
           name: p.name,
           team: p.team,
           assists: p.value
+        }));
+      }
+    },
+
+    async loadTopXG() {
+      const response = await apiClient.get('/dashboard/league-stats/players/expectedGoals?limit=5');
+      if (response.status === 'success' && response.data) {
+        this.topXG = response.data.map(p => ({
+          id: p.player_id,
+          name: p.name,
+          team: p.team,
+          value: p.value
         }));
       }
     },

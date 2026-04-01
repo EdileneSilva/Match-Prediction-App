@@ -131,21 +131,37 @@ class StatsService:
         rank_ids = data.get("ranking", [])
         players_data = data.get("playersData", {})
         stats_indexes = data.get("statsIndexes", {})
+        
+        # Index officiels LFP 2025/2026 identifiés via recherche réseau :
+        # Buts: 20, Passes: 1, xG: 16
+        stat_index_map = {
+            "goals": 20,
+            "assists": 1,
+            "expectedGoals": 16
+        }
+        
         stat_index = stats_indexes.get(stat_name)
+        if stat_index is None:
+            stat_index = stat_index_map.get(stat_name)
         
         if stat_index is None: return []
 
         results = []
         for i, p_id in enumerate(rank_ids):
-            player_info = players_data.get(p_id, {})
+            player_info = players_data.get(str(p_id)) or players_data.get(p_id) or {}
             identity = player_info.get("identity", {})
             stats_array = player_info.get("stats", [])
             stat_value = stats_array[stat_index] if len(stats_array) > stat_index else 0
             
+            # Si le nom est vide, on cherche dans le shortName ou last name
+            first_name = identity.get('firstName', '')
+            last_name = identity.get('lastName', '')
+            full_name = f"{first_name} {last_name}".strip() or identity.get('shortName', "Joueur")
+
             results.append({
                 "rank": i + 1,
                 "player_id": p_id,
-                "name": f"{identity.get('firstName', '')} {identity.get('lastName', '')}".strip(),
+                "name": full_name,
                 "team": player_info.get("clubIdentity", {}).get("name") or "Ligue 1",
                 "team_logo": player_info.get("clubIdentity", {}).get("assets", {}).get("logo", {}).get("medium"),
                 "photo": identity.get("assets", {}).get("bustPictures", {}).get("medium"),
@@ -161,11 +177,21 @@ class StatsService:
         rank_ids = data.get("ranking", [])
         clubs_data = data.get("clubsData", {})
         stats_indexes = data.get("statsIndexes", {})
+        
+        # Index officiels LFP 2025/2026 Clubs :
+        # Total Buts: 52, Total Passes: 11
+        stat_index_map = {
+            "totalGoals": 52,
+            "totalAssists": 11
+        }
+        
         stat_index = stats_indexes.get(stat_name)
+        if stat_index is None:
+            stat_index = stat_index_map.get(stat_name)
 
         results = []
         for i, c_id in enumerate(rank_ids):
-            club_info = clubs_data.get(c_id, {})
+            club_info = clubs_data.get(str(c_id)) or clubs_data.get(c_id) or {}
             identity = club_info.get("identity", {})
             stats_array = club_info.get("stats", [])
             stat_value = stats_array[stat_index] if stat_index is not None and len(stats_array) > stat_index else 0
