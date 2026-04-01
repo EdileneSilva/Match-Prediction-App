@@ -1,21 +1,27 @@
-import os
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
+from pydantic import AliasChoices, Field
 
-load_dotenv()
+# Ajout du chemin racine pour importer le package 'shared'
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-class Settings(BaseSettings):
+from shared.config.base_settings import CommonSettings
+
+class Settings(CommonSettings):
     PROJECT_NAME: str = "Match Prediction App - ML API"
-    PROJECT_VERSION: str = "0.1.0"
     
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_ML_URL",
-        ""
+    # On mappe DATABASE_ML_URL vers DATABASE_URL pour compatibilité avec BaseSettings
+    DATABASE_URL: str = Field(
+        default="postgresql://localhost/footballprediction_db",
+        validation_alias=AliasChoices("DATABASE_ML_URL", "DATABASE_URL"),
     )
     
-    CORS_ORIGINS: list = ["*"]
-    DATA_DIR: str = os.getenv("DATA_DIR", "")
-    MODEL_PATH:   str = os.getenv("MODEL_PATH",   "")
-    DATASET_PATH: str = os.getenv("DATASET_PATH", "")
+    CORS_ORIGINS: list[str] = ["*"]
+    DATA_DIR:     str = Field(default="../Data")
+    MODEL_PATH:   str = Field(default="../Data/dataset/match_model_v1.joblib")
+    DATASET_PATH: str = Field(default="../Data/dataset/completed_match_dataset_final.csv")
 
 settings = Settings()
+

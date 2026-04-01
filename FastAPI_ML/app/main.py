@@ -51,3 +51,8 @@ register_routes(app)
 register_train_routes(app)
 register_dashboard_routes(app)
 register_ingestion_routes(app)
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "ok", "service": "ml-api"}
+

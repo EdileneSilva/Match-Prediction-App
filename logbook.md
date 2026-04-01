@@ -180,3 +180,24 @@ npm run serve
 - **Correction du Backend (FastAPI_App)** : Restauration et refactoring du routeur `prediction.py` pour y inclure spécifiquement un endpoint `POST /history` qui sauvegarde la prédiction complète en base de données.
 - **Routage API Client** : Mise à jour du client `apiClient.js` (Frontend) afin que toutes les requêtes commençant par `/predictions` (qui incluent la sauvegarde et la consultation de l'historique) soient routées vers l'API Principale (Port 8000) et non vers le moteur ML.
 
+---
+
+## 🔄 Fusion & Adaptation Branche `develop` (v4 - Avril 2026)
+
+### 1. Synchronisation avec `develop` (PR Umberto)
+- **Merge & Résolution de Conflits** : Fusion de la branche `develop` mise à jour par les travaux d'Umberto.
+- **Hybridation des Routes ML** : 
+    - Conservation des routes **Dashboard & Proxy** (Cosmic UI).
+    - Intégration des nouvelles routes **Ingestion de données CSV** (`/ingestion`) apportées par `develop`.
+    - Résolution de conflit dans `FastAPI_ML/app/main.py` pour enregistrer les deux routeurs.
+
+### 2. Harmonisation de la Configuration (.env)
+- **Retour au `.env` Unique** : Suite à la demande utilisateur, abandon de la fragmentation des fichiers `.env` par service (introduite dans `develop`).
+- **Update `BaseSettings`** : Mise à jour des classes `Settings` dans `FastAPI_App` et `FastAPI_ML` pour pointer systématiquement vers le fichier `.env` à la racine du projet via le package `shared`.
+- **Enrichissement des Variables** : Ajout de `ML_API_URL` et `DATABASE_URL` (alias) dans le `.env` racine pour garantir que le proxy et les deux APIs fonctionnent de concert sans duplication de fichiers.
+
+### 3. Préservation de l'Identité "Cosmic"
+- **Vérification UI** : Validation que les composants Vue.js (`PredictionView.vue`, `StatisticsView.vue`) ont conservé leurs animations GSAP et leur style Glassmorphism malgré les simplifications présentes sur `develop`.
+- **Intégrité des Modèles** : Restauration/Maintien de la colonne `logo_url` dans le modèle `Team` pour ne pas casser le scraper et l'affichage des logos dans le frontend.
+
+
