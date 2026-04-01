@@ -1,18 +1,21 @@
 <template>
   <div class="auth-container">
-    <div class="auth-card">
-      <div class="logo">
-  <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
-</div>
+    <div class="decorative-player gsap-reveal-player">
+      <img src="@/assets/neon-player.png" alt="Neon Soccer Player" />
+    </div>
+    <div class="auth-card" ref="authCard">
+      <div class="logo gsap-stagger">
+        <img src="@/assets/logo.png" alt="Logo" class="logo-img" />
+      </div>
       
-      <h2 class="auth-title">Connexion</h2>
+      <h2 class="auth-title gsap-stagger">Connexion</h2>
 
-      <div v-if="errorMessage" class="error-message">
+      <div v-if="errorMessage" class="error-message gsap-stagger">
         {{ errorMessage }}
       </div>
       
       <form class="auth-form" @submit.prevent="handleLogin">
-        <div class="form-group">
+        <div class="form-group gsap-stagger">
           <label for="email">Email</label>
           <input 
             type="email" 
@@ -20,10 +23,11 @@
             v-model="email" 
             placeholder="Entrez votre email"
             required
+            class="glow-input"
           >
         </div>
         
-        <div class="form-group">
+        <div class="form-group gsap-stagger">
           <label for="password">Mot de passe</label>
           <input 
             type="password" 
@@ -31,10 +35,11 @@
             v-model="password" 
             placeholder="Entrez votre mot de passe"
             required
+            class="glow-input"
           >
         </div>
         
-        <div class="form-options">
+        <div class="form-options gsap-stagger">
           <label class="checkbox-container">
             <input type="checkbox" v-model="rememberMe">
             <span class="checkmark"></span>
@@ -44,10 +49,18 @@
           <router-link to="/forgot-password" class="forgot-password">Mot de passe oublié ?</router-link>
         </div>
         
-        <button type="submit" class="auth-btn">Se connecter</button>
+        <button 
+          type="submit" 
+          class="auth-btn gsap-stagger magnetic-btn"
+          ref="magneticBtn"
+          @mousemove="handleMagneticMove"
+          @mouseleave="handleMagneticLeave"
+        >
+          <span class="btn-text" ref="btnText">Se connecter</span>
+        </button>
       </form>
       
-      <div class="auth-footer">
+      <div class="auth-footer gsap-stagger">
         <span>Pas de compte?</span>
         <router-link to="/register" class="register-link">Créer un compte</router-link>
       </div>
@@ -57,6 +70,7 @@
 
 <script>
 import { apiClient } from '@/api/client'
+import gsap from 'gsap'
 
 export default {
   name: 'LoginView',
@@ -65,20 +79,99 @@ export default {
       email: '',
       password: '',
       rememberMe: false,
-      errorMessage: ''
+      errorMessage: '',
+      xTo: null,
+      yTo: null,
+      xTextTo: null,
+      yTextTo: null,
+      ctx: null
+    }
+  },
+  mounted() {
+    this.ctx = gsap.context(() => {
+      // Fade Up de la carte
+      gsap.fromTo(this.$refs.authCard, 
+        { y: 50, opacity: 0 }, 
+        { y: 0, opacity: 1, duration: 1.2, ease: "power3.out" }
+      )
+      
+      // Stagger des éléments internes
+      gsap.fromTo('.gsap-stagger', 
+        { y: 20, opacity: 0 }, 
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.1, 
+          ease: "power2.out", 
+          delay: 0.3 
+        }
+      )
+
+      // Animation du joueur décoratif
+      gsap.fromTo('.gsap-reveal-player',
+        { x: 100, opacity: 0, scale: 0.8 },
+        { 
+          x: 0, 
+          opacity: 0.4, 
+          scale: 1, 
+          duration: 1.5, 
+          ease: "power3.out",
+          delay: 0.5
+        }
+      )
+
+      // Bouton Magnétique GSAP quickTo
+      const btn = this.$refs.magneticBtn
+      const text = this.$refs.btnText
+      if (btn && text) {
+        this.xTo = gsap.quickTo(btn, "x", { duration: 0.4, ease: "power3" })
+        this.yTo = gsap.quickTo(btn, "y", { duration: 0.4, ease: "power3" })
+        this.xTextTo = gsap.quickTo(text, "x", { duration: 0.4, ease: "power3" })
+        this.yTextTo = gsap.quickTo(text, "y", { duration: 0.4, ease: "power3" })
+      }
+    }, this.$el)
+  },
+  unmounted() {
+    if (this.ctx) {
+      this.ctx.revert()
     }
   },
   methods: {
+    handleMagneticMove(e) {
+      const btn = this.$refs.magneticBtn
+      if (!btn) return
+      const rect = btn.getBoundingClientRect()
+      const x = (e.clientX - (rect.left + rect.width / 2)) * 0.3
+      const y = (e.clientY - (rect.top + rect.height / 2)) * 0.3
+      
+      this.xTo(x)
+      this.yTo(y)
+      this.xTextTo(x * 0.5)
+      this.yTextTo(y * 0.5)
+    },
+    handleMagneticLeave() {
+      if (this.xTo) this.xTo(0)
+      if (this.yTo) this.yTo(0)
+      if (this.xTextTo) this.xTextTo(0)
+      if (this.yTextTo) this.yTextTo(0)
+    },
     async handleLogin() {
+      // Feedback click scale down rapide
+      gsap.to(this.$refs.magneticBtn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 })
+
       try {
+        // Étape 1 : récupère le token
         const response = await apiClient.post('/auth/login', {
           email: this.email,
           password: this.password
         })
-        
         localStorage.setItem('token', response.access_token)
-        localStorage.setItem('user', JSON.stringify(response.user))
-        
+
+        // Étape 2 : récupère les infos de l'utilisateur connecté
+        const me = await apiClient.get('/auth/me')
+        localStorage.setItem('user', JSON.stringify(me))
+
         this.$router.push('/')
       } catch (error) {
         this.errorMessage = error.message
@@ -91,72 +184,144 @@ export default {
 <style scoped>
 .auth-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--bg-cosmic);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 1rem;
+  font-family: 'Inter', sans-serif;
+  padding: 2rem;
+  overflow: hidden;
+  position: relative;
+  background-image: linear-gradient(rgba(10, 10, 26, 0.4), rgba(10, 10, 26, 0.4)), url("@/assets/stadium1.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(224, 38, 255, 0.2) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+  z-index: 0;
+}
+
+.auth-container::after {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+  bottom: -150px;
+  left: -150px;
+  z-index: 0;
+}
+
+.decorative-player {
+  position: absolute;
+  right: -5%;
+  bottom: -10%;
+  width: 60%;
+  max-width: 800px;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(2px) brightness(0.8);
+  opacity: 0.4;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+}
+
+.decorative-player img {
+  width: 100%;
+  height: auto;
+  transform: scaleX(-1); /* Mirolité pour pointer vers le formulaire */
 }
 
 .auth-card {
-  background: white;
-  border-radius: 12px;
-  padding: 3rem 2.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  padding: 4rem 3.5rem;
   width: 100%;
-  max-width: 420px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e0e0e0;
+  max-width: 480px;
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  position: relative;
+  z-index: 10;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   text-align: center;
 }
 
 .auth-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 2.5rem;
   text-align: center;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+
+.error-message {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  color: #f87171;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+  text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.8rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
 }
 
 .form-group label {
-  font-weight: 500;
-  color: #555;
-  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.form-group input {
-  padding: 0.875rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+.glow-input {
+  padding: 1.1rem 1.4rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
-.form-group input:focus {
+.glow-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.glow-input:focus {
   outline: none;
-  border-color: #667eea;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--accent-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .form-options {
@@ -171,108 +336,116 @@ export default {
   align-items: center;
   cursor: pointer;
   font-size: 0.9rem;
-  color: #666;
-  position: relative;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .checkbox-container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
+  display: none;
 }
 
 .checkmark {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  margin-right: 8px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  margin-right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .checkbox-container input:checked ~ .checkmark {
-  background: #667eea;
-  border-color: #667eea;
+  background: var(--accent-secondary);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
 .checkbox-container input:checked ~ .checkmark::after {
-  content: '✓';
+  content: 'L';
+  transform: rotate(45deg) scaleX(-1);
   color: white;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 900;
 }
 
 .forgot-password {
-  color: #667eea;
+  color: var(--accent-secondary);
   text-decoration: none;
   font-size: 0.9rem;
-  transition: color 0.3s ease;
+  font-weight: 700;
+  transition: all 0.3s ease;
 }
 
 .forgot-password:hover {
-  color: #5a6fd8;
-  text-decoration: underline;
+  filter: brightness(1.2);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
 .auth-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: var(--accent-gradient);
   color: white;
   border: none;
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1.2rem;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.3s ease;
   margin-top: 1rem;
+  box-shadow: 0 10px 30px rgba(224, 38, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .auth-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(224, 38, 255, 0.5);
+  filter: brightness(1.1);
 }
 
 .auth-footer {
   text-align: center;
-  margin-top: 2rem;
-  color: #666;
-  font-size: 0.9rem;
+  margin-top: 2.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .register-link {
-  color: #667eea;
+  color: var(--accent-secondary);
   text-decoration: none;
-  font-weight: 500;
-  margin-left: 5px;
-  transition: color 0.3s ease;
+  font-weight: 800;
+  margin-left: 8px;
+  transition: all 0.3s ease;
 }
 
 .register-link:hover {
-  color: #5a6fd8;
-  text-decoration: underline;
+  filter: brightness(1.2);
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
 }
 
 .logo-img {
-  height: 1.5rem;
+  height: 3rem;
   width: auto;
+  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
 }
 
 @media (max-width: 480px) {
   .auth-card {
-    padding: 2rem 1.5rem;
+    padding: 3rem 1.5rem;
   }
   
   .auth-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
   }
   
   .form-options {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     align-items: flex-start;
   }
 }
+
 </style>

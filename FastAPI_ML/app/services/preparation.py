@@ -127,7 +127,7 @@ class PreparationService:
         dataset: pd.DataFrame
     ) -> pd.DataFrame:
 
-        dataset["Date"] = pd.to_datetime(dataset["Date"], dayfirst=True).dt.date
+        dataset["Date"] = pd.to_datetime(dataset["Date"], format='mixed').dt.date
         dataset.replace(self._TEAM_NAMES_EXT, inplace=True)
         dataset.rename(columns=self._RENAME_EXT, inplace=True)
 
@@ -369,7 +369,7 @@ class PreparationService:
             if exists:
                 continue
 
-            def safe(col: str) -> float | None:
+            def safe(col: str):
                 return float(row[col]) if col in row.index and pd.notna(row[col]) else None
 
             # Insertion dans football_matches (données brutes)

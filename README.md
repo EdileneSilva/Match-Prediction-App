@@ -37,26 +37,42 @@ Adapte l’utilisateur/mot de passe si besoin dans les URLs ci‑dessous.
 
 Cette API gère :
 - l’authentification JWT (`/auth/register`, `/auth/login`, `/auth/me`, etc.),
-- les utilisateurs, les favoris, l’historique,
-- les appels à l’API ML (plus tard).
+- les utilisateurs, les favoris, l’historique des prédictions (`/predictions/history`),
+- le proxy vers l'API ML pour la liste des équipes (`/predictions/teams`).
 
-### 3.1. Configuration
+# Configuration unique (.env)
 
-Dans `FastAPI_App/`, créer un fichier `.env` :
+Pour simplifier le développement, cette branche utilise un **seul fichier `.env` à la racine** du projet. Les deux APIs (`FastAPI_App` et `FastAPI_ML`) sont configurées pour lire ce fichier automatiquement.
 
 ```sh
-cd FastAPI_App
-cp .env.example .env  # si présent, sinon créer le fichier
+# À la racine du projet (Match-Prediction-App/)
+cp .env.example .env
 ```
 
-Contenu minimal (à adapter) :
+Contenu recommandé :
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballapp_db
+# Bases de données
+DATABASE_APP_URL=postgresql://amaury@localhost:5432/footballapp_db
+DATABASE_ML_URL=postgresql://amaury@localhost:5432/footballml_db
+DATABASE_URL=postgresql://amaury@localhost:5432/footballapp_db
+
+# URLs des Services
+ML_API_URL=http://localhost:8001
+
+# Auth JWT (API Application)
 SECRET_KEY=change-me
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+# Chemins ML
+MODEL_PATH=../Data/dataset/match_model_v1.joblib
+DATASET_PATH=../Data/dataset/completed_match_dataset_final.csv
+DATA_DIR=../Data
 ```
+
+
+> Remarque : ce fichier `.env` est unique et se crée à la racine du projet. Utilisez `footballml_db` pour le ML.
 
 ### 3.2. Environnement virtuel & dépendances
 
@@ -93,11 +109,13 @@ Cette API gère :
 
 ### 4.1. Configuration
 
-Dans `FastAPI_ML/`, créer un fichier `.env` :
+Dans `Match-Prediction-App/`, le `.env` unique à la racine contient aussi la config de l’API ML :
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
+DATABASE_ML_URL=postgresql://postgres:postgres@localhost:5432/footballprediction_db
 ```
+
+> Remarque : ce fichier `.env` est unique et se crée à la racine du projet.
 
 ### 4.2. Environnement virtuel & dépendances
 
@@ -172,6 +190,6 @@ Conséquence :
 - Chaque API a :
   - son propre `requirements.txt`,
   - son propre `venv`,
-  - sa propre config `.env`.
+  - mais une configuration `.env` unique à la racine du projet.
 
 ---

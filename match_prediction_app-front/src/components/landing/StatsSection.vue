@@ -68,8 +68,8 @@ onUnmounted(() => {
   padding: 80px 2rem;
   position: relative;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .stats-bg {
@@ -78,7 +78,7 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 200%;
-  background: radial-gradient(circle at center, rgba(102, 126, 234, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
   z-index: 0;
   pointer-events: none;
 }
@@ -95,35 +95,48 @@ onUnmounted(() => {
 
 .stat-card {
   text-align: center;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 20px;
-  backdrop-filter: blur(10px);
-  transition: transform 0.3s ease;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
 }
 
 .stat-value {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 800;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: baseline;
 }
 
-.stat-value span {
+.stat-value span:last-child {
   font-size: 1.5rem;
-  color: #667eea;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin-left: 2px;
+  font-weight: 700;
 }
 
 .stat-label {
-  color: #a0aec0;
+  color: var(--text-secondary);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
+
 
 @media (max-width: 992px) {
   .stats-container {
