@@ -42,7 +42,8 @@ class UserFavoriteTeam(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)   # FK optionnel (develop)
+    team_name = Column(String(100), nullable=True)                      # Nom direct (cosmic)
 
     user = relationship("User", back_populates="favorite_teams")
 

@@ -20,8 +20,7 @@ def get_teams(db: Session = Depends(get_db)):
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
     request: PredictionRequest,
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     # 1. Appel à l'API ML
@@ -51,32 +50,32 @@ async def predict_match(
                 detail=f"Erreur de communication avec le service ML: {str(e)}"
             )
 
-    # 2. Enregistrement dans l'historique (user_id=1 en mode dev sans auth)
+    # 2. Enregistrement dans l'historique
     new_prediction = PredictionHistory(
-        user_id=1,
+        user_id=current_user.id,
         home_team_name=request.home_team_name,
         away_team_name=request.away_team_name,
-        predicted_result=ml_data["predicted_result"],
-        confidence_score=ml_data["confidence_score"]
+        predicted_result=ml_data["prediction"],
+        confidence_score=ml_data["confidence"]
     )
     db.add(new_prediction)
     db.commit()
     db.refresh(new_prediction)
 
     return {
-        "predicted_result": ml_data["predicted_result"],
-        "confidence_score": ml_data["confidence_score"]
+        "predicted_result": ml_data["prediction"],
+        "confidence_score": ml_data["confidence"]
     }
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    # current_user: User = Depends(get_current_user),  # Réactiver l'auth
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     limit: int = 10  # Limiter aux dernières prédictions
 ):
     # Filtrer par utilisateur et limiter aux derniers matchs
     return db.query(PredictionHistory)\
-             .filter(PredictionHistory.user_id == 1)\
+             .filter(PredictionHistory.user_id == current_user.id)\
              .order_by(PredictionHistory.created_at.desc())\
              .limit(limit)\
              .all()
