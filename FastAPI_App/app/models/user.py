@@ -24,8 +24,8 @@ class PredictionHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    home_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
-    away_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    home_team_id = Column(Integer, ForeignKey("teams.id", ondelete="SET NULL"), nullable=True)
+    away_team_id = Column(Integer, ForeignKey("teams.id", ondelete="SET NULL"), nullable=True)
     home_team_name = Column(String(100), nullable=False)
     home_team_logo_url = Column(Text, nullable=True)
     away_team_name = Column(String(100), nullable=False)

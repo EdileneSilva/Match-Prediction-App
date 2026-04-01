@@ -65,7 +65,17 @@ async def get_teams(db: Session = Depends(get_db)):
 class PredictRequest(BaseModel):
     home_team: str
     away_team: str
-    season: Optional[str] = "2024/2025"
+    season: Optional[str] = "2025/2026"
+
+
+def _season_to_int(season: Optional[str]) -> int:
+    """Convertit '2024/2025' → 2025, ou retourne l'entier directement."""
+    if season and "/" in season:
+        return int(season.split("/")[1])
+    try:
+        return int(season)
+    except (TypeError, ValueError):
+        return 2026
 
 
 @router.post("/predict")
@@ -96,7 +106,7 @@ async def predict_match(
                 json={
                     "home_team": data.home_team,
                     "away_team": data.away_team,
-                    "season": data.season,
+                    "season": _season_to_int(data.season),
                 },
             )
         response.raise_for_status()

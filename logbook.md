@@ -213,3 +213,24 @@ npm run serve
 - **Solution Dynamique** : Refonte de la logique dans `FastAPI_App`. L'endpoint `/predictions/teams` agit dorénavant sans BDD comme source mère, mais appelle dynamiquement le scraper `standings` du moteur ML. Cela garantit de n'avoir que les 18 clubs L1 actifs.
 - **Upsert Base de données** : Le proxy (`/dashboard/upcoming`, `/dashboard/standings` et `/teams`) met systématiquement à jour la table des équipes locale (y injectant les magnifiques logos LFP).
 - **Nettoyage** : Suppression du seed archaïque `TEAMS_SEED` de la procédure de démarrage de l'application FastAPI principale.
+
+---
+
+## ⚙️ Fix Connectivité, ML & BDD (Sprint Final - Avril 2026)
+
+### 1. Résolution DNS & Réseau (macOS)
+- **Fix IPv6/localhost** : Correction du fichier `.env` à la racine pour utiliser `127.0.0.1` au lieu de `localhost` pour `ML_API_URL`. Cela élimine les erreurs "Connection Refused" dues à la résolution prioritaire de `::1` sur macOS.
+
+### 2. Compatibilité Modèle ML (Scikit-Learn)
+- **Re-entraînement Dynamique** : Correction de l'erreur `version mismatch` (modèle 1.5.2 vs runtime 1.7.2). Le modèle a été ré-entraîné via l'endpoint `/train` en utilisant le `venv` dédié du service ML, garantissant une sérialisation/désérialisation parfaite.
+- **Parsing de Saison** : Ajout d'une conversion automatique dans `prediction.py`. Les chaînes type `"2024/2025"` envoyées par le frontend sont désormais converties en entiers (`2025`) avant d'être transmises au service ML.
+
+### 3. Intégrité de la Base de Données (Historique)
+- **Migration de Schéma** : Ajout manuel des colonnes `home_team_id` et `away_team_id` dans la table `prediction_history` via `ALTER TABLE`.
+- **Flexibilité ORM** : Mise à jour du modèle SQLAlchemy dans `FastAPI_App/app/models/user.py` pour rendre ces colonnes optionnelles (`nullable=True`), prévenant ainsi les échecs d'insertion lors de la sauvegarde des prédictions.
+
+### 4. Qualité des Données & Logos
+- **Sync Logos LFP** : Nettoyage et re-peuplement de la table `teams` avec les URLs officielles (AWS S3) provenant du scraper LFP. Les logos s'affichent désormais sans liens brisés sur le Dashboard et dans l'Arène.
+- **Stabilité du Proxy** : Validation du flux complet : Frontend -> API App (Proxy) -> API ML -> Réponse IA -> Sauvegarde BDD.
+
+---
