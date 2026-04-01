@@ -20,7 +20,40 @@ router = APIRouter(prefix="/predictions", tags=["Predictions"])
 # Liste les équipes disponibles (depuis la BDD App)
 # ─────────────────────────────────────────────
 @router.get("/teams")
-def get_teams(db: Session = Depends(get_db)):
+async def get_teams(db: Session = Depends(get_db)):
+    url = f"{settings.ML_API_URL}/dashboard/standings"
+    teams_result = []
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, timeout=5.0)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("status") == "success":
+                    standings = data.get("data", [])
+                    for s in standings:
+                        team_name = s.get("team")
+                        logo_url = s.get("logo")
+                        if not team_name:
+                            continue
+                            
+                        team = db.query(Team).filter(Team.name == team_name).first()
+                        if team:
+                            if logo_url and team.logo_url != logo_url:
+                                team.logo_url = logo_url
+                        else:
+                            team = Team(name=team_name, logo_url=logo_url)
+                            db.add(team)
+                            
+                        db.flush()
+                        db.refresh(team)
+                        teams_result.append({"id": team.id, "name": team.name, "logo_url": team.logo_url})
+                        
+                    db.commit()
+                    teams_result.sort(key=lambda x: x["name"])
+                    return teams_result
+    except Exception as e:
+        pass
+        
     teams = db.query(Team).order_by(Team.name).all()
     return [{"id": team.id, "name": team.name, "logo_url": team.logo_url} for team in teams]
 

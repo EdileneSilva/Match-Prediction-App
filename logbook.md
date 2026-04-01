@@ -200,4 +200,16 @@ npm run serve
 - **Vérification UI** : Validation que les composants Vue.js (`PredictionView.vue`, `StatisticsView.vue`) ont conservé leurs animations GSAP et leur style Glassmorphism malgré les simplifications présentes sur `develop`.
 - **Intégrité des Modèles** : Restauration/Maintien de la colonne `logo_url` dans le modèle `Team` pour ne pas casser le scraper et l'affichage des logos dans le frontend.
 
+---
 
+## 🛠️ Correction Scikit-Learn & Synchronisation Logos (Avril 2026)
+
+### 1. Rétrogradation Scikit-Learn
+- **Problème** : Erreur de désérialisation du modèle au démarrage de l'API ML due à la version (le pipeline a été sauvegardé avec `1.5.2` mais le `requirements.txt` indiquait `1.7.2`).
+- **Solution** : Downgrade de `scikit-learn` vers `1.5.2` dans `FastAPI_ML/requirements.txt` pour restaurer la compatibilité.
+
+### 2. Synchronisation Globale des Équipes & Logos
+- **Problème** : L'API App renvoyait toujours des équipes reléguées (ex: Lorient, Metz) et les logos (*brandlogos.net*) pointaient vers des liens morts causant des carrés vides au frontend.
+- **Solution Dynamique** : Refonte de la logique dans `FastAPI_App`. L'endpoint `/predictions/teams` agit dorénavant sans BDD comme source mère, mais appelle dynamiquement le scraper `standings` du moteur ML. Cela garantit de n'avoir que les 18 clubs L1 actifs.
+- **Upsert Base de données** : Le proxy (`/dashboard/upcoming`, `/dashboard/standings` et `/teams`) met systématiquement à jour la table des équipes locale (y injectant les magnifiques logos LFP).
+- **Nettoyage** : Suppression du seed archaïque `TEAMS_SEED` de la procédure de démarrage de l'application FastAPI principale.
