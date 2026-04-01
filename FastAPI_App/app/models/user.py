@@ -24,13 +24,17 @@ class PredictionHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    home_team_name = Column(String(100), nullable=False)
-    away_team_name = Column(String(100), nullable=False)
+    home_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    away_team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
+    home_team_name = Column(String(100), nullable=False)  # Ajouter ce champ
+    away_team_name = Column(String(100), nullable=False)  # Ajouter ce champ
     predicted_result = Column(String(10), nullable=True)
     confidence_score = Column(Numeric(5, 4), nullable=True)
     created_at = Column(TIMESTAMP, nullable=False, server_default=func.now())
 
     user = relationship("User", back_populates="prediction_history")
+    home_team = relationship("Team", foreign_keys=[home_team_id])
+    away_team = relationship("Team", foreign_keys=[away_team_id])
 
 
 class UserFavoriteTeam(Base):
@@ -38,7 +42,7 @@ class UserFavoriteTeam(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
-    team_name = Column(String(100), nullable=False)
+    team_id = Column(Integer, ForeignKey("teams.id"), nullable=False)
 
     user = relationship("User", back_populates="favorite_teams")
 

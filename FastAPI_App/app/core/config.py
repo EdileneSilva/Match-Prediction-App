@@ -8,10 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Match Prediction App - Application API"
     PROJECT_VERSION: str = "0.1.0"
     
-    DATABASE_URL: str = os.getenv(
-        "DATABASE_APP_URL", 
-        "sqlite:///./app.db"
-    )
+    DATABASE_URL: str = "postgresql://slyxi@/footballapp_db"
     
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me")
     ALGORITHM: str = "HS256"
