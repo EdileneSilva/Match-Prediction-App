@@ -31,15 +31,11 @@
               
               <!-- Filtres -->
               <div class="filters-section">
-                <select v-model="selectedLeague" class="filter-select">
-                  <option value="all">Toutes les ligues</option>
-                  <option value="ligue1">Ligue 1</option>
+                <select v-model="selectedLeague" class="filter-select" disabled>
+                  <option value="all">Ligue 1</option>
                 </select>
-                <select v-model="selectedSeason" class="filter-select">
+                <select v-model="selectedSeason" class="filter-select" disabled>
                   <option value="2025">Saison 2025/2026</option>
-                  <option value="2024">Saison 2024</option>
-                  <option value="2023">Saison 2023</option>
-                  <option value="2022">Saison 2022</option>
                 </select>
               </div>
 
@@ -288,7 +284,7 @@ export default {
     return {
       activeTab: 'ranking',
       selectedLeague: 'all',
-      selectedSeason: '2024',
+      selectedSeason: '2025',
       selectedTeam: '',
       loading: false,
       error: null,
@@ -392,17 +388,14 @@ export default {
   
   async mounted() {
     await this.loadAllStats()
-    },
+  },
     
-    computed: {
-      getSelectedTeamNews() {
-        if (!this.selectedTeam) return [];
-        // On cherche par label ou par ID (l'API LFP utilise des shortClubId)
-        // Pour simplifier, on peut filtrer par nom d'équipe si on n'a pas les IDs mappés
-        // Mais ici on utilise le clubId renvoyé par le backend
-        return this.squadNews[this.selectedTeam] || [];
-      }
-    },
+  computed: {
+    getSelectedTeamNews() {
+      if (!this.selectedTeam || !this.squadNews) return [];
+      return this.squadNews[this.selectedTeam] || [];
+    }
+  },
     
     methods: {
     async loadAllStats() {
@@ -487,7 +480,7 @@ export default {
       try {
         const response = await apiClient.get('/dashboard/squad-news');
         if (response.status === 'success') {
-          this.squadNews = response.data;
+          this.squadNews = response.data || {};
         }
       } catch (err) {
         console.error("Erreur lors du chargement des effectifs:", err);

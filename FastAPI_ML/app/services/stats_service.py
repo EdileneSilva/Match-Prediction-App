@@ -116,7 +116,7 @@ class StatsService:
                         "emoji": status_map[status_id]["emoji"],
                         "reason": reason
                     })
-            
+        return news_by_club
     def fetch_player_stats(self, stat_name: str = "goals", limit: int = 10) -> List[Dict[str, Any]]:
         """Classement des joueurs."""
         data = self._get_api_data(f"championship-players-advanced-rankings/1/stat/{stat_name}", {"page": 1, "limit": limit})

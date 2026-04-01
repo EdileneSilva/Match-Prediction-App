@@ -255,3 +255,20 @@ npm run serve
 ### 4. Architecture API (Proxying)
 - **Endpoint Squad News** : Exposition d'une nouvelle route `/dashboard/squad-news` sur l'API principale (Gateway) relayant les informations détaillés du moteur ML.
 - **Stabilité** : Correction des bugs de mapping sur les IDs d'équipes entre le frontend Vue.js et les services backend.
+
+---
+
+## 🛠️ Maintenance & Fiabilité (Avril 2026 - Sprint #4.2)
+
+### 1. Résolution de Crashs Runtime (Frontend)
+- **Sécurisation `squadNews`** : Correction d'une erreur critique `null is not an object` dans `StatisticsView.vue`. Ajout de guards (valeurs par défaut `{}` et vérifications `v-if`) pour prévenir le plantage de l'application lors du chargement asynchrone des données d'effectif.
+- **Correction Syntaxe Vue** : Réparation d'une erreur de signature dans la propriété calculée `getSelectedTeamNews` qui empêchait la compilation du template.
+
+### 2. Correction Logique Backend (ML Engine)
+- **StatsService.py** : Ajout du `return` manquant dans la méthode `fetch_squad_news`. Cette omission empêchait la transmission des données de blessures/suspensions au frontend, causant des erreurs de référence nulles.
+
+### 3. Alignement UI & Périmètre Projet
+- **Simplification des Filtres** : 
+    - **Ligue 1 Unique** : Les sélecteurs de ligue sont désormais restreints à "Ligue 1" (désactivés pour éviter toute confusion avec d'autres championnats non supportés).
+    - **Saison 2025/2026** : Initialisation par défaut et verrouillage de la saison sur `2025/2026` pour correspondre aux données réelles scrapées par le moteur ML.
+- **Visibilité des Statistiques** : Rétablissement de l'affichage des meilleurs buteurs et passeurs dans l'onglet "Buts Marqués" grâce à la résolution des erreurs de script bloquantes.
