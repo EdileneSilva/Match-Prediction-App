@@ -141,9 +141,6 @@
                   </div>
                 </div>
 
-                  </div>
-                </div>
-
                 <!-- Effectif & Statuts (Nouveau) -->
                 <div class="squad-status-section">
                   <h3 class="section-title">🏥 Effectif & Statuts</h3>
@@ -222,10 +219,10 @@
                       <div class="goals-label">Meilleur buteur</div>
                     </div>
                   </div>
+                </div>
               </div>
-            </div>
 
-            <!-- Classement des buteurs -->
+              <!-- Classement des buteurs -->
               <div class="top-scorers" v-if="topScorers.length > 0">
                 <h3>🥇 Meilleurs Buteurs</h3>
                 <div class="scorers-list">
