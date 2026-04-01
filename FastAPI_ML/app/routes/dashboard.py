@@ -60,29 +60,71 @@ def get_upcoming(db: Session = Depends(get_db)):
 @router.get("/standings")
 def get_standings(db: Session = Depends(get_db)):
     """
-    Récupère le classement actuel de Ligue 1 via le scraper.
+    Récupère le classement actuel de Ligue 1 via le StatsService (API LFP).
     """
+    from ..services.stats_service import stats_service
     try:
-        standings = fetch_league_standings()
+        standings = stats_service.fetch_full_standings()
         
-        # Normalisation et mapping pour le frontend
-        standings_mapped = []
+        # Sync les logos et normalisation
         for s in standings:
-            # Sync les logos du classement aussi
             upsert_team(db, s["team"], s.get("logo"))
-            
-            standings_mapped.append({
-                **s,
-                "position": s.get("rank"),
-                "team": normalize_team(s["team"])
-            })
+            s["team"] = normalize_team(s["team"])
             
         return {
             "status": "success",
-            "data": standings_mapped
+            "data": standings
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/squad-news")
+def get_squad_news():
+    """
+    Récupère les blessures et suspensions actuelles.
+    """
+    from ..services.stats_service import stats_service
+    try:
+        news = stats_service.fetch_squad_news()
+        return {
+            "status": "success",
+            "data": news
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/league-stats/players/{stat_name}")
+def get_players_stats(stat_name: str = "goals", limit: int = 10):
+    """
+    Récupère le classement des joueurs pour une statistique donnée.
+    """
+    from ..services.stats_service import stats_service
+    return {
+        "status": "success",
+        "data": stats_service.fetch_player_stats(stat_name, limit)
+    }
+
+@router.get("/league-stats/clubs/{stat_name}")
+def get_clubs_stats(stat_name: str = "totalGoals", limit: int = 10):
+    """
+    Récupère le classement des clubs pour une statistique donnée.
+    """
+    from ..services.stats_service import stats_service
+    return {
+        "status": "success",
+        "data": stats_service.fetch_club_stats(stat_name, limit)
+    }
+
+@router.get("/league-stats/overview")
+def get_stats_overview():
+    """
+    Récupère une vue d'ensemble des statistiques Ligue 1.
+    """
+    from ..services.stats_service import stats_service
+    return {
+        "status": "success",
+        "data": stats_service.fetch_stats_overview()
+    }
 
 def register_dashboard_routes(app):
     app.include_router(router)

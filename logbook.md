@@ -230,7 +230,28 @@ npm run serve
 - **Flexibilité ORM** : Mise à jour du modèle SQLAlchemy dans `FastAPI_App/app/models/user.py` pour rendre ces colonnes optionnelles (`nullable=True`), prévenant ainsi les échecs d'insertion lors de la sauvegarde des prédictions.
 
 ### 4. Qualité des Données & Logos
-- **Sync Logos LFP** : Nettoyage et re-peuplement de la table `teams` avec les URLs officielles (AWS S3) provenant du scraper LFP. Les logos s'affichent désormais sans liens brisés sur le Dashboard et dans l'Arène.
-- **Stabilité du Proxy** : Validation du flux complet : Frontend -> API App (Proxy) -> API ML -> Réponse IA -> Sauvegarde BDD.
-
 ---
+
+## 📊 Overhaul Statistiques & Effectifs (Avril 2026)
+
+### 1. Intégration API Haute Résolution (LFP)
+- **StatsService Pro** : Remplacement des anciens scrapers par une intégration directe aux endpoints de la LFP.
+- **Classement Étendu** : Affichage complet des métriques de performance : Victoires (V), Nuls (N), Défaites (D), Buts Pour (BP), Buts Contre (BC) et Différence de buts (Diff).
+- **Synchronisation ID** : Utilisation des identifiants officiels `clubId` (ex: `l1_championship_club_2025_13`) pour garantir la cohérence des données entre le classement et les effectifs.
+
+### 2. Module "Effectif & Statuts" (Live)
+- **🏥 Tracking des Indisponibilités** : Ajout d'une section dynamique groupant les joueurs par équipe selon leur statut en temps réel pour la journée en cours (GW 28).
+- **Code Couleur & Emojis** :
+    - 🔴 **Blessé** : Détails médicaux (ischio, cheville, etc.).
+    - 🟡 **Suspendu** : Alertes automatique sur les suspensions.
+    - ⚪ **Incertain** : Joueurs dont la participation est compromise.
+    - 🟢 **Retour** : Signalement des reprises et retours dans le groupe.
+
+### 3. Raffinement UI/UX
+- **Indicateurs de Forme LFP** : Implémentation du style officiel avec des cercles colorés et icônes minimalistes (`✓`, `-`, `✕`).
+- **Logos Officiels** : Récupération et affichage des logos HD provenant des serveurs AWS de la Ligue 1.
+- **Sélection Intuitive** : Synchronisation automatique de la liste des équipes dans l'onglet de sélection pour une navigation fluide sans erreurs de mapping.
+
+### 4. Architecture API (Proxying)
+- **Endpoint Squad News** : Exposition d'une nouvelle route `/dashboard/squad-news` sur l'API principale (Gateway) relayant les informations détaillés du moteur ML.
+- **Stabilité** : Correction des bugs de mapping sur les IDs d'équipes entre le frontend Vue.js et les services backend.

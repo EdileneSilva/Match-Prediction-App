@@ -22,7 +22,12 @@
           <!-- Onglet Classement -->
           <div v-if="activeTab === 'ranking'" class="tab-panel">
             <div class="ranking-section">
-              <h2>🏆 Classement des Équipes</h2>
+              <div class="stats-header">
+                <div class="stats-title-desc">
+                  <h1>🏆 Classement Ligue 1</h1>
+                  <p>Saison 2025/2026 - Dernières données officielles</p>
+                </div>
+              </div>
               
               <!-- Filtres -->
               <div class="filters-section">
@@ -31,6 +36,7 @@
                   <option value="ligue1">Ligue 1</option>
                 </select>
                 <select v-model="selectedSeason" class="filter-select">
+                  <option value="2025">Saison 2025/2026</option>
                   <option value="2024">Saison 2024</option>
                   <option value="2023">Saison 2023</option>
                   <option value="2022">Saison 2022</option>
@@ -52,7 +58,7 @@
                       <th>BC</th>
                       <th>Diff</th>
                       <th>Pts</th>
-                      <th>Forme</th>
+                      <th>Derniers Matchs</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -61,8 +67,9 @@
                       <td class="position">{{ team.position }}</td>
                       <td class="team-name">
                         <div class="team-info">
-                          <span class="team-logo">{{ team.logo }}</span>
-                          {{ team.name }}
+                          <img v-if="team.logo" :src="team.logo" class="team-logo-img" alt="Logo">
+                          <span v-else class="team-logo-placeholder">⚽</span>
+                          <span class="name-text">{{ team.name }}</span>
                         </div>
                       </td>
                       <td>{{ team.matchesPlayed }}</td>
@@ -76,11 +83,14 @@
                       </td>
                       <td class="points">{{ team.points }}</td>
                       <td>
-                        <div class="form-indicators">
-                          <span v-for="(result, i) in team.form" :key="i" 
-                                :class="getFormClass(result)">
-                            {{ result }}
-                          </span>
+                        <div class="form-indicators-lfp">
+                          <div v-for="(result, i) in team.form" :key="i" 
+                               :class="['form-circle', getFormClass(result)]"
+                               :title="result === 'V' ? 'Victoire' : (result === 'N' ? 'Nul' : 'Défaite')">
+                            <span class="form-icon">
+                              {{ result === 'V' ? '✓' : (result === 'N' ? '-' : '✕') }}
+                            </span>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -131,9 +141,35 @@
                   </div>
                 </div>
 
+                  </div>
+                </div>
+
+                <!-- Effectif & Statuts (Nouveau) -->
+                <div class="squad-status-section">
+                  <h3 class="section-title">🏥 Effectif & Statuts</h3>
+                  <div v-if="getSelectedTeamNews.length > 0" class="squad-grid">
+                    <div v-for="player in getSelectedTeamNews" :key="player.player_id" 
+                         class="player-status-card" :class="'border-' + player.color">
+                      <div class="player-status-header">
+                        <span class="status-emoji">{{ player.emoji }}</span>
+                        <span class="player-name">{{ player.name }}</span>
+                      </div>
+                      <div class="status-badge" :class="'bg-' + player.color">
+                        {{ player.status }}
+                      </div>
+                      <div class="status-reason" v-if="player.reason">
+                        {{ player.reason }}
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="empty-squad-news">
+                    <p>✅ Aucun joueur indisponible ou incertain signalé pour cette équipe.</p>
+                  </div>
+                </div>
+
                 <!-- Graphique de forme -->
                 <div class="form-chart">
-                  <h3>📊 Derniers 10 matchs</h3>
+                  <h3 class="section-title">📊 Derniers 10 matchs</h3>
                   <div class="matches-timeline">
                     <div v-for="(match, index) in recentMatches" :key="index" 
                          class="match-item" :class="getMatchResultClass(match.result)">
@@ -153,10 +189,14 @@
             </div>
           </div>
 
-          <!-- Onglet Buts Marqués -->
           <div v-if="activeTab === 'goals'" class="tab-panel">
             <div class="goals-section">
-              <h2>⚽ Buts Marqués</h2>
+              <div class="stats-header">
+                <div class="stats-title-desc">
+                  <h1>⚽ Statistiques de Buts</h1>
+                  <p>Saison 2025/2026 - Performances individuelles et collectives</p>
+                </div>
+              </div>
               
               <!-- Statistiques générales -->
               <div class="goals-overview">
@@ -182,11 +222,11 @@
                       <div class="goals-label">Meilleur buteur</div>
                     </div>
                   </div>
-                </div>
               </div>
+            </div>
 
-              <!-- Classement des buteurs -->
-              <div class="top-scorers">
+            <!-- Classement des buteurs -->
+              <div class="top-scorers" v-if="topScorers.length > 0">
                 <h3>🥇 Meilleurs Buteurs</h3>
                 <div class="scorers-list">
                   <div v-for="(scorer, index) in topScorers" :key="scorer.id" 
@@ -198,7 +238,24 @@
                     </div>
                     <div class="scorer-stats">
                       <div class="scorer-goals">{{ scorer.goals }} buts</div>
-                      <div class="scorer-matches">{{ scorer.matches }} matchs</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Classement des passeurs -->
+              <div class="top-scorers" v-if="topAssisters.length > 0">
+                <h3>👟 Meilleurs Passeurs</h3>
+                <div class="scorers-list">
+                  <div v-for="(assister, index) in topAssisters" :key="assister.id" 
+                       class="scorer-item" :class="getScorerClass(index)">
+                    <div class="scorer-rank">{{ index + 1 }}</div>
+                    <div class="scorer-info">
+                      <div class="scorer-name">{{ assister.name }}</div>
+                      <div class="scorer-team">{{ assister.team }}</div>
+                    </div>
+                    <div class="scorer-stats">
+                      <div class="scorer-goals">{{ assister.assists }} passes</div>
                     </div>
                   </div>
                 </div>
@@ -317,59 +374,137 @@ export default {
       ],
       
       // Données de buts
-      totalGoals: 156,
-      avgGoalsPerMatch: 2.8,
-      topScorer: { name: 'Kyapembé Mbappé', goals: 14 },
+      totalGoals: 0,
+      avgGoalsPerMatch: 0,
+      topScorer: { name: '-', goals: 0 },
       
-      topScorers: [
-        { id: 1, name: 'kiyane Mbappé', team: 'PSG', goals: 14, matches: 15 },
-        { id: 2, name: 'Wissam Ben Yaperr', team: 'OM', goals: 11, matches: 14 },
-        { id: 3, name: 'Jonathan David', team: 'Lille', goals: 9, matches: 15 }
-      ],
+      topScorers: [],
+      topAssisters: [],
+      squadNews: {}, // Nouvelles données des effectifs
       
       goalsDistribution: [
-        { label: '0-15 min', goals: 22, percentage: 14 },
-        { label: '15-30 min', goals: 35, percentage: 22 },
-        { label: '30-45 min', goals: 28, percentage: 18 },
-        { label: '45-60 min', goals: 31, percentage: 20 },
-        { label: '60-75 min', goals: 24, percentage: 15 },
-        { label: '75-90 min', goals: 16, percentage: 11 }
+        { label: '0-15 min', goals: 0, percentage: 0 },
+        { label: '15-30 min', goals: 0, percentage: 0 },
+        { label: '30-45 min', goals: 0, percentage: 0 },
+        { label: '45-60 min', goals: 0, percentage: 0 },
+        { label: '60-75 min', goals: 0, percentage: 0 },
+        { label: '75-90 min', goals: 0, percentage: 0 }
       ]
     }
   },
   
   async mounted() {
-    await this.loadStatisticsData()
-  },
-  
-  methods: {
-    async loadStatisticsData() {
+    await this.loadAllStats()
+    },
+    
+    computed: {
+      getSelectedTeamNews() {
+        if (!this.selectedTeam) return [];
+        // On cherche par label ou par ID (l'API LFP utilise des shortClubId)
+        // Pour simplifier, on peut filtrer par nom d'équipe si on n'a pas les IDs mappés
+        // Mais ici on utilise le clubId renvoyé par le backend
+        return this.squadNews[this.selectedTeam] || [];
+      }
+    },
+    
+    methods: {
+    async loadAllStats() {
       this.loading = true;
       try {
-        const response = await apiClient.get('/dashboard/standings');
-        if (response.status === 'success' && response.data) {
-          this.rankingData = response.data.map(item => ({
-            id: item.position,
-            position: item.position,
-            name: item.team,
-            logo: item.logo || '⚽',
-            matchesPlayed: item.played,
-            wins: item.wins,
-            draws: item.draws,
-            losses: item.losses,
-            goalsFor: item.goals_for,
-            goalsAgainst: item.goals_against,
-            goalDifference: item.goals_diff,
-            points: item.points,
-            form: [] // Le scraper ne fournit pas encore la forme détaillée ('V', 'D', etc.)
-          }));
-        }
+        await Promise.all([
+          this.loadStandings(),
+          this.loadTopScorers(),
+          this.loadTopAssisters(),
+          this.loadStatsOverview(),
+          this.loadSquadNews()
+        ]);
       } catch (err) {
         this.error = "Erreur lors du chargement des statistiques";
         console.error(err);
       } finally {
         this.loading = false;
       }
+    },
+
+    async loadStandings() {
+      const response = await apiClient.get('/dashboard/standings');
+      if (response.status === 'success' && response.data) {
+        this.rankingData = response.data.map(item => ({
+          id: item.id, // ID officiel (clubId)
+          position: item.position,
+          name: item.team,
+          logo: item.logo,
+          matchesPlayed: item.played,
+          wins: item.wins,
+          draws: item.draws,
+          losses: item.losses,
+          goalsFor: item.goals_for,
+          goalsAgainst: item.goals_against,
+          goalDifference: item.goals_diff,
+          points: item.points,
+          form: item.form || []
+        }));
+        
+        // On garde l'ID officiel pour le mapping des blessures
+        this.teamsList = this.rankingData.map(t => ({ id: t.id, name: t.name }));
+        
+        if (!this.selectedTeam && this.teamsList.length > 0) {
+          this.selectedTeam = this.teamsList[0].id;
+        }
+      }
+    },
+
+    async loadTopScorers() {
+      const response = await apiClient.get('/dashboard/league-stats/players/goals?limit=5');
+      if (response.status === 'success' && response.data) {
+        this.topScorers = response.data.map(p => ({
+          id: p.player_id,
+          name: p.name,
+          team: p.team,
+          goals: p.value,
+          matches: '-' // Non fourni directement par cet endpoint
+        }));
+        
+        if (this.topScorers.length > 0) {
+          this.topScorer = { 
+            name: this.topScorers[0].name, 
+            goals: this.topScorers[0].goals 
+          };
+        }
+      }
+    },
+
+    async loadTopAssisters() {
+      const response = await apiClient.get('/dashboard/league-stats/players/assists?limit=5');
+      if (response.status === 'success' && response.data) {
+        this.topAssisters = response.data.map(p => ({
+          id: p.player_id,
+          name: p.name,
+          team: p.team,
+          assists: p.value
+        }));
+      }
+    },
+
+    async loadSquadNews() {
+      try {
+        const response = await apiClient.get('/dashboard/squad-news');
+        if (response.status === 'success') {
+          this.squadNews = response.data;
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des effectifs:", err);
+      }
+    },
+
+    async loadStatsOverview() {
+        // En attendant un overview plus complet, on simule à partir du classement
+        if (this.rankingData.length > 0) {
+            const total = this.rankingData.reduce((acc, team) => acc + team.goalsFor, 0);
+            const matches = (this.rankingData.reduce((acc, team) => acc + team.matchesPlayed, 0)) / 2;
+            this.totalGoals = total;
+            this.avgGoalsPerMatch = (total / matches).toFixed(2);
+        }
     },
     
     getRankingRowClass(index) {
@@ -847,5 +982,134 @@ export default {
     grid-template-columns: 80px 1fr 60px;
     font-size: 0.9rem;
   }
+}
+
+/* Nouveaux styles LFP */
+.team-logo-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.form-indicators-lfp {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.form-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: white;
+  transition: transform 0.2s;
+}
+
+.form-circle:hover {
+  transform: scale(1.2);
+}
+
+.form-circle.form-win { background: #00FF85; color: #1a1a2e; } /* Couleur officielle Ligue 1 Win */
+.form-circle.form-draw { background: #888888; }
+.form-circle.form-loss { background: #FF0055; }
+
+.section-title {
+  margin: 2rem 0 1.5rem;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Squad News */
+.squad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.player-status-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.player-status-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.player-status-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.status-reason {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Status Colors */
+.border-red { border-left-color: #FF0055 !important; }
+.bg-red { background: rgba(255, 0, 85, 0.2); color: #ff4d88; border: 1px solid rgba(255, 0, 85, 0.3); }
+
+.border-yellow { border-left-color: #FFD700 !important; }
+.bg-yellow { background: rgba(255, 215, 0, 0.2); color: #ffeb3b; border: 1px solid rgba(255, 215, 0, 0.3); }
+
+.border-white { border-left-color: #FFFFFF !important; }
+.bg-white { background: rgba(255, 255, 255, 0.1); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.2); }
+
+.border-green { border-left-color: #00FF85 !important; }
+.bg-green { background: rgba(0, 255, 133, 0.2); color: #00ff85; border: 1px solid rgba(0, 255, 133, 0.3); }
+
+.empty-squad-news {
+  padding: 2rem;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+.stats-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-title-desc h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.stats-title-desc p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 </style>
