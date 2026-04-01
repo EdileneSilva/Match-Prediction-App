@@ -155,7 +155,7 @@ export default {
   },
   async mounted() {
     try {
-      this.teams = await apiClient.get('/teams')
+      this.teams = await apiClient.get('/predictions/teams')
     } catch (err) {
       this.error = "Impossible de charger les équipes"
     }
@@ -232,19 +232,27 @@ export default {
       this.animateScanning();
 
       try {
-        const response = await apiClient.post('/predict', {
+        const response = await apiClient.post('/predictions/predict', {
           home_team: this.selectedTeam1.name,
           away_team: this.selectedTeam2.name,
-          season: 2025
+          season: '2024/2025'
         });
 
         // Synthetic delay for "Analysis" feel
         await new Promise(resolve => setTimeout(resolve, 3000));
 
+        // Support both ML response formats: probabilities.HOME or direct fields
+        const probs = response.probabilities || {};
+        const t1Raw  = probs.HOME  ?? response.home_win_probability  ?? response.team1Win  ?? 33;
+        const drRaw  = probs.DRAW  ?? response.draw_probability       ?? response.draw      ?? 33;
+        const t2Raw  = probs.AWAY  ?? response.away_win_probability  ?? response.team2Win  ?? 34;
+
         this.predictionResult = {
-          team1Win: response.probabilities.HOME * 100,
-          draw: response.probabilities.DRAW * 100,
-          team2Win: response.probabilities.AWAY * 100
+          team1Win: t1Raw * 100,
+          draw:     drRaw * 100,
+          team2Win: t2Raw * 100,
+          home_team_logo_url: response.home_team_logo_url || this.selectedTeam1?.logo_url,
+          away_team_logo_url: response.away_team_logo_url || this.selectedTeam2?.logo_url,
         };
 
         const total = this.predictionResult.team1Win + this.predictionResult.draw + this.predictionResult.team2Win;
