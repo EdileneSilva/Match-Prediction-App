@@ -11,6 +11,7 @@ def root():
 
 from .auth import router as auth_router
 from .prediction import router as prediction_router
+from .dashboard import router as dashboard_router
 
 def register_routes(app: FastAPI) -> None:
     """
@@ -20,4 +21,5 @@ def register_routes(app: FastAPI) -> None:
     app.include_router(router)
     app.include_router(auth_router)
     app.include_router(prediction_router)
+    app.include_router(dashboard_router)
 

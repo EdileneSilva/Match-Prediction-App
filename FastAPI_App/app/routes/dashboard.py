@@ -1,88 +1,45 @@
-from fastapi import APIRouter
-from typing import List, Dict, Any
-from ..utils.scraper_ligue1 import fetch_upcoming_matches, fetch_league_standings
+from fastapi import APIRouter, HTTPException, Path
 import httpx
+import logging
 from ..core.config import settings
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+# Configure logging
+logger = logging.getLogger(__name__)
 
-# Configuration URL du service ML
-ML_SERVICE_URL = "http://localhost:8001"
-
-from ..utils.team_mapper import normalize_team
-
-async def get_prediction_confidence(home_team: str, away_team: str) -> Dict[str, Any]:
-    """
-    Interroge le service ML pour obtenir le taux de confiance réel.
-    Désormais avec mapping des noms d'équipes pour éviter les erreurs.
-    """
-    # Mapper les noms LFP vers noms de modèle
-    norm_home = normalize_team(home_team)
-    norm_away = normalize_team(away_team)
-    
-    try:
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            payload = {
-                "home_team": norm_home,
-                "away_team": norm_away,
-                "referee": "Unknown",
-                "season": 2024, # Saison de référence dans le modèle
-                "league_round": 1
-            }
-            # Appel à l'endpoint de FastAPI_ML
-            response = await client.post(f"{ML_SERVICE_URL}/predict", json=payload)
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    "prediction": data.get("prediction", "DRAW"),
-                    "confidence": round(data.get("confidence", 0.50) * 100)
-                }
-    except Exception as e:
-         # Log simple sans bruit
-         pass
-        
-    # Fallback honnête en cas d'erreur de service ou équipe inconnue
-    return {
-        "prediction": "N/A",
-        "confidence": 50 # Valeur neutre si l'IA ne peut pas répondre
-    }
+router = APIRouter(prefix="/dashboard", tags=["Dashboard Proxy"])
 
 @router.get("/upcoming")
-async def get_upcoming_dashboard():
+async def proxy_upcoming():
     """
-    Renvoie les prochains matchs de Ligue 1 (scrappés de l'API LFP) avec leur 
-    probabilité de prédiction IA.
+    Proxy vers l'API ML pour récupérer les prochains matchs.
     """
-    # Récupérer les matchs réels (on passe une limite plus large pour avoir toute la journée)
-    matches = fetch_upcoming_matches(limit=15)
-    
-    # Enrichir chaque match avec le pré-calcul de l'IA
-    results = []
-    for m in matches:
-        ml_data = await get_prediction_confidence(m["home"]["name"], m["away"]["name"])
-        results.append({
-            "fixture_id": m["home"]["id"] + m["away"]["id"] if m["home"]["id"] else 0,
-            "home_team": m["home"],
-            "away_team": m["away"],
-            "tag": m["tag"],
-            "is_derby": m.get("is_derby", False),
-            "ml_prediction": ml_data["prediction"],
-            "confidence_percent": ml_data["confidence"]
-        })
-        
-    return {
-        "round_name": "Prochaines Rencontres - Ligue 1",
-        "dates": "Saison 2025/2026",
-        "matches": results
-    }
+    target_url = f"{settings.ML_API_URL}/dashboard/upcoming"
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(target_url, timeout=10.0)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Erreur HTTP lors du proxy vers le service ML : {e.response.status_code}")
+            raise HTTPException(status_code=e.response.status_code, detail="Erreur du service ML")
+        except Exception as e:
+            logger.error(f"Erreur lors du proxy vers le service ML : {e}")
+            raise HTTPException(status_code=500, detail="Service ML indisponible")
 
 @router.get("/standings")
-async def get_standings_dashboard():
+async def proxy_standings():
     """
-    Renvoie le classement actuel du championnat.
+    Proxy vers l'API ML pour récupérer le classement.
     """
-    standings = fetch_league_standings()
-    return {
-        "status": "success",
-        "data": standings
-    }
+    target_url = f"{settings.ML_API_URL}/dashboard/standings"
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(target_url, timeout=10.0)
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Erreur HTTP lors du proxy vers le service ML : {e.response.status_code}")
+            raise HTTPException(status_code=e.response.status_code, detail="Erreur du service ML")
+        except Exception as e:
+            logger.error(f"Erreur lors du proxy vers le service ML : {e}")
+            raise HTTPException(status_code=500, detail="Service ML indisponible")

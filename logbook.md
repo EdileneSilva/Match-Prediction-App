@@ -98,6 +98,15 @@ npm run serve
 - **Sécurisation de la Saisie** : Ajout d'une règle bloquante empêchant l'utilisateur de lancer une analyse si la même équipe est sélectionnée à domicile et à l'extérieur.
 - **Bypass de Sécurité (Dev)** : Désactivation temporaire de la vérification du token JWT (`get_current_user`) sur l'API pour faciliter les tests de la pipeline ML depuis l'interface sans nécessiter de compte persistant.
 
+### 5. Centralisation de l'Architecture (Proxy Dashboard)
+- **Modèle de Conception "Gateway"** : Pour simplifier le travail du Frontend et centraliser les accès, l'API principale (`FastAPI_App` sur le port 8000) sert désormais de **Proxy** pour le dashboard.
+- **Délégation au Service ML** : Les requêtes `/dashboard/upcoming` et `/dashboard/standings` arrivant sur le port 8000 sont automatiquement relayées de manière asynchrone (via `httpx`) vers le service ML (port 8001). 
+- **Avantages** : 
+    - Le Frontend n'a plus qu'un seul interlocuteur principal.
+    - La séparation des bases de données est respectée (le scraper et les données de foot restent côté ML).
+    - Préparation de l'infrastructure pour l'enrichissement futur du modèle ML avec les données scrapées.
+- **Mise à jour du Client API** : Le client Vue.js a été reconfiguré pour router nativement toutes les demandes de dashboard vers le serveur d'application.
+
 ---
 
 ### 5. Correction de Résolution de Nom (Shadowing)

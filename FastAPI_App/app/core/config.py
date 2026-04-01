@@ -34,5 +34,10 @@ class Settings(CommonSettings):
         "http://127.0.0.1:5173",
     ]
 
+    ML_API_URL: str = Field(
+        default="http://localhost:8001",
+        validation_alias=AliasChoices("ML_API_URL"),
+    )
+
 
 settings = Settings()
