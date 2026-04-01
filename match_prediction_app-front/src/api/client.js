@@ -1,7 +1,9 @@
-const AUTH_URL = `http://127.0.0.1:8000`;
-const ML_URL = `http://127.0.0.1:8001`;
+const hostname = window.location.hostname;
+const AUTH_URL = `http://${hostname}:8000`;
+const ML_URL = `http://${hostname}:8001`;
 
 async function request(endpoint, options = {}) {
+  // Récupération dynamique du token
   const token = localStorage.getItem('token');
   
   // Automagical routing based on endpoint prefix
@@ -12,6 +14,7 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
+  // Ajout du token si présent
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
