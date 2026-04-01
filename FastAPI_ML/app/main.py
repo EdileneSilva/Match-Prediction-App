@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.predict import register_routes
 from .routes.train import register_routes as register_train_routes
 from .routes.dashboard import register_dashboard_routes
+from .routes.ingestion import register_routes as register_ingestion_routes
 from .core.config import settings
 from .database import engine, Base, SessionLocal
 
@@ -49,3 +50,4 @@ app.add_middleware(
 register_routes(app)
 register_train_routes(app)
 register_dashboard_routes(app)
+register_ingestion_routes(app)
