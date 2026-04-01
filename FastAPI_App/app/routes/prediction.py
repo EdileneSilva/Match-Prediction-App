@@ -12,18 +12,10 @@ from ..core.config import settings
 router = APIRouter(prefix="/predictions", tags=["Predictions"])
 
 @router.get("/teams")
-async def get_teams():
-    async with httpx.AsyncClient() as client:
-        try:
-            ml_url = f"http://localhost:8001/teams"
-            response = await client.get(ml_url)
-            response.raise_for_status()
-            return response.json()
-        except httpx.HTTPError as e:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Erreur de communication avec le service ML: {str(e)}"
-            )
+def get_teams(db: Session = Depends(get_db)):
+    from ..models.team import Team
+    teams = db.query(Team).all()
+    return [{"id": team.id, "name": team.name, "logo_url": team.logo_url} for team in teams]
 
 @router.post("/predict", response_model=PredictionResponse)
 async def predict_match(
@@ -78,12 +70,15 @@ async def predict_match(
 
 @router.get("/history", response_model=List[PredictionHistoryOut])
 def get_prediction_history(
-    # ⬇️ AUTH DÉSACTIVÉE TEMPORAIREMENT — REMETTRE EN PRODUCTION
-    # current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    # current_user: User = Depends(get_current_user),  # Réactiver l'auth
+    db: Session = Depends(get_db),
+    limit: int = 10  # Limiter aux dernières prédictions
 ):
-    # Retourne tout l'historique en mode dev (sans filtre par user)
-    return db.query(PredictionHistory).all()
-
+    # Filtrer par utilisateur et limiter aux derniers matchs
+    return db.query(PredictionHistory)\
+             .filter(PredictionHistory.user_id == 1)\
+             .order_by(PredictionHistory.created_at.desc())\
+             .limit(limit)\
+             .all()
 def register_routes(app):
     app.include_router(router)
