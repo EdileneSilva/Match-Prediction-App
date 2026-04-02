@@ -20,6 +20,52 @@ class MLService:
         self.rolling_home: pd.DataFrame | None = None
         self.rolling_away: pd.DataFrame | None = None
 
+        # --- PARSER / MAPPER (UI Names -> CSV/Internal Names) ---
+        # Cette table de mapping permet d'assurer que les longs noms de l'UI
+        # matchent avec les clés statistiques de la base (issues des CSV).
+        self._TEAM_NAME_MAP = {
+            "Paris Saint-Germain":    "Paris SG",
+            "Olympique de Marseille": "Marseille",
+            "Olympique Lyonnais":     "Lyon",
+            "AS Monaco":              "Monaco",
+            "OGC Nice":               "Nice",
+            "LOSC Lille":             "Lille",
+            "RC Lens":                "Lens",
+            "RC Strasbourg Alsace":   "Strasbourg",
+            "Stade Brestois 29":      "Stade Brestois",
+            "Stade Rennais FC":       "Rennes",
+            "FC Nantes":              "Nantes",
+            "FC Lorient":             "Lorient",
+            "Toulouse FC":            "Toulouse",
+            "Angers SCO":             "Angers",
+            "AJ Auxerre":             "Auxerre",
+            "Havre Athletic Club":    "Le Havre",
+            "FC Metz":                "Metz",
+            "Montpellier HSC":        "Montpellier",
+            "Stade de Reims":         "Reims",
+            "AS Saint-Étienne":       "St Etienne",
+        }
+
+    def _normalize_team_name(self, team: str) -> str:
+        """
+        Normalise le nom de l'équipe reçu de l'API vers le format interne du modèle.
+        Utilise le dictionnaire de mapping ou retourne le nom original (nettoyé).
+        """
+        if not team:
+            return ""
+        
+        # Nettoyage basique
+        team_clean = team.strip()
+        
+        # Mapping explicite
+        mapped_name = self._TEAM_NAME_MAP.get(team_clean)
+        
+        if mapped_name:
+            # print(f"DEBUG — Mapping : '{team}' -> '{mapped_name}'")
+            return mapped_name
+        
+        return team_clean
+
     def load_model(self) -> None:
         """
         Charge le modèle depuis le fichier joblib défini dans la configuration.
@@ -98,17 +144,27 @@ class MLService:
 
     def get_stat(
         self,
-        team:   str,
-        season: int,
-        col:    str,
-        source: pd.DataFrame,
+        team_raw: str,
+        season:   int,
+        col:      str,
+        source:   pd.DataFrame,
     ) -> float:
         """
-        Récupère une statistique depuis une table de référence
+        Récupère une statistique depuis une table de référence en normalisant le nom.
         """
+        team = self._normalize_team_name(team_raw)
+
         try:
-            return source.set_index(["league.season", "Team"]).loc[(season, team), col]
+            val = source.set_index(["league.season", "Team"]).loc[(season, team), col]
+            
+            # Si le DataFrame contient des doublons ou retourne une série
+            if isinstance(val, pd.Series):
+                return float(val.iloc[0])
+            
+            return float(val) if pd.notna(val) else 0.0
+            
         except KeyError:
+            # print(f"Avertissement — Stat introuvable pour {team} (saison {season}, col {col})")
             return 0.0
 
     def _build_input(
@@ -141,8 +197,8 @@ class MLService:
             "away_rolling_win_rate": self.get_stat(away_team, season, "rolling_win_rate", self.rolling_away),
             # Contexte
             "league_season": season,
-            "HomeTeam":      home_team,
-            "AwayTeam":      away_team,
+            "HomeTeam":      self._normalize_team_name(home_team),
+            "AwayTeam":      self._normalize_team_name(away_team),
         }])
 
     def predict_match(
@@ -157,7 +213,14 @@ class MLService:
         # Mapping LabelEncoder : A=0, D=1, H=2
         labels = {0: "AWAY_WIN", 1: "DRAW", 2: "HOME_WIN"}
 
-        df_input    = self._build_input(home_team, away_team, season)
+        # Construction de l'entrée avec normalisation des noms
+        df_input = self._build_input(home_team, away_team, season)
+        
+        # Vérification si les données sont toutes à zéro (indication d'un problème de source)
+        features_sum = df_input.select_dtypes(include=[np.number]).sum().sum()
+        if features_sum == 0:
+             print(f"WARNING — Prédiction basée sur des caractéristiques vides pour {home_team} vs {away_team}")
+
         probs_array = self.model.predict_proba(df_input)[0]
         pred_idx    = int(np.argmax(probs_array))
 
