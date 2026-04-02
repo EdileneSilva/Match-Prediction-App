@@ -11,11 +11,7 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 def upsert_team(db: Session, team_name: str, logo_url: str):
     """Met à jour le logo ou crée l'équipe si elle n'existe pas."""
     team = db.query(Team).filter(Team.name == team_name).first()
-    if team:
-        if logo_url and team.logo_url != logo_url:
-            team.logo_url = logo_url
-            db.commit()
-    else:
+    if not team:
         new_team = Team(name=team_name, logo_url=logo_url)
         db.add(new_team)
         db.commit()
@@ -30,13 +26,6 @@ def get_upcoming(db: Session = Depends(get_db)):
         matches = fetch_upcoming_matches()
         
         for m in matches:
-            home = m.get("home", {})
-            away = m.get("away", {})
-            
-            # Upsert les équipes pour avoir les logos en base
-            upsert_team(db, home.get("name"), home.get("logo"))
-            upsert_team(db, away.get("name"), away.get("logo"))
-            
             # Simulation d'indice de confiance IA
             m["confidence_percent"] = random.randint(65, 89)
             m["is_derby"] = random.random() > 0.8
@@ -68,9 +57,6 @@ def get_standings(db: Session = Depends(get_db)):
         # Normalisation et mapping pour le frontend
         standings_mapped = []
         for s in standings:
-            # Sync les logos du classement aussi
-            upsert_team(db, s["team"], s.get("logo"))
-            
             standings_mapped.append({
                 **s,
                 "position": s.get("rank"),
