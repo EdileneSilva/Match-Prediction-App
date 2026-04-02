@@ -19,7 +19,7 @@ class Settings(CommonSettings):
     )
     
     CORS_ORIGINS: list[str] = ["*"]
-    DATA_DIR:     str = Field(default="../Data")
+    DATA_DIR:     str = Field(default="../Data/dataset/")
     MODEL_PATH:   str = Field(default="../Data/dataset/match_model_v1.joblib")
     DATASET_PATH: str = Field(default="../Data/dataset/completed_match_dataset_final.csv")
 
