@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from pathlib import Path
 from typing import Dict
 from pandas import DataFrame
@@ -441,9 +440,12 @@ class PreparationService:
         Returns:
             dict avec le nombre de matchs insérés et le total en base.
         """
+
+        # Chargement des deux dataset issues de sources différentes
         # dataset1, dataset2 = self._load_sources()
         # merged_df          = self._harmonise_and_merge(dataset1, dataset2)
 
+        # Agrégation avec le nouveau dataset fournir
         harmonized_df      = self._harmonise_ext(df)
         clean_df           = self._clean(harmonized_df)
         stats_df           = self._add_season_stats(clean_df)

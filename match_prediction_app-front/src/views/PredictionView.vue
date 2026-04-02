@@ -235,7 +235,7 @@ export default {
         const response = await apiClient.post('/predictions/predict', {
           home_team: this.selectedTeam1.name,
           away_team: this.selectedTeam2.name,
-          season: '2024/2025'
+          season: '2025'
         });
 
         // Synthetic delay for "Analysis" feel
