@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Dict
 from pandas import DataFrame
 from sqlalchemy.orm import Session
-
+from sqlalchemy import func
 from ..models.match import FootballMatch
 from ..core.config import settings
 
@@ -426,6 +426,25 @@ class PreparationService:
     # Point d'entrée public
 
     def run(self, db: Session, df: DataFrame) -> Dict:
+        # Agrégation avec le nouveau dataset fourni
+        additional_dataset = self._harmonise_ext(df)
+
+        clean_df = self._clean(additional_dataset)
+        stats_df = self._add_season_stats(clean_df)
+        final_df = self._add_rolling_features(stats_df)
+
+        inserted = self._persist(final_df, db)
+
+        total = db.query(func.count(FootballMatch.id)).scalar()
+
+        return {
+            "status": "success",
+            "inserted": inserted,
+            "total": total,
+            "message": f"{inserted} nouveaux matchs importés. Total en base : {total}.",
+        }
+
+    def run_base(self, db: Session) -> Dict:
         """
         Exécute le pipeline complet de préparation des données.
 
@@ -442,18 +461,15 @@ class PreparationService:
         """
 
         # Chargement des deux dataset issues de sources différentes
-        # dataset1, dataset2 = self._load_sources()
-        # merged_df          = self._harmonise_and_merge(dataset1, dataset2)
+        dataset1, dataset2 = self._load_sources()
+        merged_df          = self._harmonise_and_merge(dataset1, dataset2)
 
-        # Agrégation avec le nouveau dataset fournir
-        harmonized_df      = self._harmonise_ext(df)
-        clean_df           = self._clean(harmonized_df)
+        clean_df           = self._clean(merged_df)
         stats_df           = self._add_season_stats(clean_df)
         final_df           = self._add_rolling_features(stats_df)
 
         inserted = self._persist(final_df, db)
 
-        from sqlalchemy import func
         total = db.query(func.count(FootballMatch.id)).scalar()
 
         return {
