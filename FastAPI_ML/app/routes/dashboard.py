@@ -8,11 +8,11 @@ import random
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-def upsert_team(db: Session, team_name: str, logo_url: str):
-    """Met à jour le logo ou crée l'équipe si elle n'existe pas."""
+def upsert_team(db: Session, team_name: str):
+    """Crée l'équipe si elle n'existe pas."""
     team = db.query(Team).filter(Team.name == team_name).first()
     if not team:
-        new_team = Team(name=team_name, logo_url=logo_url)
+        new_team = Team(name=team_name)
         db.add(new_team)
         db.commit()
     return team
