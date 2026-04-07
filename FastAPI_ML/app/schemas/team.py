@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict
 
 class TeamBase(BaseModel):
     name: str
-    logo_url: Optional[str] = None
 
 
 class TeamCreate(TeamBase):
