@@ -61,8 +61,15 @@
                       <td class="position">{{ team.position }}</td>
                       <td class="team-name">
                         <div class="team-info">
-                          <span class="team-logo">{{ team.logo }}</span>
-                          {{ team.name }}
+                              <img 
+                                v-if="isUrl(team.logo)" 
+                                :src="team.logo" 
+                                :alt="team.name"
+                                class="team-logo-img"
+                                @error="$event.target.style.display='none'"
+                              />
+                              <span v-else class="team-logo">{{ team.logo || '⚽' }}</span>
+                              {{ team.name }}
                         </div>
                       </td>
                       <td>{{ team.matchesPlayed }}</td>
@@ -343,6 +350,11 @@ export default {
   },
   
   methods: {
+
+        isUrl(value) {
+      return typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))
+    },
+
     async loadStatisticsData() {
       this.loading = true;
       try {
@@ -796,6 +808,12 @@ export default {
   padding: 3rem;
   color: var(--text-secondary);
   font-size: 1.1rem;
+}
+.team-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 /* Responsive */
