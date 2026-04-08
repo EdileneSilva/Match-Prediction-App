@@ -49,12 +49,6 @@
                 </div>
               </div>
               <div class="match-meta">
-                <div class="match-percentage" title="Indice de confiance réel calculé par notre modèle d'IA (XGBoost) en analysant l'historique et la forme des équipes.">
-                  {{ match.confidence_percent }}% <span class="ai-label">IA</span>
-                  <div class="ai-info-icon" @mouseenter="showInfo = true" @mouseleave="showInfo = false">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                  </div>
-                </div>
                 <button @click="analyze(match)" class="view-btn magnetic-btn">Analyser</button>
               </div>
             </div>
@@ -96,7 +90,6 @@ export default {
       standings: [],
       isLoading: true,
       isRefreshing: false,
-      showInfo: false,
       roundName: "Prochaines Rencontres",
       pageTitle: "Ligue 1 McDonald's",
     }
@@ -325,36 +318,6 @@ export default {
   font-size: 1.1rem;
 }
 
-.match-percentage {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--accent-secondary);
-}
-
-.ai-info-icon {
-  display: flex;
-  color: rgba(255, 255, 255, 0.3);
-  cursor: help;
-  transition: color 0.3s ease;
-}
-
-.ai-info-icon:hover {
-  color: var(--accent-secondary);
-}
-
-.ai-label {
-  font-size: 0.65rem;
-  background: var(--accent-gradient);
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  color: white;
-  text-transform: uppercase;
-  margin-left: -2px;
-}
-
 .team-logo {
   width: 32px;
   height: 32px;
@@ -366,6 +329,31 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 140px;
+}
+
+/* Analyser button */
+.view-btn {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.6rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(224, 38, 255, 0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: all 0.3s ease;
+}
+
+.view-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  filter: brightness(1.1);
 }
 
 /* Responsive Design */
