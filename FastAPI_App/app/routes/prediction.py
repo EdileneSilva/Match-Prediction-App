@@ -73,8 +73,8 @@ def _parse_score(match: Dict[str, Any]) -> Tuple[Optional[int], Optional[int]]:
 
 
 def _fetch_finished_matches(gameweek: Optional[int]) -> Dict[Tuple[str, str], Dict[str, Any]]:
-    # Fenetre large pour couvrir les journees passees et proches
-    url = "https://ma-api.ligue1.fr/championships-daily-calendars/matches?timezone=Europe/Paris&daysLimit=120&lookAfter=false"
+    # L'API LFP limite daysLimit a 14 maximum
+    url = "https://ma-api.ligue1.fr/championships-daily-calendars/matches?timezone=Europe/Paris&daysLimit=14&lookAfter=false"
     response = requests.get(url, headers=LFP_HEADERS, timeout=15.0)
     response.raise_for_status()
     matches_dict = _extract_results_dict(response.json())
@@ -88,18 +88,17 @@ def _fetch_finished_matches(gameweek: Optional[int]) -> Dict[Tuple[str, str], Di
         if gameweek is not None and str(gw) != str(gameweek):
             continue
 
-        state_name = str((match.get("matchState") or {}).get("name", "")).strip().lower()
-        state_name = state_name.replace("é", "e")
-        if state_name not in FINISHED_STATES:
-            continue
-
         home_name = (((match.get("home") or {}).get("clubIdentity") or {}).get("name") or "").strip()
         away_name = (((match.get("away") or {}).get("clubIdentity") or {}).get("name") or "").strip()
         if not home_name or not away_name:
             continue
 
         home_goals, away_goals = _parse_score(match)
-        if home_goals is None or away_goals is None:
+        state_name = str((match.get("matchState") or {}).get("name", "")).strip().lower()
+        state_name = state_name.replace("é", "e")
+        has_score = home_goals is not None and away_goals is not None
+        is_finished = state_name in FINISHED_STATES or has_score
+        if not is_finished or not has_score:
             continue
 
         if home_goals > away_goals:
