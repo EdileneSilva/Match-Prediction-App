@@ -8,7 +8,7 @@ describe('Router', () => {
     const routes = router.getRoutes()
     
     // Vérifie la route d'accueil
-    expect(routes.some(route => route.path === '/' && route.name === 'home')).toBe(true)
+    expect(routes.some(route => route.path === '/' && route.name === 'landing')).toBe(true)
     // Vérifie la route de connexion
     expect(routes.some(route => route.path === '/login' && route.name === 'login')).toBe(true)
     // Vérifie la route d'inscription

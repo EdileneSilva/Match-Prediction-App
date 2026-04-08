@@ -1,170 +1,198 @@
-// tests/unit/PredictionView.spec.js
+// match_prediction_app-front/tests/unit/PredictionView.spec.js
 import { mount } from '@vue/test-utils'
+import { createRouter, createWebHistory } from 'vue-router'
 import PredictionView from '@/views/PredictionView.vue'
 
-describe('PredictionView', () => {
-    let wrapper
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [{ path: '/predict', component: PredictionView }]
+})
 
-    beforeEach(() => {
-        wrapper = mount(PredictionView)
-    })
+describe('PredictionView.vue', () => {
+  let wrapper
 
-    // Test 1: Vérifie que la page de prédiction s'affiche correctement
-    it('renders the prediction page correctly', () => {
-        expect(wrapper.find('.prediction-container').exists()).toBe(true) // Conteneur présent
-        expect(wrapper.find('.page-title').text()).toBe('Prédiction de Match') // Titre correct
+  beforeEach(() => {
+    wrapper = mount(PredictionView, {
+      global: {
+        plugins: [router]
+      }
     })
+    
+    // Mock de la méthode qui charge les équipes pour éviter les appels API
+    wrapper.vm.fetchTeams = jest.fn().mockResolvedValue([])
+    
+    // Mock des équipes pour éviter les appels API
+    wrapper.setData({
+      teams: [
+        { id: 1, name: 'PSG', logo_url: 'psg.png' },
+        { id: 2, name: 'OM', logo_url: 'om.png' },
+        { id: 3, name: 'Lyon', logo_url: 'lyon.png' }
+      ],
+      error: null
+    })
+  })
 
-    // Test 2: Vérifie que les sélecteurs d'équipes s'affichent
-    it('displays team selectors correctly', () => {
-        expect(wrapper.find('.selection-section').exists()).toBe(true)     // Section présente
-        expect(wrapper.find('#team1').exists()).toBe(true)                 // Sélecteur équipe 1
-        expect(wrapper.find('#team2').exists()).toBe(true)                 // Sélecteur équipe 2
-        expect(wrapper.find('.vs-indicator').text()).toBe('VS')           // Indicateur VS
-    })
+  // Test 1: Vérifie que la vue de prédiction s'affiche correctement
+  it('renders the prediction view', () => {
+    expect(wrapper.find('.dashboard').exists()).toBe(true)
+    expect(wrapper.find('.page-title').text()).toBe('Arena de Prédiction')
+    expect(wrapper.find('.prediction-container').exists()).toBe(true)
+  })
 
-    // Test 3: Vérifie que les équipes sont disponibles dans les listes
-    it('has correct teams in select options', () => {
-        const team1Options = wrapper.findAll('#team1 option')
-        const team2Options = wrapper.findAll('#team2 option')
-        
-        expect(team1Options).toHaveLength(13) // 12 équipes + option vide
-        expect(team2Options).toHaveLength(13) // 12 équipes + option vide
-        
-        expect(team1Options[1].text()).toBe('PSG') // Première équipe
-        expect(team1Options[12].text()).toBe('Montpellier') // Dernière équipe
-    })
+  // Test 2: Vérifie l'initialisation des données
+  it('has correct initial data', () => {
+    expect(wrapper.vm.selectedTeam1).toBe(null)
+    expect(wrapper.vm.selectedTeam2).toBe(null)
+    expect(wrapper.vm.isPredicting).toBe(false)
+    expect(wrapper.vm.predictionResult).toBe(null)
+    // L'erreur peut exister à cause de l'appel API dans mounted
+    expect(wrapper.vm.teams).toHaveLength(3)
+  })
 
-    // Test 4: Vérifie l'état initial du formulaire
-    it('has form correctly initialized', () => {
-        expect(wrapper.vm.selectedTeam1).toBe('')      // Équipe 1 non sélectionnée
-        expect(wrapper.vm.selectedTeam2).toBe('')      // Équipe 2 non sélectionnée
-        expect(wrapper.vm.isPredicting).toBe(false)    // Pas en cours de prédiction
-        expect(wrapper.vm.predictionResult).toBeNull()  // Pas de résultat
-    })
+  // Test 3: Vérifie la présence des sélecteurs d'équipes
+  it('displays team selectors', () => {
+    expect(wrapper.find('#team1').exists()).toBe(true)
+    expect(wrapper.find('#team2').exists()).toBe(true)
+    expect(wrapper.findAll('.team-select')).toHaveLength(2)
+    expect(wrapper.findAll('.team-card')).toHaveLength(2)
+  })
 
-    // Test 5: Vérifie que le bouton de prédiction est désactivé au départ
-    it('disables predict button initially', () => {
-        const predictBtn = wrapper.find('.predict-btn')
-        expect(predictBtn.exists()).toBe(true)
-        expect(predictBtn.attributes('disabled')).toBeDefined() // Bouton désactivé
-        expect(predictBtn.text()).toBe('Lancer la prédiction IA') // Texte correct
-    })
+  // Test 4: Vérifie que le bouton est désactivé au départ
+  it('disables predict button initially', () => {
+    const predictBtn = wrapper.find('.predict-btn-hero')
+    expect(predictBtn.attributes('disabled')).toBeDefined()
+  })
 
-    // Test 6: Vérifie que le bouton s'active quand les équipes sont sélectionnées
-    it('enables predict button when teams are selected', async () => {
-        await wrapper.setData({
-            selectedTeam1: 'PSG',
-            selectedTeam2: 'Marseille'
-        })
-        
-        const predictBtn = wrapper.find('.predict-btn')
-        expect(predictBtn.attributes('disabled')).toBeUndefined() // Bouton activé
+  // Test 5: Vérifie que le bouton s'active quand deux équipes différentes sont sélectionnées
+  it('enables predict button when teams are selected', async () => {
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' }
     })
+    
+    const predictBtn = wrapper.find('.predict-btn-hero')
+    expect(predictBtn.attributes('disabled')).toBeUndefined()
+  })
 
-    // Test 7: Vérifie le lancement de la prédiction
-    it('launches prediction when button clicked', async () => {
-        await wrapper.setData({
-            selectedTeam1: 'PSG',
-            selectedTeam2: 'Marseille'
-        })
-        
-        const predictBtn = wrapper.find('.predict-btn')
-        await predictBtn.trigger('click')
-        
-        expect(wrapper.vm.isPredicting).toBe(true) // En cours de prédiction
-        expect(predictBtn.text()).toBe('Prédiction en cours...') // Texte modifié
-        expect(predictBtn.attributes('disabled')).toBeDefined() // Bouton désactivé
+  // Test 6: Vérifie l'interdiction de sélectionner la même équipe
+  it('prevents selecting same team', async () => {
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 1, name: 'PSG', logo_url: 'psg.png' }
     })
+    
+    const predictBtn = wrapper.find('.predict-btn-hero')
+    expect(predictBtn.attributes('disabled')).toBeDefined()
+    
+    // Vérifier que le message d'erreur s'affiche
+    expect(wrapper.text()).toContain('Veuillez choisir deux équipes différentes')
+  })
 
-    // Test 8: Vérifie l'affichage des résultats après prédiction
-    it('displays prediction results after completion', async () => {
-        await wrapper.setData({
-            selectedTeam1: 'PSG',
-            selectedTeam2: 'Marseille',
-            predictionResult: {
-                team1Win: 65,
-                draw: 20,
-                team2Win: 15,
-                probableScore: '2-1'
-            }
-        })
-        
-        expect(wrapper.find('.results-section').exists()).toBe(true) // Section résultats présente
-        expect(wrapper.find('.results-section h2').text()).toBe('Résultat Prédiction') // Titre correct
+  // Test 7: Vérifie le lancement de prédiction
+  it('launches prediction when button clicked', async () => {
+    // Mock de la méthode launchPrediction
+    const mockLaunchPrediction = jest.fn()
+    wrapper.vm.launchPrediction = mockLaunchPrediction
+    
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' }
     })
+    
+    await wrapper.find('.predict-btn-hero').trigger('click')
+    expect(mockLaunchPrediction).toHaveBeenCalled()
+  })
 
-    // Test 9: Vérifie l'affichage des statistiques de prédiction
-    it('displays prediction statistics correctly', async () => {
-        await wrapper.setData({
-            predictionResult: {
-                team1Win: 65,
-                draw: 20,
-                team2Win: 15,
-                probableScore: '2-1'
-            }
-        })
-        
-        const statValues = wrapper.findAll('.stat-value')
-        expect(statValues[0].text()).toBe('65%') // Victoire équipe 1
-        expect(statValues[1].text()).toBe('20%') // Match nul
-        expect(statValues[2].text()).toBe('15%') // Victoire équipe 2
+  // Test 8: Vérifie l'affichage de l'arène de scanning
+  it('shows scanning arena during prediction', async () => {
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
+      isPredicting: true
     })
+    
+    expect(wrapper.find('.scanning-arena').exists()).toBe(true)
+    expect(wrapper.find('.scanning-title').text()).toBe('Analyse Neuronale en cours...')
+    expect(wrapper.find('.prediction-container').exists()).toBe(false)
+  })
 
-    // Test 10: Vérifie l'affichage du score probable (CORRIGÉ)
-    it('displays probable score correctly', async () => {
-        await wrapper.setData({
-            predictionResult: {
-                team1Win: 65,
-                draw: 20,
-                team2Win: 15,
-                probableScore: '2-1'
-            }
-        })
-        
-        // Correction : enlever l'espace à la fin
-        expect(wrapper.find('.score-label').text()).toBe('Score probable :') // Sans espace
-        expect(wrapper.find('.score-value').text()).toBe('2-1')
+  // Test 9: Vérifie l'affichage des résultats
+  it('displays prediction results', async () => {
+    const mockResult = {
+      team1Win: 60,
+      draw: 25,
+      team2Win: 15
+    }
+    
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
+      isPredicting: false,
+      predictionResult: mockResult
     })
+    
+    expect(wrapper.find('.results-container').exists()).toBe(true)
+    expect(wrapper.find('.winner-name').text()).toBe('PSG') // PSG gagne avec 60%
+    expect(wrapper.find('.reveal-badge').text()).toBe('Vainqueur Probable')
+  })
 
-    // Test 11: Vérifie la présence du bouton de sauvegarde
-    it('has save prediction button', async () => {
-        await wrapper.setData({
-            predictionResult: {
-                team1Win: 65,
-                draw: 20,
-                team2Win: 15,
-                probableScore: '2-1'
-            }
-        })
-        
-        const saveBtn = wrapper.find('.save-btn')
-        expect(saveBtn.exists()).toBe(true)
-        expect(saveBtn.text()).toBe('Enregistrer prédiction')
+  // Test 10: Vérifie les boutons d'action après prédiction
+  it('shows action buttons after prediction', async () => {
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
+      isPredicting: false,
+      predictionResult: { team1Win: 60, draw: 25, team2Win: 15 }
     })
+    
+    expect(wrapper.find('.save-btn-hero').exists()).toBe(true)
+    expect(wrapper.find('.reset-btn').exists()).toBe(true)
+    expect(wrapper.find('.save-btn-hero').text()).toContain('Enregistrer la Prédiction')
+    expect(wrapper.find('.reset-btn').text()).toContain('Nouvelle Analyse')
+  })
 
-    // Test 12: Vérifie la sauvegarde de prédiction
-    it('saves prediction when save button clicked', async () => {
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
-        const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {})
-        
-        await wrapper.setData({
-            selectedTeam1: 'PSG',
-            selectedTeam2: 'Marseille',
-            predictionResult: {
-                team1Win: 65,
-                draw: 20,
-                team2Win: 15,
-                probableScore: '2-1'
-            }
-        })
-        
-        await wrapper.find('.save-btn').trigger('click')
-        
-        expect(consoleSpy).toHaveBeenCalledWith('Saving prediction:', expect.any(Object))
-        expect(alertSpy).toHaveBeenCalledWith('Prédiction enregistrée avec succès!')
-        
-        consoleSpy.mockRestore()
-        alertSpy.mockRestore()
+  // Test 11: Vérifie la méthode de réinitialisation
+  it('resets arena correctly', async () => {
+    // Mock de la méthode resetArena
+    const mockResetArena = jest.fn()
+    wrapper.vm.resetArena = mockResetArena
+    
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
+      predictionResult: { team1Win: 60, draw: 25, team2Win: 15 }
     })
+    
+    await wrapper.find('.reset-btn').trigger('click')
+    expect(mockResetArena).toHaveBeenCalled()
+  })
+
+  // Test 12: Vérifie la méthode de sauvegarde
+  it('saves prediction correctly', async () => {
+    // Mock de la méthode savePrediction
+    const mockSavePrediction = jest.fn()
+    wrapper.vm.savePrediction = mockSavePrediction
+    
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
+      predictionResult: { team1Win: 60, draw: 25, team2Win: 15 }
+    })
+    
+    await wrapper.find('.save-btn-hero').trigger('click')
+    expect(mockSavePrediction).toHaveBeenCalled()
+  })
+
+  // Test 13: Vérifie l'affichage des logos d'équipes
+  it('displays team logos when selected', async () => {
+    await wrapper.setData({
+      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
+      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' }
+    })
+    
+    const logos = wrapper.findAll('.team-logo-giant')
+    expect(logos).toHaveLength(2)
+    expect(logos[0].attributes('src')).toBe('psg.png')
+    expect(logos[1].attributes('src')).toBe('om.png')
+  })
 })
