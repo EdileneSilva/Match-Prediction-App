@@ -93,7 +93,7 @@ class PipelineService:
         rf_base = RandomForestClassifier(
             n_estimators=200,
             max_depth=10,
-            class_weight="balanced_subsample",
+            class_weight={0:1, 1:4, 2:1},
             random_state=42,
         )
 
