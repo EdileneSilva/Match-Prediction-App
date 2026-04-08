@@ -647,12 +647,35 @@ export default {
 }
 
 .reset-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--text-secondary);
-  border-radius: 16px;
-  font-weight: 700;
+  min-width: 260px;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  border-radius: 18px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 212, 255, 0.55);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 35px rgba(0, 212, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.reset-btn:active {
+  transform: translateY(0);
+}
+
+.reset-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.35), 0 14px 35px rgba(0, 212, 255, 0.2);
 }
 
 @media (max-width: 768px) {
