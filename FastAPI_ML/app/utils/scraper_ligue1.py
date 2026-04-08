@@ -135,6 +135,99 @@ def fetch_league_standings():
         logger.error(f"Erreur récupération classement : {e}")
         return []
 
+
+def fetch_top_scorers(limit: int = 10) -> List[Dict[str, Any]]:
+    """
+    Récupère les meilleurs buteurs joueurs (stat "goals") via l'API avancée LFP.
+    """
+    url = f"https://ma-api.ligue1.fr/championship-players-advanced-rankings/1/stat/goals?page=1&limit={limit}"
+    try:
+        response = requests.get(url, headers=headers, timeout=10.0)
+        if response.status_code != 200:
+            logger.error(f"Erreur API Buteurs joueurs : {response.status_code}")
+            return []
+
+        data = response.json()
+        ranking = data.get("ranking", [])
+        players_data = data.get("playersData", {})
+        stats_indexes = data.get("statsIndexes", {})
+        goals_idx = stats_indexes.get("goals")
+        matches_idx = stats_indexes.get("matchesPlayed")
+
+        results: List[Dict[str, Any]] = []
+        for player_id in ranking[:limit]:
+            player = players_data.get(str(player_id))
+            if not player:
+                continue
+            identity = player.get("identity", {})
+            stats = player.get("stats", [])
+            if goals_idx is None or goals_idx >= len(stats):
+                continue
+
+            goals = int(stats[goals_idx] or 0)
+            matches_played = int(stats[matches_idx] or 0) if isinstance(matches_idx, int) and matches_idx < len(stats) else 0
+            first_name = (identity.get("firstName") or "").strip()
+            last_name = (identity.get("lastName") or "").strip()
+            full_name = f"{first_name} {last_name}".strip() or identity.get("displayName") or "Joueur inconnu"
+            current_club_id = player.get("currentClubId")
+
+            results.append({
+                "id": str(player_id),
+                "name": full_name,
+                "team_id": current_club_id,
+                "goals": goals,
+                "matches": matches_played,
+            })
+        return results
+    except Exception as e:
+        logger.error(f"Erreur récupération buteurs joueurs : {e}")
+        return []
+
+
+def fetch_club_total_goals(limit: int = 20) -> List[Dict[str, Any]]:
+    """
+    Récupère les buts marqués par équipe (stat "totalGoals") via l'API avancée LFP.
+    """
+    url = f"https://ma-api.ligue1.fr/championship-clubs-advanced-rankings/1/stat/totalGoals?page=1&limit={limit}"
+    try:
+        response = requests.get(url, headers=headers, timeout=10.0)
+        if response.status_code != 200:
+            logger.error(f"Erreur API Buts équipes : {response.status_code}")
+            return []
+
+        data = response.json()
+        ranking = data.get("ranking", [])
+        clubs_data = data.get("clubsData", {})
+        stats_indexes = data.get("statsIndexes", {})
+        total_goals_idx = stats_indexes.get("totalGoals")
+        matches_idx = stats_indexes.get("matchesPlayed")
+
+        results: List[Dict[str, Any]] = []
+        for club_id in ranking[:limit]:
+            club = clubs_data.get(club_id)
+            if not club:
+                continue
+            identity = club.get("identity", {})
+            stats = club.get("stats", [])
+            if total_goals_idx is None or total_goals_idx >= len(stats):
+                continue
+
+            goals = int(stats[total_goals_idx] or 0)
+            matches_played = int(stats[matches_idx] or 0) if isinstance(matches_idx, int) and matches_idx < len(stats) else 0
+            logo = (((identity.get("assets") or {}).get("logo") or {}).get("medium"))
+            results.append({
+                "id": club_id,
+                "team": identity.get("name") or "Équipe inconnue",
+                "short_name": identity.get("shortName"),
+                "logo": logo,
+                "goals": goals,
+                "matches_played": matches_played,
+            })
+        return results
+    except Exception as e:
+        logger.error(f"Erreur récupération buts équipes : {e}")
+        return []
+
 if __name__ == "__main__":
     import pprint
     print("--- MATCHS À VENIR ---")

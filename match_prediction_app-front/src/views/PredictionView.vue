@@ -110,9 +110,6 @@
         </div>
 
         <div class="actions-group">
-          <button class="save-btn-hero magnetic-btn" @click="savePrediction">
-            <span class="btn-text">Enregistrer la Prédiction</span>
-          </button>
           <button class="reset-btn" @click="resetArena">
             Nouvelle Analyse
           </button>
@@ -312,32 +309,6 @@ export default {
       this.selectedTeam1 = null;
       this.selectedTeam2 = null;
       nextTick(() => this.animateEntrance());
-    },
-    async savePrediction() {
-      if (!this.predictionResult) return;
-
-      try {
-        const winningTeam = this.predictionResult.team1Win >= this.predictionResult.team2Win && this.predictionResult.team1Win >= this.predictionResult.draw 
-            ? 'HOME_WIN' 
-            : this.predictionResult.team2Win > this.predictionResult.team1Win && this.predictionResult.team2Win >= this.predictionResult.draw
-            ? 'AWAY_WIN' : 'DRAW';
-
-        // We use the raw prediction confidence
-        const cScore = Math.max(this.predictionResult.team1Win, this.predictionResult.draw, this.predictionResult.team2Win) / 100;
-
-        await apiClient.post('/predictions/history', {
-          home_team_name: this.selectedTeam1.name,
-          home_team_logo_url: this.selectedTeam1.logo_url,
-          away_team_name: this.selectedTeam2.name,
-          away_team_logo_url: this.selectedTeam2.logo_url,
-          predicted_result: winningTeam,
-          confidence_score: cScore
-        });
-
-        this.$router.push('/history');
-      } catch (err) {
-        this.error = "Erreur lors de la sauvegarde : " + err.message;
-      }
     }
   }
 }
@@ -671,19 +642,8 @@ export default {
 }
 
 .actions-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.save-btn-hero {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
+  display: flex;
+  justify-content: center;
 }
 
 .reset-btn {
