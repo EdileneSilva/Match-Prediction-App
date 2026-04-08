@@ -134,27 +134,27 @@ def add_favorite(
     # Check if already exists
     existing = db.query(UserFavoriteTeam).filter(
         UserFavoriteTeam.user_id == current_user.id,
-        UserFavoriteTeam.team_name == data.team_name
+        UserFavoriteTeam.team_id == data.team_id
     ).first()
     if existing:
         return existing
         
-    new_fav = UserFavoriteTeam(user_id=current_user.id, team_name=data.team_name)
+    new_fav = UserFavoriteTeam(user_id=current_user.id, team_id=data.team_id)
     db.add(new_fav)
     db.commit()
     db.refresh(new_fav)
     return new_fav
 
 
-@router.delete("/me/favorites/{team_name}")
+@router.delete("/me/favorites/{team_id}")
 def remove_favorite(
-    team_name: str,
+    team_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     fav = db.query(UserFavoriteTeam).filter(
         UserFavoriteTeam.user_id == current_user.id,
-        UserFavoriteTeam.team_name == team_name
+        UserFavoriteTeam.team_id == team_id
     ).first()
     if not fav:
         raise HTTPException(status_code=404, detail="Favori non trouvé")
