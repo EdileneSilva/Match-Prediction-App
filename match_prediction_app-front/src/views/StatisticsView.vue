@@ -185,7 +185,7 @@
                   <div class="goals-card">
                     <div class="goals-icon">🏆</div>
                     <div class="goals-content">
-                      <div class="goals-value">{{ topScorer.goals }}</div>
+                      <div class="goals-value">{{ topScorer.name }}</div>
                       <div class="goals-label">Meilleur buteur</div>
                     </div>
                   </div>
@@ -211,12 +211,12 @@
                 </div>
               </div>
 
-              <!-- Répartition des buts -->
+              <!-- Buts par équipes -->
               <div class="goals-distribution">
-                <h3>📈 Répartition des Buts</h3>
+                <h3>📈 Buts par équipes</h3>
                 <div class="distribution-chart">
                   <div class="chart-item" v-for="(period, index) in goalsDistribution" :key="index">
-                    <div class="period-label">{{ period.label }}</div>
+                    <div class="period-label">{{ period.team }}</div>
                     <div class="period-bar">
                       <div class="bar-fill" :style="{width: period.percentage + '%'}"></div>
                     </div>
@@ -358,9 +358,12 @@ export default {
     async loadStatisticsData() {
       this.loading = true;
       try {
-        const response = await apiClient.get('/dashboard/standings');
-        if (response.status === 'success' && response.data) {
-          this.rankingData = response.data.map(item => ({
+        const [standingsResponse, goalsResponse] = await Promise.all([
+          apiClient.get('/dashboard/standings'),
+          apiClient.get('/dashboard/goals-stats')
+        ])
+        if (standingsResponse.status === 'success' && standingsResponse.data) {
+          this.rankingData = standingsResponse.data.map(item => ({
             id: item.position,
             position: item.position,
             name: item.team,
@@ -375,6 +378,28 @@ export default {
             points: item.points,
             form: [] // Le scraper ne fournit pas encore la forme détaillée ('V', 'D', etc.)
           }));
+        }
+
+        if (goalsResponse.status === 'success' && goalsResponse.data) {
+          const goalsData = goalsResponse.data
+          this.totalGoals = goalsData.total_goals || 0
+          this.avgGoalsPerMatch = goalsData.avg_goals_per_match || 0
+          this.topScorer = {
+            name: goalsData.top_scorer?.name || 'N/A',
+            goals: goalsData.top_scorer?.goals || 0
+          }
+          this.topScorers = (goalsData.top_scorers || []).map((item, index) => ({
+            id: item.id || index + 1,
+            name: item.name,
+            team: item.team || 'N/A',
+            goals: item.goals || 0,
+            matches: item.matches || 0
+          }))
+          this.goalsDistribution = (goalsData.clubs_goals_distribution || []).map(item => ({
+            team: item.team,
+            goals: item.goals || 0,
+            percentage: item.percentage || 0
+          }))
         }
       } catch (err) {
         this.error = "Erreur lors du chargement des statistiques";
