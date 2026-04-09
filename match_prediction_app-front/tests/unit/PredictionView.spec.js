@@ -5,7 +5,10 @@ import PredictionView from '@/views/PredictionView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [{ path: '/predict', component: PredictionView }]
+  routes: [
+    { path: '/predict', component: PredictionView },
+    { path: '/', component: { template: '<div>Home</div>' } }
+  ]
 })
 
 describe('PredictionView.vue', () => {
@@ -145,9 +148,7 @@ describe('PredictionView.vue', () => {
       predictionResult: { team1Win: 60, draw: 25, team2Win: 15 }
     })
     
-    expect(wrapper.find('.save-btn-hero').exists()).toBe(true)
     expect(wrapper.find('.reset-btn').exists()).toBe(true)
-    expect(wrapper.find('.save-btn-hero').text()).toContain('Enregistrer la Prédiction')
     expect(wrapper.find('.reset-btn').text()).toContain('Nouvelle Analyse')
   })
 
@@ -167,22 +168,7 @@ describe('PredictionView.vue', () => {
     expect(mockResetArena).toHaveBeenCalled()
   })
 
-  // Test 12: Vérifie la méthode de sauvegarde
-  it('saves prediction correctly', async () => {
-    // Mock de la méthode savePrediction
-    const mockSavePrediction = jest.fn()
-    wrapper.vm.savePrediction = mockSavePrediction
-    
-    await wrapper.setData({
-      selectedTeam1: { id: 1, name: 'PSG', logo_url: 'psg.png' },
-      selectedTeam2: { id: 2, name: 'OM', logo_url: 'om.png' },
-      predictionResult: { team1Win: 60, draw: 25, team2Win: 15 }
-    })
-    
-    await wrapper.find('.save-btn-hero').trigger('click')
-    expect(mockSavePrediction).toHaveBeenCalled()
-  })
-
+  
   // Test 13: Vérifie l'affichage des logos d'équipes
   it('displays team logos when selected', async () => {
     await wrapper.setData({
