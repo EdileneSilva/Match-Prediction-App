@@ -23,6 +23,10 @@ describe('RegisterView', () => {
         stubs: ['router-link']
       }
     })
+    
+    // Mock the initGSAP method to prevent GSAP calls during tests
+    wrapper.vm.initGSAP = jest.fn()
+    wrapper.vm.initMagneticButton = jest.fn()
   })
 
   // Test 1: Vérifie que le formulaire d'inscription s'affiche correctement
