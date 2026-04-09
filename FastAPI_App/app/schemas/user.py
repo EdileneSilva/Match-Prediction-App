@@ -60,7 +60,7 @@ class PredictionHistoryOut(BaseModel):
 
 
 class UserFavoriteTeamBase(BaseModel):
-    team_name: str
+    team_id: int
 
 
 class UserFavoriteTeamOut(UserFavoriteTeamBase):

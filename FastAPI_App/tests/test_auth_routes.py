@@ -88,14 +88,14 @@ class TestStatsFavoritesRoutes:
 
     def test_add_favorite(self, client, auth_headers):
         resp = client.post("/auth/me/favorites", headers=auth_headers, json={
-            "team_name": "PSG"
+            "team_id": 1
         })
         assert resp.status_code == 200
-        assert resp.json()["team_name"] == "PSG"
+        assert resp.json()["team_id"] == 1
 
     def test_get_favorites(self, client, auth_headers):
         # Add one first
-        client.post("/auth/me/favorites", headers=auth_headers, json={"team_name": "OM"})
+        client.post("/auth/me/favorites", headers=auth_headers, json={"team_id": 2})
         
         resp = client.get("/auth/me/favorites", headers=auth_headers)
         assert resp.status_code == 200
@@ -103,9 +103,9 @@ class TestStatsFavoritesRoutes:
 
     def test_remove_favorite(self, client, auth_headers):
         # Add
-        client.post("/auth/me/favorites", headers=auth_headers, json={"team_name": "RC Lens"})
+        client.post("/auth/me/favorites", headers=auth_headers, json={"team_id": 3})
         # Remove
-        resp = client.delete("/auth/me/favorites/RC Lens", headers=auth_headers)
+        resp = client.delete("/auth/me/favorites/3", headers=auth_headers)
         assert resp.status_code == 200
         assert resp.json()["message"] == "Favori supprimé"
 
