@@ -47,6 +47,14 @@ class PredictionHistoryOut(BaseModel):
     predicted_result: Optional[str]
     confidence_score: Optional[float]
     created_at: datetime
+    actual_result: Optional[str] = None
+    actual_home_goals: Optional[int] = None
+    actual_away_goals: Optional[int] = None
+    gameweek: Optional[int] = None
+    is_correct: Optional[bool] = None
+    probability_actual_result: Optional[float] = None
+    proximity_score: Optional[float] = None
+    proximity_status: Optional[str] = "unknown"
 
     model_config = ConfigDict(from_attributes=True)
 

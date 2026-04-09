@@ -110,9 +110,6 @@
         </div>
 
         <div class="actions-group">
-          <button class="save-btn-hero magnetic-btn" @click="savePrediction">
-            <span class="btn-text">Enregistrer la Prédiction</span>
-          </button>
           <button class="reset-btn" @click="resetArena">
             Nouvelle Analyse
           </button>
@@ -312,32 +309,6 @@ export default {
       this.selectedTeam1 = null;
       this.selectedTeam2 = null;
       nextTick(() => this.animateEntrance());
-    },
-    async savePrediction() {
-      if (!this.predictionResult) return;
-
-      try {
-        const winningTeam = this.predictionResult.team1Win >= this.predictionResult.team2Win && this.predictionResult.team1Win >= this.predictionResult.draw 
-            ? 'HOME_WIN' 
-            : this.predictionResult.team2Win > this.predictionResult.team1Win && this.predictionResult.team2Win >= this.predictionResult.draw
-            ? 'AWAY_WIN' : 'DRAW';
-
-        // We use the raw prediction confidence
-        const cScore = Math.max(this.predictionResult.team1Win, this.predictionResult.draw, this.predictionResult.team2Win) / 100;
-
-        await apiClient.post('/predictions/history', {
-          home_team_name: this.selectedTeam1.name,
-          home_team_logo_url: this.selectedTeam1.logo_url,
-          away_team_name: this.selectedTeam2.name,
-          away_team_logo_url: this.selectedTeam2.logo_url,
-          predicted_result: winningTeam,
-          confidence_score: cScore
-        });
-
-        this.$router.push('/history');
-      } catch (err) {
-        this.error = "Erreur lors de la sauvegarde : " + err.message;
-      }
     }
   }
 }
@@ -671,28 +642,40 @@ export default {
 }
 
 .actions-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-
-.save-btn-hero {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
+  display: flex;
+  justify-content: center;
 }
 
 .reset-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--text-secondary);
-  border-radius: 16px;
-  font-weight: 700;
+  min-width: 260px;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #f8fafc;
+  border-radius: 18px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 212, 255, 0.55);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 35px rgba(0, 212, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.reset-btn:active {
+  transform: translateY(0);
+}
+
+.reset-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.35), 0 14px 35px rgba(0, 212, 255, 0.2);
 }
 
 @media (max-width: 768px) {

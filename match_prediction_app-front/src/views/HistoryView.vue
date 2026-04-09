@@ -39,6 +39,10 @@
 
         <!-- Filters -->
         <div class="filters-container">
+          <select v-model="selectedGameweek" class="filter-select" @change="loadHistoryData">
+            <option value="">Toutes les journées</option>
+            <option v-for="gw in gameweekOptions" :key="gw" :value="gw">Journée {{ gw }}</option>
+          </select>
           <select v-model="selectedFilter" class="filter-select">
             <option value="all">Toutes les prédictions</option>
             <option value="correct">Prédictions correctes</option>
@@ -167,18 +171,29 @@ export default {
       historyData: [],
       error: null,
       selectedFilter: 'all',
+      selectedGameweek: 28,
+      gameweekOptions: Array.from({ length: 34 }, (_, i) => i + 1),
       showDetails: {}
     }
   },
   async mounted() {
+    await this.loadHistoryData()
+  },
+  methods: {
+    async loadHistoryData() {
     try {
-      const data = await apiClient.get('/predictions/history')
+      const qs = new URLSearchParams({
+        include_live_results: 'true',
+        include_proximity: 'true',
+        season: '2025'
+      })
+      if (this.selectedGameweek) {
+        qs.append('gameweek', String(this.selectedGameweek))
+      }
+      const data = await apiClient.get(`/predictions/history?${qs.toString()}`)
       this.historyData = data.map(item => {
-        // Mocking some data since backend doesn't have actual results yet
-        const mockIsCorrect = Math.random() > 0.3
-        const mockResult = mockIsCorrect 
-          ? this.formatResult(item.predicted_result)
-          : (item.predicted_result === 'HOME_WIN' ? 'Match Nul' : 'Victoire Domicile')
+        const hasLiveResult = !!item.actual_result
+        const isCorrect = typeof item.is_correct === 'boolean' ? item.is_correct : null
 
         return {
           id: item.id,
@@ -190,11 +205,17 @@ export default {
           away_team_logo: item.away_team_logo_url,
           prediction: this.formatResult(item.predicted_result),
           predicted_result: item.predicted_result,
-          result: item.predicted_result, // Use prediction as result for now since we don't have real outcome
-          confidence: (item.confidence_score * 100).toFixed(1) + '%',
-          confidence_raw: item.confidence_score,
-          isCorrect: true, // Mark as correct for now
-          accuracy: Math.floor((item.confidence_score || 0.8) * 100)
+          result: hasLiveResult ? this.formatResult(item.actual_result) : 'En attente',
+          actual_result: item.actual_result || null,
+          actual_home_goals: item.actual_home_goals,
+          actual_away_goals: item.actual_away_goals,
+          gameweek: item.gameweek,
+          confidence: ((Number(item.confidence_score || 0)) * 100).toFixed(1) + '%',
+          confidence_raw: Number(item.confidence_score || 0),
+          isCorrect: isCorrect,
+          proximity_score: item.proximity_score ?? null,
+          proximity_status: item.proximity_status || 'unknown',
+          accuracy: this.computeAccuracy(item)
         }
       })
       
@@ -222,7 +243,6 @@ export default {
       console.error(err)
     }
   },
-  methods: {
     formatResult(result) {
       const mapping = {
         'HOME_WIN': 'Victoire Domicile',
@@ -235,13 +255,24 @@ export default {
       this.showDetails[index] = !this.showDetails[index]
     },
     getRowClass(prediction) {
-      return prediction.isCorrect ? 'row-correct' : 'row-incorrect'
+      if (prediction.isCorrect === true) return 'row-correct'
+      if (prediction.isCorrect === false) return 'row-incorrect'
+      return ''
     },
     getDifferenceClass(prediction) {
+      if (!prediction.actual_result) return 'diff-neutral'
+      if (prediction.proximity_status === 'close') return 'diff-close'
       return prediction.isCorrect ? 'diff-perfect' : 'diff-poor'
     },
     getGoalDifference(prediction) {
-      return prediction.isCorrect ? '0' : '+1'
+      if (!prediction.actual_result) return 'N/A'
+      if (prediction.isCorrect === false && prediction.proximity_status === 'close' && prediction.proximity_score != null) {
+        return `Proche (${prediction.proximity_score}%)`
+      }
+      if (prediction.actual_home_goals == null || prediction.actual_away_goals == null) {
+        return prediction.isCorrect ? 'Correct' : 'Incorrect'
+      }
+      return `${prediction.actual_home_goals}-${prediction.actual_away_goals}`
     },
     getAccuracyPercentage(prediction) {
       return prediction.accuracy || 0
@@ -256,6 +287,7 @@ export default {
       return prediction.result
     },
     getTotalGoalDifference(prediction) {
+      if (!prediction.actual_result) return 0
       return prediction.isCorrect ? 0 : 1
     },
     getPerformanceClass(prediction) {
@@ -264,23 +296,35 @@ export default {
       return 'performance-average'
     },
     getChartBarClass(prediction) {
-      return prediction.isCorrect ? 'bar-correct' : 'bar-incorrect'
+      if (prediction.isCorrect === true) return 'bar-correct'
+      if (prediction.isCorrect === false) return 'bar-incorrect'
+      return ''
+    },
+    computeAccuracy(item) {
+      if (!item.actual_result) return 0
+      const confidence = Number(item.confidence_score || 0)
+      if (item.is_correct === true) {
+        return Math.round(confidence * 100)
+      }
+      return Math.max(5, Math.round((1 - confidence) * 60))
     }
   },
   computed: {
     filteredData() {
       if (this.selectedFilter === 'all') return this.historyData
-      if (this.selectedFilter === 'correct') return this.historyData.filter(p => p.isCorrect)
-      if (this.selectedFilter === 'incorrect') return this.historyData.filter(p => !p.isCorrect)
+      if (this.selectedFilter === 'correct') return this.historyData.filter(p => p.isCorrect === true)
+      if (this.selectedFilter === 'incorrect') return this.historyData.filter(p => p.isCorrect === false)
+      if (this.selectedFilter === 'close') return this.historyData.filter(p => p.proximity_status === 'close')
       return this.historyData
     },
     globalScore() {
-      if (this.historyData.length === 0) return 0
-      const correctPredictions = this.historyData.filter(p => p.isCorrect).length
-      return Math.round((correctPredictions / this.historyData.length) * 100)
+      const evaluated = this.historyData.filter(p => p.isCorrect !== null)
+      if (evaluated.length === 0) return 0
+      const correctPredictions = evaluated.filter(p => p.isCorrect === true).length
+      return Math.round((correctPredictions / evaluated.length) * 100)
     },
     correctPredictions() {
-      return this.historyData.filter(p => p.isCorrect).length
+      return this.historyData.filter(p => p.isCorrect === true).length
     },
     averageGoalDifference() {
       if (this.historyData.length === 0) return 0
@@ -448,6 +492,10 @@ export default {
   background: rgba(0, 212, 255, 0.03);
 }
 
+.row-incorrect {
+  background: rgba(248, 113, 113, 0.04);
+}
+
 .row-correct .match-cell {
   color: var(--accent-secondary);
 }
@@ -503,7 +551,9 @@ export default {
 }
 
 .diff-perfect { color: var(--accent-secondary); font-weight: 800; }
+.diff-close { color: #f59e0b; font-weight: 800; }
 .diff-poor { color: #f87171; font-weight: 800; }
+.diff-neutral { color: var(--text-secondary); font-weight: 700; }
 
 /* Accuracy Bar */
 .accuracy-bar {
