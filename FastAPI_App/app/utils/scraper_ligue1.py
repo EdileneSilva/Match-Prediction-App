@@ -71,23 +71,35 @@ def fetch_league_standings() -> List[Dict[str, Any]]:
     data = response.json()
     standings_raw = data.get("standings", {})
 
+    # Conversão w/d/l → V/N/D
+    result_map = {"w": "V", "d": "N", "l": "D"}
+
     sorted_ranks = sorted(standings_raw.keys(), key=lambda x: int(x))
     standings = []
     for rank_key in sorted_ranks:
         row = standings_raw[rank_key]
         club = row.get("clubIdentity", {})
+
+        # Últimos 5 resultados a partir de seasonResults
+        season_results = row.get("seasonResults") or []
+        form = [
+            result_map.get(r.get("resultLetter", "").lower(), "")
+            for r in season_results[-5:]
+        ]
+
         standings.append({
-            "rank": row.get("rank"),
-            "team": club.get("name"),
-            "logo": ((club.get("assets") or {}).get("logo") or {}).get("medium"),
-            "played": row.get("played"),
-            "points": row.get("points"),
-            "wins": row.get("wins"),
-            "draws": row.get("draws"),
-            "losses": row.get("losses"),
-            "goals_for": row.get("forGoals"),
+            "rank":          row.get("rank"),
+            "team":          club.get("name"),
+            "logo":          ((club.get("assets") or {}).get("logo") or {}).get("medium"),
+            "played":        row.get("played"),
+            "points":        row.get("points"),
+            "wins":          row.get("wins"),
+            "draws":         row.get("draws"),
+            "losses":        row.get("losses"),
+            "goals_for":     row.get("forGoals"),
             "goals_against": row.get("againstGoals"),
-            "goals_diff": row.get("goalsDifference"),
+            "goals_diff":    row.get("goalsDifference"),
+            "form":          form,  # ← ['V', 'V', 'D', 'V', 'V']
         })
     return standings
 
