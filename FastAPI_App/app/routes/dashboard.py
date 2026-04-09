@@ -66,6 +66,7 @@ async def proxy_standings():
                 "goals_against": row.get("goals_against"),
                 "goals_diff": row.get("goals_diff"),
                 "form": row.get("form", []),
+                "season_results": row.get("season_results", []),
             })
 
         return {"status": "success", "data": standings}

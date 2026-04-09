@@ -279,7 +279,12 @@ export default {
     await this.loadStandings()
     await this.loadGoalsStats()
   },
-  
+  watch: {
+  selectedTeam(teamId) {
+    if (!teamId) return
+    this.updateFormStats(teamId)
+  }
+  },
   methods: {
     isUrl(value) {
       return typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))
@@ -305,7 +310,8 @@ export default {
             goalsAgainst:   item.goals_against  ?? 0,
             goalDifference: item.goals_diff     ?? 0,
             points:         item.points    ?? 0,
-            form:           item.form      || []
+            form:           item.form      || [],
+            seasonResults: item.season_results || [] 
           }))
 
           // Peupler la liste d'équipes pour l'onglet Forme
@@ -391,8 +397,41 @@ export default {
       if (index === 1) return 'scorer-second'
       if (index === 2) return 'scorer-third'
       return ''
+      },
+    
+    updateFormStats(teamId) {
+    const team = this.rankingData.find(t => t.id === teamId)
+    if (!team) return
+
+    // Taux de victoire — calculé depuis wins/matchesPlayed
+    const winRate = team.matchesPlayed > 0
+      ? Math.round((team.wins / team.matchesPlayed) * 100)
+      : 0
+
+    // Moyenne de buts marqués par match
+    const avgGoals = team.matchesPlayed > 0
+      ? Math.round((team.goalsFor / team.matchesPlayed) * 10) / 10
+      : 0
+
+    // Clean sheets — pas disponible dans l'API LFP, on affiche N/A
+    this.currentForm = {
+      winRate,
+      avgGoals,
+      cleanSheets: 'N/A'
     }
+
+    // Derniers matchs depuis seasonResults (déjà dans rankingData via form)
+    // Pour avoir opponent + score il faut les seasonResults bruts
+    // Pour l'instant on affiche la forme sous format simple
+    this.recentMatches = (team.seasonResults || []).map(r => ({
+      date:     '—',
+      opponent: r.opponentClubId || '—',
+      score:    r.score ? `${r.score.home}-${r.score.away}` : '—',
+      result:   { w: 'V', d: 'N', l: 'D' }[r.resultLetter] || '—'
+    }))
   }
+  }
+  
 }
 </script>
 
