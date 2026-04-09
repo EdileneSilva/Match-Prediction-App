@@ -246,96 +246,26 @@ export default {
       loading: false,
       error: null,
       
-      // Onglets
       tabs: [
         { id: 'ranking', label: 'Classement' },
-        { id: 'form', label: 'Forme Récente' },
-        { id: 'goals', label: 'Buts Marqués' }
+        { id: 'form',    label: 'Forme Récente' },
+        { id: 'goals',   label: 'Buts Marqués' }
       ],
       
-      // Données de classement
-      rankingData: [
-        {
-          id: 1,
-          position: 1,
-          name: 'Paris Saint-Germain',
-          logo: '🔵',
-          matchesPlayed: 15,
-          wins: 12,
-          draws: 2,
-          losses: 1,
-          goalsFor: 35,
-          goalsAgainst: 12,
-          goalDifference: 23,
-          points: 38,
-          form: ['V', 'V', 'N', 'V', 'V']
-        },
-        {
-          id: 2,
-          position: 2,
-          name: 'AS Monaco',
-          logo: '🔴',
-          matchesPlayed: 15,
-          wins: 10,
-          draws: 3,
-          losses: 2,
-          goalsFor: 28,
-          goalsAgainst: 15,
-          goalDifference: 13,
-          points: 33,
-          form: ['V', 'D', 'V', 'V', 'N']
-        },
-        {
-          id: 3,
-          position: 3,
-          name: 'Olympique de Marseille',
-          logo: '⚪',
-          matchesPlayed: 15,
-          wins: 9,
-          draws: 4,
-          losses: 2,
-          goalsFor: 26,
-          goalsAgainst: 14,
-          goalDifference: 12,
-          points: 31,
-          form: ['N', 'V', 'V', 'D', 'V']
-        }
-      ],
+      rankingData: [],
+      teamsList: [],
       
-      // Données de forme
-      teamsList: [
-        { id: 1, name: 'Paris Saint-Germain' },
-        { id: 2, name: 'AS Monaco' },
-        { id: 3, name: 'Olympique de Marseille' }
-      ],
+      currentForm: { winRate: 0, avgGoals: 0, cleanSheets: 0 },
+      recentMatches: [],
       
-      currentForm: {
-        winRate: 73,
-        avgGoals: 2.4,
-        cleanSheets: 5
-      },
+      totalGoals: 0,
+      avgGoalsPerMatch: 0,
+      topScorer: { name: 'N/A', goals: 0 },
+      topScorers: [],
       
-      recentMatches: [
-        { date: '15/12', opponent: 'Lyon', score: '3-1', result: 'V' },
-        { date: '08/12', opponent: 'Nice', score: '2-0', result: 'V' },
-        { date: '01/12', opponent: 'Monaco', score: '1-1', result: 'N' },
-        { date: '24/11', opponent: 'Lille', score: '4-2', result: 'V' },
-        { date: '17/11', opponent: 'Bordeaux', score: '2-0', result: 'V' }
-      ],
-      
-      // Données de buts
-      totalGoals: 156,
-      avgGoalsPerMatch: 2.8,
-      topScorer: { name: 'Kyapembé Mbappé', goals: 14 },
-      
-      topScorers: [
-        { id: 1, name: 'kiyane Mbappé', team: 'PSG', goals: 14, matches: 15 },
-        { id: 2, name: 'Wissam Ben Yaperr', team: 'OM', goals: 11, matches: 14 },
-        { id: 3, name: 'Jonathan David', team: 'Lille', goals: 9, matches: 15 }
-      ],
-      
+      // Données hardcodées en attendant l'endpoint goals-stats
       goalsDistribution: [
-        { label: '0-15 min', goals: 22, percentage: 14 },
+        { label: '0-15 min',  goals: 22, percentage: 14 },
         { label: '15-30 min', goals: 35, percentage: 22 },
         { label: '30-45 min', goals: 28, percentage: 18 },
         { label: '45-60 min', goals: 31, percentage: 20 },
@@ -346,75 +276,89 @@ export default {
   },
   
   async mounted() {
-    await this.loadStatisticsData()
+    await this.loadStandings()
+    await this.loadGoalsStats()
   },
   
   methods: {
-
-        isUrl(value) {
+    isUrl(value) {
       return typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))
     },
 
-    async loadStatisticsData() {
-      this.loading = true;
+    // ─── Classement (appel indépendant) ────────────────────────────────────
+    async loadStandings() {
+      this.loading = true
       try {
-        const [standingsResponse, goalsResponse] = await Promise.all([
-          apiClient.get('/dashboard/standings'),
-          apiClient.get('/dashboard/goals-stats')
-        ])
-        if (standingsResponse.status === 'success' && standingsResponse.data) {
-          this.rankingData = standingsResponse.data.map(item => ({
-            id: item.position,
-            position: item.position,
-            name: item.team,
-            logo: item.logo || '⚽',
-            matchesPlayed: item.played,
-            wins: item.wins,
-            draws: item.draws,
-            losses: item.losses,
-            goalsFor: item.goals_for,
-            goalsAgainst: item.goals_against,
-            goalDifference: item.goals_diff,
-            points: item.points,
-            form: [] // Le scraper ne fournit pas encore la forme détaillée ('V', 'D', etc.)
-          }));
-        }
-
-        if (goalsResponse.status === 'success' && goalsResponse.data) {
-          const goalsData = goalsResponse.data
-          this.totalGoals = goalsData.total_goals || 0
-          this.avgGoalsPerMatch = goalsData.avg_goals_per_match || 0
-          this.topScorer = {
-            name: goalsData.top_scorer?.name || 'N/A',
-            goals: goalsData.top_scorer?.goals || 0
-          }
-          this.topScorers = (goalsData.top_scorers || []).map((item, index) => ({
-            id: item.id || index + 1,
-            name: item.name,
-            team: item.team || 'N/A',
-            goals: item.goals || 0,
-            matches: item.matches || 0
+        const response = await apiClient.get('/dashboard/standings')
+        
+        if (response.status === 'success' && Array.isArray(response.data)) {
+          this.rankingData = response.data.map(item => ({
+            id:             item.position  ?? item.rank,
+            position:       item.position  ?? item.rank,
+            name:           item.team      ?? '—',
+            logo:           item.logo      || '⚽',
+            matchesPlayed:  item.played    ?? 0,
+            wins:           item.wins      ?? 0,
+            draws:          item.draws     ?? 0,
+            losses:         item.losses    ?? 0,
+            goalsFor:       item.goals_for      ?? 0,   // ← champs LFP
+            goalsAgainst:   item.goals_against  ?? 0,
+            goalDifference: item.goals_diff     ?? 0,
+            points:         item.points    ?? 0,
+            form:           item.form      || []
           }))
-          this.goalsDistribution = (goalsData.clubs_goals_distribution || []).map(item => ({
-            team: item.team,
-            goals: item.goals || 0,
-            percentage: item.percentage || 0
+
+          // Peupler la liste d'équipes pour l'onglet Forme
+          this.teamsList = this.rankingData.map(t => ({ id: t.id, name: t.name }))
+        }
+      } catch (err) {
+        this.error = "Erreur lors du chargement du classement"
+        console.error('Standings error:', err)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // ─── Stats de buts (appel indépendant — ne bloque pas le classement) ───
+    async loadGoalsStats() {
+      try {
+        const response = await apiClient.get('/dashboard/goals-stats')
+        
+        if (response.status === 'success' && response.data) {
+          const d = response.data
+          this.totalGoals        = d.total_goals        ?? 0
+          this.avgGoalsPerMatch  = d.avg_goals_per_match ?? 0
+          this.topScorer         = {
+            name:  d.top_scorer?.name  ?? 'N/A',
+            goals: d.top_scorer?.goals ?? 0
+          }
+          this.topScorers = (d.top_scorers ?? []).map((s, i) => ({
+            id:      s.id     ?? i + 1,
+            name:    s.name,
+            team:    s.team   ?? '—',
+            goals:   s.goals  ?? 0,
+            matches: s.matches ?? 0
+          }))
+          // Ici les items ont bien "label" pour le template
+          this.goalsDistribution = (d.clubs_goals_distribution ?? []).map(item => ({
+            label:      item.team       ?? item.label,
+            goals:      item.goals      ?? 0,
+            percentage: item.percentage ?? 0
           }))
         }
       } catch (err) {
-        this.error = "Erreur lors du chargement des statistiques";
-        console.error(err);
-      } finally {
-        this.loading = false;
+        // Echec silencieux — l'onglet Buts garde les données hardcodées
+        console.warn('Goals stats indisponible, données par défaut utilisées.')
       }
     },
-    
+
+    // ─── Méthodes utilitaires ───────────────────────────────────────────────
     getRankingRowClass(index) {
       if (index === 0) return 'rank-first'
       if (index === 1) return 'rank-second'
       if (index === 2) return 'rank-third'
-      if (index < 6) return 'rank-european'
-      if (index >= this.rankingData.length - 2) return 'rank-relegation'
+      if (index < 6)   return 'rank-european'
+      if (index >= this.rankingData.length - 3) return 'rank-relegation'
       return ''
     },
     
@@ -429,7 +373,7 @@ export default {
         case 'V': return 'form-win'
         case 'N': return 'form-draw'
         case 'D': return 'form-loss'
-        default: return ''
+        default:  return ''
       }
     },
     
@@ -438,7 +382,7 @@ export default {
         case 'V': return 'match-win'
         case 'N': return 'match-draw'
         case 'D': return 'match-loss'
-        default: return ''
+        default:  return ''
       }
     },
     

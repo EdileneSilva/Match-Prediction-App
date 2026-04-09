@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import logging
 import random
 from ..utils.team_mapper import normalize_team
-from ..utils.scraper_ligue1 import (
+from app.utils.scraper_ligue1 import (
     fetch_upcoming_matches,
     fetch_league_standings,
     fetch_top_scorers,
@@ -62,9 +62,10 @@ async def proxy_standings():
                 "wins": row.get("wins"),
                 "draws": row.get("draws"),
                 "losses": row.get("losses"),
-                "goals_for": row.get("forGoals"),
-                "goals_against": row.get("againstGoals"),
-                "goals_diff": row.get("goalsDifference"),
+                "goals_for": row.get("goals_for"),
+                "goals_against": row.get("goals_against"),
+                "goals_diff": row.get("goals_diff"),
+                "form": row.get("form", []),
             })
 
         return {"status": "success", "data": standings}
