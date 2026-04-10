@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 from pydantic import AliasChoices, Field
+import os
 
 # Ajout du chemin racine pour importer le package 'shared'
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -22,6 +23,7 @@ class Settings(CommonSettings):
     DATA_DIR:     str = Field(default="../Data/dataset/")
     MODEL_PATH:   str = Field(default="../Data/dataset/match_model_v1.joblib")
     DATASET_PATH: str = Field(default="../Data/dataset/completed_match_dataset_final.csv")
+    MLFLOW_TRACKING_URI: str = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
 
 settings = Settings()
 
