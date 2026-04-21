@@ -1,34 +1,30 @@
 import os
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+# Charge .env depuis la racine du projet (un niveau au-dessus de FastAPI_App/)
+_root_env = Path(__file__).resolve().parents[3] / ".env"
+load_dotenv(dotenv_path=_root_env)
+
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Match Prediction App - Application API"
     PROJECT_VERSION: str = "0.1.0"
-    
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://localhost/footballapp_db")
-    
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me")
+
+    # Aucune valeur par défaut : une mauvaise config lève une erreur au démarrage
+    DATABASE_URL: str
+
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    
-    CORS_ORIGINS: list = [
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-        "http://localhost:8082",
-        "http://127.0.0.1:8082",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-    ]
 
-    ML_API_URL: str = os.getenv("ML_API_URL", "http://localhost:8001")
+    ML_API_URL: str = "http://localhost:8001"
+
+    class Config:
+        env_file = str(_root_env)
+        env_file_encoding = "utf-8"
+        extra = "ignore"  # Le .env est partagé — on ignore les vars des autres services
+
 
 settings = Settings()
