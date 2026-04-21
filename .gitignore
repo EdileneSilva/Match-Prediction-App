@@ -1,0 +1,29 @@
+# Environnements virtuels
+env/
+venv/
+.venv/
+FastAPI_App/venv/
+FastAPI_ML/venv/
+
+# Fichiers compilés Python
+__pycache__/
+*.pyc
+
+# Fichiers de configuration locaux
+.env
+
+# Cache de pytest
+.pytest_cache/
+
+# Bases de données SQLite
+*.db
+FastAPI_App/*.db
+FastAPI_ML/*.db
+
+# Modèles
+*.joblib
+*.csv
+
+# IntelliJ
+.idea/
+.idea
