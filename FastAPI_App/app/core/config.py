@@ -1,20 +1,25 @@
-import os
-from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
+from pydantic import AliasChoices, Field
+from pydantic_settings import SettingsConfigDict
 
-load_dotenv()
+# Ajout du chemin racine pour importer le package 'shared'
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-class Settings(BaseSettings):
+from shared.config.base_settings import CommonSettings
+
+class Settings(CommonSettings):
     PROJECT_NAME: str = "Match Prediction App - Application API"
-    PROJECT_VERSION: str = "0.1.0"
     
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://localhost/footballapp_db")
+    # On mappe DATABASE_APP_URL ou DATABASE_URL
+    DATABASE_URL: str = Field(
+        default="postgresql://localhost/footballapp_db",
+        validation_alias=AliasChoices("DATABASE_APP_URL", "DATABASE_URL"),
+    )
     
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-super-secret-key-change-me")
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    
-    CORS_ORIGINS: list = [
+    CORS_ORIGINS: list[str] = [
         "http://localhost:8080",
         "http://127.0.0.1:8080",
         "http://localhost:8081",
@@ -29,6 +34,6 @@ class Settings(BaseSettings):
         "http://127.0.0.1:8000",
     ]
 
-    ML_API_URL: str = os.getenv("ML_API_URL", "http://localhost:8001")
+    ML_API_URL: str = Field(default="http://localhost:8001")
 
 settings = Settings()
