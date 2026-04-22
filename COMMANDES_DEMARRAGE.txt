@@ -1,0 +1,7 @@
+Pour start tout les containers d'un coup :
+
+    docker start postgres_db fastapi_api fastapi_ml frontend_app
+
+Pour arreter tout les containers d'un coup :
+
+    docker stop postgres_db fastapi_api fastapi_ml frontend_app

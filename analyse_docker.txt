@@ -1,0 +1,231 @@
+ANALISE DES FICHIERS DOCKER - Match Prediction App
+====================================================
+
+Ce document contient l'explication détaillée des fichiers Docker optimisés pour le déploiement sans docker-compose.
+
+======================================================================
+1. FastAPI_App/Dockerfile.api (API principale - Port 8000) - OPTIMISÉ
+======================================================================
+
+# Dockerfile.api optimisé pour FastAPI avec PostgreSQL
+FROM python:3.12-slim
+    FROM: Utilise l'image officielle Python 3.12 version "slim" (plus légère)
+    Base optimisée pour la production
+
+# Créer un utilisateur non-root pour la sécurité
+RUN useradd --create-home --shell /bin/bash app
+    Sécurité: Crée un utilisateur dédié pour exécuter l'application
+    Évite d'exécuter l'application en tant que root
+
+WORKDIR /app
+    WORKDIR: Définit le répertoire de travail dans le conteneur
+
+# Installer les dépendances système si nécessaires
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+    Installation de gcc pour compiler les dépendances Python qui en ont besoin
+    Nettoyage du cache pour réduire la taille de l'image
+
+# Copier et installer les dépendances Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+    Mise à jour de pip et installation des dépendances
+    --no-cache-dir: Réduit la taille finale de l'image
+
+# Copier le code de l'application
+COPY . .
+    Copie tous les fichiers de l'application
+
+# Changer le propriétaire des fichiers
+RUN chown -R app:app /app
+    Assigne les fichiers à l'utilisateur non-root
+
+# Passer à l'utilisateur non-root
+USER app
+    Bascule vers l'utilisateur sécurisé
+
+EXPOSE 8000
+    Port d'écoute de l'API
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+    Commande de démarrage optimisée avec uvicorn
+    --workers 1: Nombre de processus workers pour la production
+
+======================================================================
+2. FastAPI_ML/Dockerfile (API Machine Learning - Port 8001)
+======================================================================
+
+FROM python:3.12-slim
+    Même base Python optimisée que l'API principale
+
+WORKDIR /app
+    Répertoire de travail
+
+COPY ./shared ./shared
+    Copie le dossier "shared" avec les utilitaires communs
+
+COPY ./FastAPI_ML/requirements.txt .
+    Copie les dépendances spécifiques au service ML
+
+RUN pip install --no-cache-dir -r requirements.txt
+    Installation des dépendances ML (scikit-learn, pandas, etc.)
+
+COPY ./FastAPI_ML/app ./app
+    Copie uniquement le code de l'API ML
+
+EXPOSE 8001
+    Port dédié pour l'API ML
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    Démarrage de l'API ML sur le port 8001
+
+======================================================================
+3. match_prediction_app-front/Dockerfile (Frontend Vue.js - Port 80) - OPTIMISÉ
+======================================================================
+
+# ÉTAPE 1: Construction de l'application Vue.js
+FROM node:18-alpine AS build-stage
+    FROM: Node.js 18 Alpine (très léger)
+    AS build-stage: Étape nommée pour la référence
+
+WORKDIR /app
+    Répertoire de travail
+
+# Copier les fichiers de package et installer les dépendances
+COPY package*.json ./
+RUN npm ci
+    npm ci: Installation plus rapide et reproductible que npm install
+    Utilise le package-lock.json pour garantir la cohérence
+
+# Copier le code source et construire l'application
+COPY . .
+RUN npm run build
+    Construction de l'application Vue.js pour la production
+
+# ÉTAPE 2: Serveur de production avec nginx
+FROM nginx:alpine AS production-stage
+    FROM: nginx Alpine pour le serveur web
+
+# Supprimer le fichier de configuration nginx par défaut
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copier les fichiers construits
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+    Copie les fichiers Vue.js construits vers nginx
+
+# Créer une configuration nginx optimisée pour Vue.js
+RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
+    echo '    listen 80;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    index index.html index.htm;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location / {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        try_files $uri $uri/ /index.html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location /api/ {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_pass http://fastapi_api:8000/;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header Host $host;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_read_timeout 300s;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_connect_timeout 75s;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location /api-ml/ {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_pass http://fastapi_ml:8001/;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header Host $host;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_read_timeout 300s;' >> /etc/nginx/conf.d/default.conf && \
+    echo '        proxy_connect_timeout 75s;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '    error_page 500 502 503 504 /50x.html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    location = /50x.html {' >> /etc/nginx/conf.d/default.conf && \
+    echo '        root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
+    echo '    }' >> /etc/nginx/conf.d/default.conf && \
+    echo '}' >> /etc/nginx/conf.d/default.conf
+    Configuration nginx complète avec:
+    - Proxy vers l'API FastAPI (/api/)
+    - Proxy vers l'API ML (/api-ml/)
+    - Support du routing Vue.js (try_files)
+    - Headers de proxy optimisés
+    - Timeouts configurés
+
+EXPOSE 80
+    Port HTTP standard
+
+CMD ["nginx", "-g", "daemon off;"]
+    Démarrage de nginx au premier plan (requis par Docker)
+
+======================================================================
+4. Base de données PostgreSQL (Conteneur externe)
+======================================================================
+
+Image: postgres:15
+    Version officielle PostgreSQL 15
+
+Configuration:
+- Base de données: footballprediction_db
+- Utilisateur: postgres
+- Mot de passe: postgres
+- Volume: postgres_data (persistance des données)
+- Port: 5432
+- Script d'initialisation: ./Data/MCD.sql
+
+======================================================================
+RÉSUMÉ DE L'ARCHITECTURE ACTUELLE
+======================================================================
+
+Votre projet utilise une architecture en microservices avec 4 services:
+
+1. POSTGRESQL (Base de données)
+   - Port: 5432
+   - Techno: PostgreSQL 15
+   - Persistance: Volume postgres_data
+   - Accès: localhost:5432
+
+2. FRONTEND (Vue.js + Nginx)
+   - Port: 80
+   - Techno: Vue.js 3 + nginx
+   - Proxy: /api/ → FastAPI, /api-ml/ → FastAPI ML
+   - Accès: http://localhost:80
+
+3. API PRINCIPALE (FastAPI)
+   - Port: 8000
+   - Techno: Python 3.12 + FastAPI
+   - Sécurité: Utilisateur non-root
+   - Accès: http://localhost:8000
+   - Documentation: http://localhost:8000/docs
+
+4. API MACHINE LEARNING (FastAPI)
+   - Port: 8001
+   - Techno: Python 3.12 + FastAPI + ML
+   - Accès: http://localhost:8001
+   - Documentation: http://localhost:8001/docs
+
+RÉSEAU DOCKER:
+- Nom: app-network
+- Type: bridge
+- Permet la communication entre tous les conteneurs
+
+AVANTAGES DE CETTE ARCHITECTURE:
+- Déploiement individuel des conteneurs (pas de docker-compose)
+- Persistance des données PostgreSQL garantie
+- Sécurité renforcée (utilisateurs non-root)
+- Proxy nginx optimisé pour le routing
+- Images optimisées pour la production
+- Isolation complète des services
+
+DÉPLOIEMENT:
+- Utiliser le fichier COMMANDES_DEMARRAGE.txt pour lancer l'application
+- Toutes les commandes sont testées et fonctionnelles
+- Persistance des données assurée par les volumes Docker
+
+======================================================================
+CRÉÉ PAR: Cascade AI Assistant
+DATE: 22 avril 2026
+PROJET: Match Prediction App - Version sans docker-compose
+======================================================================

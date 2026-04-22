@@ -1,13 +1,17 @@
-const hostname = window.location.hostname;
-const AUTH_URL = `http://${hostname}:8000`;
-const ML_URL = `http://${hostname}:8001`;
+// Utiliser le proxy nginx pour toutes les requêtes API
+const API_BASE_URL = ''; // Vide pour utiliser le domaine courant
 
 async function request(endpoint, options = {}) {
   // Récupération dynamique du token
   const token = localStorage.getItem('token');
   
-  // Automagical routing based on endpoint prefix
-  const baseUrl = (endpoint.startsWith('/auth') || endpoint.startsWith('/predictions') || endpoint.startsWith('/dashboard')) ? AUTH_URL : ML_URL;
+  // Router les requêtes via le proxy nginx
+  let finalEndpoint = endpoint;
+  if (endpoint.startsWith('/auth') || endpoint.startsWith('/predictions') || endpoint.startsWith('/dashboard')) {
+    finalEndpoint = `/api${endpoint}`;
+  } else if (endpoint.startsWith('/ml') || endpoint.startsWith('/predict')) {
+    finalEndpoint = `/api-ml${endpoint}`;
+  }
 
   const headers = {
     'Content-Type': 'application/json',
@@ -24,7 +28,7 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(`${baseUrl}${endpoint}`, config);
+  const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
