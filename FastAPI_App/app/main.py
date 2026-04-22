@@ -37,16 +37,19 @@ async def lifespan(_: FastAPI):
     Toutes les opérations de démarrage DB sont ici.
     Utiliser lifespan évite les crashs au niveau module et les problèmes de hot-reload.
     """
-    from .database import SessionLocal
+    from .database import SessionLocal, engine, Base
     from .models.user import User
     from .models.team import Team
+
+    # Create tables
+    Base.metadata.create_all(bind=engine)
+    print("✅ Tables créées avec succès.")
 
     db = SessionLocal()
     try:
         # 1. Utilisateur par défaut (dev)
-        if not db.query(User).filter(User.id == 1).first():
+        if not db.query(User).filter(User.username == "dev_user").first():
             default_user = User(
-                id=1,
                 username="dev_user",
                 email="dev@example.com",
                 hashed_password="fake_hashed_password",

@@ -1,0 +1,23 @@
+artifact_path: /Users/slyxi7/Desktop/Match-Prediction-App/FastAPI_ML/mlruns/1/models/m-4bf8c590373f4a04bab1cab5f413d899/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.13
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.2
+    skops_trusted_types: null
+mlflow_version: 3.11.1
+model_id: m-4bf8c590373f4a04bab1cab5f413d899
+model_size_bytes: 19974306
+model_uuid: m-4bf8c590373f4a04bab1cab5f413d899
+prompts: null
+run_id: 91772e5284bc4ce8ad6c218ce0e0a33e
+utc_time_created: '2026-04-21 13:44:23.885859'

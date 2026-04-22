@@ -102,7 +102,7 @@ class PreparationService:
         Source 1 : API Football
         Source 2 : football-data.co.uk
         """
-        base = Path(settings.DATA_DIR)
+        base = Path(settings.DATA_DIR) / "dataset"
 
         dataset1 = pd.concat([
             pd.read_csv(base / "part1" / "ligue1_2022_completed.csv"),
