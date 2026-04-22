@@ -233,3 +233,51 @@ alembic history
 - Chaque API a son propre `venv`, `requirements.txt` et configuration Alembic
 - Le fichier `.env` est **unique à la racine** et partagé entre les deux APIs
 - Les migrations sont **versionnées dans Git** (dossier `alembic/versions/`)
+
+---
+
+## 🏗️ Bonus : Transition vers Docker (Sans Docker Compose)
+
+Si vous souhaitez apprendre Docker et conteneuriser cette architecture de micro-services manuellement sans utiliser `docker-compose`, voici la logique étape par étape :
+
+### Le défi : La connectivité réseau
+Dans une architecture conteneurisée, les APIs et la base de données ne peuvent plus discuter via `localhost` (car chaque conteneur possède son propre "localhost" isolé). Vous devrez créer un réseau virtuel partagé.
+
+### Étape par Étape
+
+1. **Créer le pont réseau Docker :**
+   ```sh
+   docker network create match-network
+   ```
+
+2. **Lancer la base de données PostgreSQL :**
+   Vous lancez l'image Postgres officielle en l'attachant au réseau et en définissant le mot de passe.
+   ```sh
+   docker run -d --name postgres-db --network match-network -e POSTGRES_USER=amaury -e POSTGRES_PASSWORD=password -e POSTGRES_DB=footballapp_db -p 5432:5432 postgres:15
+   ```
+   *(Vous ferez la même chose ou rajouterez la création de `footballml_db`)*.
+
+3. **Adapter votre fichier `.env` :**
+   Votre fichier local pointait sur `localhost`. Pour un conteneur, l'adresse de la BDD devient le nom du conteneur `postgres-db`.
+   ```env
+   DATABASE_APP_URL=postgresql://amaury:password@postgres-db:5432/footballapp_db
+   DATABASE_ML_URL=postgresql://amaury:password@postgres-db:5432/footballml_db
+   ```
+
+4. **Construire et lancer vos Backend (FastAPI_App & ML) :**
+   Vous devrez créer un fichier `Dockerfile` dans `FastAPI_App` et un dans `FastAPI_ML` (instructions classiques : copier les fichiers, faire le `pip install -r requirements.txt`, puis utiliser la commande CMD `uvicorn ...`).
+   Ensuite, lancez-les sur le réseau commun :
+   ```sh
+   # Build
+   docker build -t fastapi-app:latest ./FastAPI_App
+   # Run
+   docker run -d --name api-app --network match-network -p 8000:8000 --env-file .env fastapi-app:latest
+   ```
+
+5. **Et pour Alembic ?**
+   Les migrations ne s'exécutent pas toutes seules ! Vous devrez soit ajouter l'instruction `alembic upgrade head` directement dans un script bash (`entrypoint.sh`) qui se lance au démarrage du conteneur Backend, soit vous connecter d'abord au conteneur une fois pour les lancer :
+   ```sh
+   docker exec -it api-app bash -c "alembic upgrade head"
+   ```
+
+C'est simple, mais l'absence de Docker Compose vous oblige à gérer l'ordre de démarrage manuellement (BDD d'abord, APIs ensuite).
