@@ -20,9 +20,9 @@ class Settings(CommonSettings):
     )
     
     CORS_ORIGINS: list[str] = ["*"]
-    DATA_DIR:     str = Field(default="../Data/dataset/")
-    MODEL_PATH:   str = Field(default="../Data/dataset/match_model_v1.joblib")
-    DATASET_PATH: str = Field(default="../Data/dataset/completed_match_dataset_final.csv")
+    DATA_DIR:     str = Field(default="/app/Data/")
+    MODEL_PATH:   str = Field(default="/app/Data/dataset/match_model_v1.joblib")
+    DATASET_PATH: str = Field(default="/app/Data/dataset/completed_match_dataset_final.csv")
     MLFLOW_TRACKING_URI: str = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
 
 settings = Settings()
