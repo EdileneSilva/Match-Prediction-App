@@ -5,7 +5,7 @@ WORKDIR /app
 COPY ./shared ./shared
 COPY ./Data ./Data
 COPY ./FastAPI_ML/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY ./FastAPI_ML/app ./app
 
