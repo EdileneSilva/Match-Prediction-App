@@ -1,4 +1,4 @@
-ANALISE DES FICHIERS DOCKER - Match Prediction App
+ANALYSE DES FICHIERS DOCKER - Match Prediction App
 ====================================================
 
 Ce document contient l'explication détaillée des fichiers Docker optimisés pour le déploiement sans docker-compose.
@@ -82,83 +82,39 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
     Démarrage de l'API ML sur le port 8001
 
 ======================================================================
-3. match_prediction_app-front/Dockerfile (Frontend Vue.js - Port 80) - OPTIMISÉ
+3. match_prediction_app-front/Dockerfile (Frontend Vue.js - Port 8080) - ULTRA-SIMPLE
 ======================================================================
 
-# ÉTAPE 1: Construction de l'application Vue.js
-FROM node:18-alpine AS build-stage
-    FROM: Node.js 18 Alpine (très léger)
-    AS build-stage: Étape nommée pour la référence
+# Dockerfile simple pour développement Vue.js
+FROM node:18-alpine
+    FROM: Node.js 18 Alpine (image légère optimisée pour le développement)
+    Contient Node.js et npm nécessaires pour Vue.js
 
 WORKDIR /app
-    Répertoire de travail
+    WORKDIR: Définit le répertoire de travail dans le conteneur
 
-# Copier les fichiers de package et installer les dépendances
+# Installer les dépendances
 COPY package*.json ./
-RUN npm ci
-    npm ci: Installation plus rapide et reproductible que npm install
-    Utilise le package-lock.json pour garantir la cohérence
+    Copie package.json et package-lock.json pour installer les dépendances
+RUN npm install
+    npm install: Installe toutes les dépendances Node.js nécessaires à Vue.js
+    Inclut Vue.js, Vue Router, et autres packages du projet
 
-# Copier le code source et construire l'application
+# Copier le code source
 COPY . .
-RUN npm run build
-    Construction de l'application Vue.js pour la production
+    Copie tous les fichiers source de l'application Vue.js
+    Composants, vues, styles, et fichiers de configuration
 
-# ÉTAPE 2: Serveur de production avec nginx
-FROM nginx:alpine AS production-stage
-    FROM: nginx Alpine pour le serveur web
+# Exposer le port de développement
+EXPOSE 8080
+    EXPOSE: Déclare le port 8080 pour la communication avec l'extérieur
+    Port par défaut du serveur de développement Vue.js
 
-# Supprimer le fichier de configuration nginx par défaut
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copier les fichiers construits
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-    Copie les fichiers Vue.js construits vers nginx
-
-# Créer une configuration nginx optimisée pour Vue.js
-RUN echo 'server {' > /etc/nginx/conf.d/default.conf && \
-    echo '    listen 80;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    server_name localhost;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    index index.html index.htm;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location / {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        try_files $uri $uri/ /index.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location /api/ {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_pass http://fastapi_api:8000/;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header Host $host;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_read_timeout 300s;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_connect_timeout 75s;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location /api-ml/ {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_pass http://fastapi_ml:8001/;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header Host $host;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Real-IP $remote_addr;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_set_header X-Forwarded-Proto $scheme;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_read_timeout 300s;' >> /etc/nginx/conf.d/default.conf && \
-    echo '        proxy_connect_timeout 75s;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '    error_page 500 502 503 504 /50x.html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    location = /50x.html {' >> /etc/nginx/conf.d/default.conf && \
-    echo '        root /usr/share/nginx/html;' >> /etc/nginx/conf.d/default.conf && \
-    echo '    }' >> /etc/nginx/conf.d/default.conf && \
-    echo '}' >> /etc/nginx/conf.d/default.conf
-    Configuration nginx complète avec:
-    - Proxy vers l'API FastAPI (/api/)
-    - Proxy vers l'API ML (/api-ml/)
-    - Support du routing Vue.js (try_files)
-    - Headers de proxy optimisés
-    - Timeouts configurés
-
-EXPOSE 80
-    Port HTTP standard
-
-CMD ["nginx", "-g", "daemon off;"]
-    Démarrage de nginx au premier plan (requis par Docker)
+# Démarrer le serveur de développement Vue.js
+CMD ["npm", "run", "serve"]
+    CMD: Commande exécutée au démarrage du conteneur
+    npm run serve: Lance le serveur de développement Vue.js
+    Avantages: Hot-reload, rechargement automatique, mode développement
 
 ======================================================================
 4. Base de données PostgreSQL (Conteneur externe)
@@ -187,11 +143,11 @@ Votre projet utilise une architecture en microservices avec 4 services:
    - Persistance: Volume postgres_data
    - Accès: localhost:5432
 
-2. FRONTEND (Vue.js + Nginx)
-   - Port: 80
-   - Techno: Vue.js 3 + nginx
-   - Proxy: /api/ → FastAPI, /api-ml/ → FastAPI ML
-   - Accès: http://localhost:80
+2. FRONTEND (Vue.js + Node.js)
+   - Port: 8080
+   - Techno: Vue.js 3 + Node.js (mode développement)
+   - Hot-reload: Rechargement automatique des modifications
+   - Accès: http://localhost:8080
 
 3. API PRINCIPALE (FastAPI)
    - Port: 8000

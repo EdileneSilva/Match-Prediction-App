@@ -1,5 +1,5 @@
-# Étape de build pour compiler l'application Vue.js
-FROM node:18-alpine AS builder
+# Dockerfile simple pour développement Vue.js
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -7,19 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copier le code source et builder
+# Copier le code source
 COPY . .
-RUN npm run build
 
-# Étape de production avec nginx
-FROM nginx:alpine
+# Exposer le port de développement
+EXPOSE 8080
 
-# Copier les fichiers construits dans nginx
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copier la configuration nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+# Démarrer le serveur de développement Vue.js
+CMD ["npm", "run", "serve"]
