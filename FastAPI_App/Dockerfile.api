@@ -1,19 +1,13 @@
-# Dockerfile.api optimisé pour FastAPI avec PostgreSQL
 FROM python:3.12-slim
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier et installer les dépendances Python
 COPY requirements.txt .
 RUN pip install  --upgrade pip && \
     pip install -r requirements.txt
 
-# Copier le code de l'application
 COPY . .
 
-# Exposer le port
 EXPOSE 8000
 
-# Commande de démarrage optimisée
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
