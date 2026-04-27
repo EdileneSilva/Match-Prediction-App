@@ -25,10 +25,7 @@ docker build -t api-ml ./FastAPI_ML
 docker build -t frontend ./match_prediction_app-front
 
 # 4. Démarrer les conteneurs
-docker run -d --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres:15
-docker run -d --name api-app -p 8000:8000 --link postgres:postgres api-app
-docker run -d --name api-ml -p 8001:8001 --link postgres:postgres api-ml
-docker run -d --name frontend -p 8080:8080 --link api-app:api-app frontend
+docker start postgres_db fastapi_api fastapi_ml frontend_app
 
 # 5. Initialiser les bases de données (dans un nouveau terminal)
 docker exec -it postgres psql -U postgres -f /docker-entrypoint-initdb.d/MCD.sql
@@ -61,13 +58,13 @@ L'application Dockerisée inclut 4 services :
 ### Démarrage et Arrêt
 ```bash
 # Démarrer les conteneurs
-docker start postgres api-app api-ml frontend
+docker start postgres_db api_app api_ml frontend_app
 
 # Arrêter les conteneurs
-docker stop postgres api-app api-ml frontend
+docker stop postgres_db api_app api_ml frontend_app
 
 # Redémarrer un conteneur spécifique
-docker restart api-app
+docker restart api_app
 
 # Voir les conteneurs en cours
 docker ps
@@ -79,28 +76,28 @@ docker ps -a
 ### Débogage
 ```bash
 # Logs d'un conteneur spécifique
-docker logs api-app
-docker logs api-ml
-docker logs frontend
-docker logs postgres
+docker logs api_app
+docker logs api_ml
+docker logs frontend_app
+docker logs postgres_db
 
 # Logs en temps réel
-docker logs -f api-app
+docker logs -f api_app
 
 # Entrer dans un conteneur
-docker exec -it api-app bash
-docker exec -it postgres psql -U postgres
-docker exec -it frontend sh
+docker exec -it api_app bash
+docker exec -it postgres_db psql -U postgres
+docker exec -it frontend_app sh
 ```
 
 ### Nettoyage Complet
 ```bash
 # Arrêter et supprimer les conteneurs
-docker stop postgres api-app api-ml frontend
-docker rm postgres api-app api-ml frontend
+docker stop postgres_db api_app api_ml frontend_app
+docker rm postgres_db api_app api_ml frontend_app
 
 # Supprimer les images
-docker rmi api-app api-ml frontend postgres-db
+docker rmi api_app api_ml frontend postgres_db
 
 # Nettoyage complet Docker
 docker system prune -f
@@ -141,7 +138,7 @@ MLFLOW_TRACKING_URI=sqlite:///mlflow.db
 ### Pour les Développeurs
 1. **Modifier le code** : Les fichiers sont synchronisés en temps réel
 2. **Reconstruire** : `docker build -t api-app ./FastAPI_App` après modifications importantes
-3. **Redémarrer** : `docker restart api-app` pour appliquer les changements
+3. **Redémarrer** : `docker restart api-app` pour appliquer les changements 
 4. **Hot reload** : Les APIs et le frontend se rechargent automatiquement
 
 ### Base de Données
@@ -173,18 +170,18 @@ sudo chown -R $USER:$USER .
 ### Conteneurs ne démarrent pas
 ```bash
 # Vérifier les logs pour l'erreur
-docker logs api-app
-docker logs api-ml
-docker logs postgres
+docker logs api_app
+docker logs api_ml
+docker logs postgres_db
 
 # Nettoyer tout et recommencer
-docker stop postgres api-app api-ml frontend
-docker rm postgres api-app api-ml frontend
+docker stop postgres_db api_app api_ml frontend_app
+docker rm postgres_db api_app api_ml frontend_app
 docker system prune -f
 # Puis reconstruire et redémarrer
-docker build -t postgres-db ./Data
-docker build -t api-app ./FastAPI_App
-docker build -t api-ml ./FastAPI_ML  
+docker build -t postgres_db ./Data
+docker build -t api_app ./FastAPI_App
+docker build -t api_ml ./FastAPI_ML  
 docker build -t frontend ./match_prediction_app-front
 ```
 
@@ -240,7 +237,7 @@ curl http://localhost:8001/health
 ### Base de Données
 ```bash
 # Se connecter à PostgreSQL
-docker exec -it postgres psql -U postgres
+docker exec -it postgres_db psql -U postgres
 
 # Lister les bases de données
 \l
