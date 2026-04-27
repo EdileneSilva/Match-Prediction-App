@@ -168,22 +168,6 @@ docker exec -it postgres_db psql -U postgres
 
 ---
 
-## 💡 Conseils d'Utilisation
-
-### Pour les Nouveaux Utilisateurs
-1. **Lisez ce README en entier** avant de commencer
-2. **Suivez les étapes dans l'ordre** : ne sautez pas l'initialisation de la BDD
-3. **Utilisez les logs** pour diagnostiquer les problèmes
-4. **Sauvegardez votre .env** avec vos clés secrètes
-
-### Bonnes Pratiques
-- **Ne partagez jamais** votre fichier `.env`
-- **Utilisez des secrets forts** en production
-- **Sauvegardez régulièrement** vos données de la base de données
-- **Surveillez les logs** pour détecter les problèmes
-
----
-
 🎉 **Si tout fonctionne, votre application est prête !**
 
 Accédez à http://localhost:8080 pour commencer à utiliser l'application de prédiction de matchs.
