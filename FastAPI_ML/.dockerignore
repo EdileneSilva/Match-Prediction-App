@@ -23,3 +23,7 @@ env/
 .venv/
 .env
 mlruns/
+.DS_Store
+.egg-info/
+dist/
+build/

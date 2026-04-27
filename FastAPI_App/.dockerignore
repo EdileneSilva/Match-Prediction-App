@@ -22,3 +22,7 @@ venv/
 env/
 .venv/
 .env
+.DS_Store
+.egg-info/
+dist/
+build/
