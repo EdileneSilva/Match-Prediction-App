@@ -73,23 +73,6 @@ docker ps
 docker ps -a
 ```
 
-### Débogage
-```bash
-# Logs d'un conteneur spécifique
-docker logs api_app
-docker logs api_ml
-docker logs frontend_app
-docker logs postgres_db
-
-# Logs en temps réel
-docker logs -f api_app
-
-# Entrer dans un conteneur
-docker exec -it api_app bash
-docker exec -it postgres_db psql -U postgres
-docker exec -it frontend_app sh
-```
-
 ### Nettoyage Complet
 ```bash
 # Arrêter et supprimer les conteneurs
@@ -147,51 +130,6 @@ MLFLOW_TRACKING_URI=sqlite:///mlflow.db
 
 ---
 
-## 🐛 Dépannage
-
-### Port déjà utilisé
-```bash
-# Vérifier les ports utilisés
-lsof -i :8000
-lsof -i :8001
-lsof -i :8080
-lsof -i :5432
-
-# Tuer les processus si nécessaire
-kill -9 <PID>
-```
-
-### Permissions denied
-```bash
-# Donner les permissions Docker
-sudo chown -R $USER:$USER .
-```
-
-### Conteneurs ne démarrent pas
-```bash
-# Vérifier les logs pour l'erreur
-docker logs api_app
-docker logs api_ml
-docker logs postgres_db
-
-# Nettoyer tout et recommencer
-docker stop postgres_db api_app api_ml frontend_app
-docker rm postgres_db api_app api_ml frontend_app
-docker system prune -f
-# Puis reconstruire et redémarrer
-docker build -t postgres_db ./Data
-docker build -t api_app ./FastAPI_App
-docker build -t api_ml ./FastAPI_ML  
-docker build -t frontend ./match_prediction_app-front
-```
-
-### Problèmes courants
-- **"Port already in use"** : Arrêter les services qui utilisent ces ports
-- **"Permission denied"** : Vérifier les permissions des fichiers
-- **"Database connection failed"** : Vérifier que PostgreSQL est démarré
-
----
-
 ## 📁 Structure des Fichiers Docker
 
 ```
@@ -213,22 +151,6 @@ Match-Prediction-App/
 ```
 
 ---
-
-## 🎯 Test Final
-
-Une fois tout démarré, vérifiez ces endpoints :
-
-### Health Checks
-```bash
-# API Application
-curl http://localhost:8000/health
-# Response: {"status":"ok","service":"app-api"}
-
-# API ML
-curl http://localhost:8001/health
-# Response: {"status":"ok","service":"ml-api"}
-```
-
 ### Interfaces Web
 - **Application frontend** : http://localhost:8080
 - **Documentation API App** : http://localhost:8000/docs
@@ -259,17 +181,6 @@ docker exec -it postgres_db psql -U postgres
 - **Utilisez des secrets forts** en production
 - **Sauvegardez régulièrement** vos données de la base de données
 - **Surveillez les logs** pour détecter les problèmes
-
----
-
-## 🆘 Support
-
-Si vous rencontrez des problèmes :
-
-1. **Vérifiez les logs** : `docker-compose logs`
-2. **Consultez le dépannage** ci-dessus
-3. **Redémarrez proprement** : `docker-compose down -v && docker-compose up --build`
-4. **Vérifiez les versions** : Docker Desktop à jour
 
 ---
 
