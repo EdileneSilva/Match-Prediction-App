@@ -1,6 +1,6 @@
-// Configuration directe des APIs backend (localhost car le JavaScript s'exécute dans le navigateur)
-const APP_API_BASE_URL = 'http://localhost:8000';  // API Application (auth, users, etc.)
-const ML_API_BASE_URL = 'http://localhost:8001';   // API ML (predictions, training)
+// URLs relatives — Caddy reverse proxy route les requêtes vers le bon backend
+const APP_API_BASE_URL = '';  // API Application (auth, users, etc.)
+const ML_API_BASE_URL = '';   // API ML (predictions, training)
 
 async function request(endpoint, options = {}) {
   // Récupération dynamique du token

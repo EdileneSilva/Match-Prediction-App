@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     CORS_ORIGINS: list = [
+        # Via Caddy (HTTPS)
+        "https://localhost",
+        "https://127.0.0.1",
+        # Fallback HTTP (dev sans Caddy)
         "http://localhost:8080",
         "http://127.0.0.1:8080",
         "http://localhost:8081",

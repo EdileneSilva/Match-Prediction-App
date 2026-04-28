@@ -1,0 +1,51 @@
+{$DOMAIN:localhost} {
+	# ── API Application (auth, users, predictions, dashboard) ──
+	handle /auth* {
+		reverse_proxy api-app:8000
+	}
+	handle /predictions* {
+		reverse_proxy api-app:8000
+	}
+	handle /dashboard* {
+		reverse_proxy api-app:8000
+	}
+	handle /health* {
+		reverse_proxy api-app:8000
+	}
+	handle /docs* {
+		reverse_proxy api-app:8000
+	}
+	handle /openapi* {
+		reverse_proxy api-app:8000
+	}
+	handle /redoc* {
+		reverse_proxy api-app:8000
+	}
+
+	# ── API ML (predict, train, ingestion) ──
+	handle /ml* {
+		reverse_proxy api-ml:8001
+	}
+	handle /predict* {
+		reverse_proxy api-ml:8001
+	}
+	handle /train* {
+		reverse_proxy api-ml:8001
+	}
+	handle /ingestion* {
+		reverse_proxy api-ml:8001
+	}
+	handle /docs_ml* {
+		rewrite /docs
+		reverse_proxy api-ml:8001
+	}
+	handle /openapi_ml* {
+		rewrite /openapi.json
+		reverse_proxy api-ml:8001
+	}
+
+	# ── Frontend (tout le reste) ──
+	handle {
+		reverse_proxy frontend:8080
+	}
+}

@@ -28,8 +28,9 @@ services:
       context: ./FastAPI_App
       dockerfile: Dockerfile.api
     container_name: fastapi_app_container
-    ports:
-      - "8000:8000"
+    # Port accessible uniquement via Caddy (pas d'exposition directe)
+    expose:
+      - "8000"
     environment:
       DATABASE_APP_URL: postgresql://postgres:postgres@postgres:5432/footballapp_db
       DATABASE_ML_URL: postgresql://postgres:postgres@postgres:5432/footballprediction_db
@@ -52,8 +53,9 @@ services:
       context: .
       dockerfile: FastAPI_ML/Dockerfile
     container_name: fastapi_ml_container
-    ports:
-      - "8001:8001"
+    # Port accessible uniquement via Caddy (pas d'exposition directe)
+    expose:
+      - "8001"
     environment:
       DATABASE_APP_URL: postgresql://postgres:postgres@postgres:5432/footballapp_db
       DATABASE_ML_URL: postgresql://postgres:postgres@postgres:5432/footballprediction_db
@@ -74,11 +76,12 @@ services:
       context: ./match_prediction_app-front
       dockerfile: Dockerfile
     container_name: frontend_container
-    ports:
-      - "8080:8080"
+    # Port accessible uniquement via Caddy (pas d'exposition directe)
+    expose:
+      - "8080"
     environment:
-      VUE_APP_API_URL: http://localhost:8000
-      VUE_APP_ML_URL: http://localhost:8001
+      VUE_APP_API_URL: ""
+      VUE_APP_ML_URL: ""
     depends_on:
       - api-app
       - api-ml
@@ -86,8 +89,33 @@ services:
       - app-network
     restart: unless-stopped
 
+  # ─── Caddy Reverse Proxy (HTTPS automatique) ───
+  caddy:
+    image: caddy:2
+    container_name: caddy_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: "localhost"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api-app
+      - api-ml
+      - frontend
+    networks:
+      - app-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
 
 networks:

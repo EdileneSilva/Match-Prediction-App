@@ -89,6 +89,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        # Via Caddy (HTTPS)
+        "https://localhost",
+        "https://127.0.0.1",
+        # Fallback HTTP (dev sans Caddy)
         "http://localhost:8080",
         "http://localhost:8088",
         "http://127.0.0.1:8080",
