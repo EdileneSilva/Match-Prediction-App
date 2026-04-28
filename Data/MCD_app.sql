@@ -5,7 +5,8 @@
 -- SEPAREE de footballprediction_db (DB ML / Data).
 -- ============================================================
 
-CREATE DATABASE footballapp_db;
+SELECT 'CREATE DATABASE footballapp_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'footballapp_db')\gexec
 -- ============================================================
 -- DB APPLICATION : footballapp_db
 -- Gestion des utilisateurs, de l'authentification et de
@@ -13,14 +14,15 @@ CREATE DATABASE footballapp_db;
 -- SEPAREE de footballprediction_db (DB ML / Data).
 -- ============================================================
 
-CREATE DATABASE footballapp_db;
+SELECT 'CREATE DATABASE footballapp_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'footballapp_db')\gexec
 
 \c footballapp_db;
 
 -- ============================================================
 -- Table des équipes (référence pour les prédictions)
 -- ============================================================
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     logo_url VARCHAR(255)
@@ -66,7 +68,7 @@ CREATE TABLE prediction_history (
 -- Table des équipes favorites d'un utilisateur
 -- Corrigée pour utiliser team_id au lieu de team_name
 -- ============================================================
-CREATE TABLE user_favorite_team (
+CREATE TABLE IF NOT EXISTS user_favorite_team (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     team_id INT,
@@ -86,7 +88,7 @@ CREATE INDEX idx_user_favorite_team_user_id ON user_favorite_team(user_id);
 -- ============================================================
 -- Table des utilisateurs (authentification JWT)
 -- ============================================================
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     id              SERIAL       PRIMARY KEY,
     username        VARCHAR(50)  NOT NULL UNIQUE,
     email           VARCHAR(100) NOT NULL UNIQUE,
@@ -101,7 +103,7 @@ CREATE TABLE "user" (
 -- Les noms d'equipes sont en texte brut (pas de FK inter-DB).
 -- L'App API communique avec la ML API via HTTP, pas via SQL.
 -- ============================================================
-CREATE TABLE prediction_history (
+CREATE TABLE IF NOT EXISTS prediction_history (
     id               SERIAL        PRIMARY KEY,
     user_id          INT           NOT NULL,
     home_team_name   VARCHAR(100)  NOT NULL,

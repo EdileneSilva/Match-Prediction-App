@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: footballapp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Data/create_databases.sql:/docker-entrypoint-initdb.d/01-create_databases.sql
+      - ./Data/create_tables_app.sql:/docker-entrypoint-initdb.d/02-create_tables_app.sql
+      - ./Data/create_tables_ml.sql:/docker-entrypoint-initdb.d/03-create_tables_ml.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-app:
+    build:
+      context: ./FastAPI_App
+      dockerfile: Dockerfile.api
+    container_name: fastapi_app_container
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_APP_URL: postgresql://postgres:postgres@postgres:5432/footballapp_db
+      DATABASE_ML_URL: postgresql://postgres:postgres@postgres:5432/footballprediction_db
+      SECRET_KEY: change-me-en-production
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      MLFLOW_TRACKING_URI: sqlite:///mlflow.db
+      ML_API_URL: http://api-ml:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./FastAPI_App:/app
+    restart: unless-stopped
+
+  api-ml:
+    build:
+      context: .
+      dockerfile: FastAPI_ML/Dockerfile
+    container_name: fastapi_ml_container
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_APP_URL: postgresql://postgres:postgres@postgres:5432/footballapp_db
+      DATABASE_ML_URL: postgresql://postgres:postgres@postgres:5432/footballprediction_db
+      MLFLOW_TRACKING_URI: sqlite:///mlflow.db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./FastAPI_ML:/app
+      - ./Data:/app/Data
+      - ./shared:/app/shared
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./match_prediction_app-front
+      dockerfile: Dockerfile
+    container_name: frontend_container
+    ports:
+      - "8080:8080"
+    environment:
+      VUE_APP_API_URL: http://localhost:8000
+      VUE_APP_ML_URL: http://localhost:8001
+    depends_on:
+      - api-app
+      - api-ml
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

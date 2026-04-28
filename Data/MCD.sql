@@ -3,7 +3,8 @@
 -- Données de matchs, statistiques et modèle ML
 -- ============================================================
 
-CREATE DATABASE footballprediction_db;
+SELECT 'CREATE DATABASE footballprediction_db'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'footballprediction_db')\gexec
 
 \c footballprediction_db;
 
@@ -11,7 +12,7 @@ CREATE DATABASE footballprediction_db;
 -- Table des équipes
 -- Corrigée pour correspondre au modèle SQLAlchemy
 -- ============================================================
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
@@ -20,7 +21,7 @@ CREATE TABLE teams (
 -- Table des matchs de football
 -- Corrigée pour correspondre au modèle SQLAlchemy
 -- ============================================================
-CREATE TABLE football_matches (
+CREATE TABLE IF NOT EXISTS football_matches (
     id SERIAL PRIMARY KEY,
     league_season INT NOT NULL,
     home_team_id INT NOT NULL,
@@ -60,6 +61,7 @@ CREATE TABLE football_matches (
 -- Table des statistiques calculées par match
 -- Manquante dans le script original
 -- ============================================================
+CREATE TABLE IF NOT EXISTS match_stats (
 CREATE TABLE match_stats (
     id SERIAL PRIMARY KEY,
     match_id INT NOT NULL UNIQUE,
