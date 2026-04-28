@@ -15,8 +15,8 @@ class Settings(CommonSettings):
     
     # On mappe DATABASE_ML_URL vers DATABASE_URL pour compatibilité avec BaseSettings
     DATABASE_URL: str = Field(
-        default="postgresql://localhost/footballprediction_db",
-        validation_alias=AliasChoices("DATABASE_ML_URL", "DATABASE_URL"),
+    default="postgresql://postgres:postgres@postgres_db:5432/footballprediction_db",
+    validation_alias=AliasChoices("DATABASE_ML_URL", "DATABASE_URL"),
     )
     
     CORS_ORIGINS: list[str] = ["*"]

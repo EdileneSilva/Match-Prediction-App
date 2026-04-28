@@ -10,4 +10,5 @@ numpy==1.26.4
 scikit-learn==1.7.2
 mlflow==2.15.1
 scipy==1.15.3
--e ./shared
+setuptools==70.0.0
+python-multipart==0.0.20

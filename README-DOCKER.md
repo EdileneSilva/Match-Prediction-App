@@ -25,7 +25,7 @@ docker build -t api-ml ./FastAPI_ML
 docker build -t frontend ./match_prediction_app-front
 
 # 4. Démarrer les conteneurs
-docker start postgres_db fastapi_api fastapi_ml frontend_app
+docker start postgres_db fastapi_app_container fastapi_ml_container frontend_container
 
 # 5. Initialiser les bases de données (dans un nouveau terminal)
 docker exec -it postgres psql -U postgres -f /docker-entrypoint-initdb.d/MCD.sql
@@ -58,10 +58,10 @@ L'application Dockerisée inclut 4 services :
 ### Démarrage et Arrêt
 ```bash
 # Démarrer les conteneurs
-docker start postgres_db api_app api_ml frontend_app
+docker start postgres_db fastapi_app_container fastapi_ml_container frontend_container
 
 # Arrêter les conteneurs
-docker stop postgres_db api_app api_ml frontend_app
+docker stop postgres_db fastapi_app_container fastapi_ml_container frontend_container
 
 # Redémarrer un conteneur spécifique
 docker restart api_app

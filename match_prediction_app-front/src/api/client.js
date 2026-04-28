@@ -1,16 +1,23 @@
-// Utiliser le proxy nginx pour toutes les requêtes API
-const API_BASE_URL = ''; // Vide pour utiliser le domaine courant
+// Configuration directe des APIs backend (localhost car le JavaScript s'exécute dans le navigateur)
+const APP_API_BASE_URL = 'http://localhost:8000';  // API Application (auth, users, etc.)
+const ML_API_BASE_URL = 'http://localhost:8001';   // API ML (predictions, training)
 
 async function request(endpoint, options = {}) {
   // Récupération dynamique du token
   const token = localStorage.getItem('token');
   
-  // Router les requêtes via le proxy nginx
+  // Router les requêtes vers les bons services
+  let baseUrl;
   let finalEndpoint = endpoint;
+  
+  // Les endpoints sont déjà corrects, pas besoin de préfixe /api
   if (endpoint.startsWith('/auth') || endpoint.startsWith('/predictions') || endpoint.startsWith('/dashboard')) {
-    finalEndpoint = `/api${endpoint}`;
+    baseUrl = APP_API_BASE_URL;
   } else if (endpoint.startsWith('/ml') || endpoint.startsWith('/predict')) {
-    finalEndpoint = `/api-ml${endpoint}`;
+    baseUrl = ML_API_BASE_URL;
+  } else {
+    // Par défaut, utiliser l'API Application
+    baseUrl = APP_API_BASE_URL;
   }
 
   const headers = {
@@ -28,7 +35,7 @@ async function request(endpoint, options = {}) {
     headers,
   };
 
-  const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, config);
+  const response = await fetch(`${baseUrl}${finalEndpoint}`, config);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
