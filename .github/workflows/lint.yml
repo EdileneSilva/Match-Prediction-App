@@ -1,0 +1,66 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+
+  lint-python-app:
+    name: Ruff — FastAPI_App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: ruff check FastAPI_App/
+
+  lint-python-ml:
+    name: Ruff — FastAPI_ML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: ruff check FastAPI_ML/
+
+  lint-front:
+    name: ESLint — Front VueJS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: match_prediction_app-front/package-lock.json
+
+      - name: Install dependencies
+        working-directory: match_prediction_app-front
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: match_prediction_app-front
+        run: npm run lint

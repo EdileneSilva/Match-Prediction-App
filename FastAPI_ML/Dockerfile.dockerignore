@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+**/*.pyc
+
+# Environnements virtuels
+.venv/
+
+# Base de données locale (SQLite)
+*.db
+*.sqlite3
+
+# Modèles ML (souvent trop lourds, à monter via volume ou télécharger au runtime)
+# Si tu as besoin d'un modèle spécifique, commente la ligne suivante
+model/*.joblib
+
+# Tests et configuration de tests
+tests_integration/
+tests_ml/
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Git et IDE
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Divers
+.DS_Store
+*.log

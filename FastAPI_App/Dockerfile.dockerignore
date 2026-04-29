@@ -1,0 +1,25 @@
+# Python cache
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnement virtuel (au cas où tu en créerais un localement)
+venv/
+.venv/
+env/
+
+# Base de données locale (SQLite)
+*.db
+
+# Tests et logs
+tests/
+.pytest_cache/
+*.log
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
