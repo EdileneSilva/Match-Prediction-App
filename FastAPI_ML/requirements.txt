@@ -12,3 +12,4 @@ mlflow==2.15.1
 scipy==1.15.3
 setuptools==70.0.0
 python-multipart==0.0.20
+ruff==0.6.9
