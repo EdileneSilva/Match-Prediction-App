@@ -1,6 +1,6 @@
 import os
 # Configuration de la base de données de test (PostgreSQL)
-TEST_DB_URL = "postgresql:///footballapp_app_test"
+TEST_DB_URL = os.getenv("DATABASE_APP_URL", "postgresql:///footballapp_app_test")
 os.environ["DATABASE_APP_URL"] = TEST_DB_URL
 
 import pytest
