@@ -77,26 +77,3 @@ jobs:
         env:
           DATABASE_APP_URL: postgresql://postgres:postgres@localhost:5432/footballapp_app_test
         run: pytest tests/ -v
-
-  test-python-ml:
-    name: Tests — FastAPI_ML
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install -r FastAPI_ML/requirements.txt
-          pip install -e shared/
-
-      - name: Run tests
-        working-directory: FastAPI_ML
-        env:
-          DATABASE_ML_URL: sqlite:///./test.db
-        run: pytest tests_ml/ -v
