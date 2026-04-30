@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "test:coverage": "vue-cli-service test:unit --coverage"
+    "test:coverage": "vue-cli-service test:unit --coverage",
+    "lint": "eslint --ext .js,.vue src/"
   },
   "dependencies": {
     "gsap": "^3.14.2",
