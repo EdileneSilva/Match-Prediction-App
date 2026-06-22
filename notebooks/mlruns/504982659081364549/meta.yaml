@@ -1,0 +1,7 @@
+artifact_location: file:///home/edilene/Dropbox/Simplon_Projects/Match-Prediction-App/notebooks/mlruns/504982659081364549
+creation_time: 1775548689061
+experiment_id: '504982659081364549'
+last_update_time: 1775548689061
+lifecycle_stage: active
+name: ML model for match prediction v2
+workspace: default

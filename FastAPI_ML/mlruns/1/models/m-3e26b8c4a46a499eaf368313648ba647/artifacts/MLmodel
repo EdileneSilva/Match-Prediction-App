@@ -1,0 +1,23 @@
+artifact_path: /home/edilene/Dropbox/Simplon_Projects/Match-Prediction-App/FastAPI_ML/mlruns/1/models/m-3e26b8c4a46a499eaf368313648ba647/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.10.1
+model_id: m-3e26b8c4a46a499eaf368313648ba647
+model_size_bytes: 19743579
+model_uuid: m-3e26b8c4a46a499eaf368313648ba647
+prompts: null
+run_id: d76fbe1841a14537a8672a3d61d95a0e
+utc_time_created: '2026-04-21 13:50:27.814041'

@@ -1,0 +1,14 @@
+artifact_uri: file:///home/edilene/Dropbox/Simplon_Projects/Match-Prediction-App/notebooks/mlruns/504982659081364549/896562779361428b8b4c03fc64caf58d/artifacts
+end_time: 1775548721662
+entry_point_name: ''
+experiment_id: '504982659081364549'
+lifecycle_stage: active
+run_id: 896562779361428b8b4c03fc64caf58d
+run_name: Calibrated_RF_v2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1775548689064
+status: 3
+tags: []
+user_id: edilene

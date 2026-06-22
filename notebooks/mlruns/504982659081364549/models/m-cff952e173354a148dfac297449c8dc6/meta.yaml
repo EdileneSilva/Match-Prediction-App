@@ -1,0 +1,10 @@
+artifact_location: file:///home/edilene/Dropbox/Simplon_Projects/Match-Prediction-App/notebooks/mlruns/504982659081364549/models/m-cff952e173354a148dfac297449c8dc6/artifacts
+creation_timestamp: 1775548718323
+experiment_id: '504982659081364549'
+last_updated_timestamp: 1775548721659
+model_id: m-cff952e173354a148dfac297449c8dc6
+model_type: null
+name: match_prediction_model
+source_run_id: 896562779361428b8b4c03fc64caf58d
+status: 2
+status_message: null

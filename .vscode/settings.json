@@ -1,0 +1,37 @@
+{
+    "sqltools.connections": [
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "football_model_db",
+            "database": "football_model_db",
+            "username": "postgres",
+            "password": "postgres"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "database": "footballapp_db",
+            "name": "footballapp_db",
+            "username": "postgres",
+            "password": "postgres"
+        },
+        {
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "footballprediction_db",
+            "database": "footballprediction_db",
+            "username": "postgres",
+            "password": "postgres"
+        }
+    ]
+}
