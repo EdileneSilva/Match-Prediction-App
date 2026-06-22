@@ -1,6 +1,8 @@
-const hostname = window.location.hostname;
-const AUTH_URL = `http://${hostname}:8000`;
-const ML_URL = `http://${hostname}:8001`;
+// Use relative paths - requests will be proxied by nginx or vue-cli-server
+// In Docker production: nginx proxies to app-api:8000 and ml-api:8001
+// In development: vue-cli-service proxies to localhost:8000 and localhost:8001
+const AUTH_URL = '';
+const ML_URL = '';
 
 async function request(endpoint, options = {}) {
   // Récupération dynamique du token

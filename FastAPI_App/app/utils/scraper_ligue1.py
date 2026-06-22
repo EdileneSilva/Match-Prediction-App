@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List
 
 import requests
@@ -31,6 +32,12 @@ def fetch_upcoming_matches(limit: int = 20) -> List[Dict[str, Any]]:
             for date_data in results.values():
                 if isinstance(date_data, dict) and isinstance(date_data.get("matches"), dict):
                     matches_dict.update(date_data["matches"])
+        # Also check byDate for additional matches
+        by_date = results.get("byDate", {})
+        if isinstance(by_date, dict):
+            for date_data in by_date.values():
+                if isinstance(date_data, dict) and isinstance(date_data.get("matches"), dict):
+                    matches_dict.update(date_data["matches"])
     elif isinstance(results, list):
         for item in results:
             if isinstance(item, dict) and isinstance(item.get("matches"), dict):
@@ -41,11 +48,8 @@ def fetch_upcoming_matches(limit: int = 20) -> List[Dict[str, Any]]:
         if not isinstance(match, dict):
             continue
         championship_id = match.get("championshipId")
-        if championship_id not in [1, 61, "1", "ligue1mcdonalds"]:
-            continue
-
-        match_status = ((match.get("matchState") or {}).get("name") or "").strip().lower()
-        if match_status in ["finished", "termine", "terminé", "played"]:
+        # Accept Ligue 1 and related championship IDs (including friendlies/pre-season)
+        if championship_id not in [1, 6, 61, "1", "ligue1mcdonalds"]:
             continue
 
         try:
@@ -60,7 +64,8 @@ def fetch_upcoming_matches(limit: int = 20) -> List[Dict[str, Any]]:
         except Exception:
             continue
 
-    all_matches.sort(key=lambda x: x["date"] or "")
+    # Sort by date, most recent first
+    all_matches.sort(key=lambda x: x["date"] or "", reverse=True)
     return all_matches[:limit]
 
 
@@ -99,7 +104,8 @@ def fetch_league_standings() -> List[Dict[str, Any]]:
             "goals_for":     row.get("forGoals"),
             "goals_against": row.get("againstGoals"),
             "goals_diff":    row.get("goalsDifference"),
-            "form":          form,  # ← ['V', 'V', 'D', 'V', 'V']
+            "form":          form,
+            "season_results": row.get("seasonResults", []),
         })
     return standings
 

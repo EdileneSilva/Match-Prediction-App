@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:8000';
+// Use relative paths for API calls
+// In Docker, requests go through nginx proxy
+// In development, vue-cli-service proxies to localhost:8000
+const API_BASE_URL = '';
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem('token');
