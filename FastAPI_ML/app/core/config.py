@@ -31,7 +31,7 @@ class Settings(CommonSettings):
     # Server configuration
     ML_HOST: str = "0.0.0.0"
     ML_PORT: int = 8001
-    ML_DEBUG: bool = True
+    ML_DEBUG: bool = False
 
 settings = Settings()
 

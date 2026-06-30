@@ -6,17 +6,19 @@ from ..database import get_db
 from ..schemas.team import Team as TeamSchema
 from ..services.ml_service import ml_service
 from ..models.match import Team
+from ..core.auth import require_api_key
 
 router = APIRouter(tags=["ML Prediction"])
 
+
 @router.get("/teams", response_model=List[TeamSchema])
-def get_teams(db: Session = Depends(get_db)):
+def get_teams(db: Session = Depends(get_db), _: str = Depends(require_api_key)):
     """Retourne la liste de toutes les équipes disponibles."""
     return db.query(Team).all()
 
 
 @router.post("/predict")
-def predict(request: MatchRequest, db: Session = Depends(get_db)):
+def predict(request: MatchRequest, db: Session = Depends(get_db), _: str = Depends(require_api_key)):
     
     home_team = db.query(Team).filter(Team.name == request.home_team).first()
     away_team = db.query(Team).filter(Team.name == request.away_team).first()

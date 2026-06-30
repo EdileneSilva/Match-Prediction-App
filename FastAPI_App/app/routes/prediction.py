@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 import httpx
 import requests
 from sqlalchemy.orm import Session
@@ -127,6 +127,7 @@ def _fetch_live_probabilities(home_team: str, away_team: str, season: str) -> Op
                 "away_team": away_team,
                 "season": season,
             },
+            headers={"X-API-Key": settings.ML_API_KEY},
             timeout=10.0,
         )
         response.raise_for_status()
@@ -212,6 +213,7 @@ async def predict_match(
                     "away_team": data.away_team,
                     "season": data.season,
                 },
+                headers={"X-API-Key": settings.ML_API_KEY},
             )
         response.raise_for_status()
         ml_result = response.json()
@@ -262,7 +264,7 @@ async def predict_match(
 def get_prediction_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    limit: int = 50,
+    limit: int = Query(default=50, ge=1, le=200),
     gameweek: Optional[int] = None,
     include_live_results: bool = False,
     include_proximity: bool = False,
@@ -337,18 +339,23 @@ def save_prediction_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # Résolution optionnelle des IDs à partir des noms
     home_team = db.query(Team).filter(Team.name == data.home_team_name).first()
     away_team = db.query(Team).filter(Team.name == data.away_team_name).first()
 
+    if not home_team or not away_team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="One or both team names were not found in the database.",
+        )
+
     new_prediction = PredictionHistory(
         user_id=current_user.id,
-        home_team_id=home_team.id if home_team else None,
-        away_team_id=away_team.id if away_team else None,
+        home_team_id=home_team.id,
+        away_team_id=away_team.id,
         home_team_name=data.home_team_name,
-        home_team_logo_url=data.home_team_logo_url or (home_team.logo_url if home_team else None),
+        home_team_logo_url=data.home_team_logo_url or home_team.logo_url,
         away_team_name=data.away_team_name,
-        away_team_logo_url=data.away_team_logo_url or (away_team.logo_url if away_team else None),
+        away_team_logo_url=data.away_team_logo_url or away_team.logo_url,
         predicted_result=data.predicted_result,
         confidence_score=data.confidence_score,
     )

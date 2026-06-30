@@ -1,13 +1,35 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
+
+_MIN_PASSWORD_LENGTH = 8
+_MAX_PASSWORD_LENGTH = 72  # bcrypt silently truncates beyond 72 bytes
 
 
 class UserRegister(BaseModel):
     username: str
     email: EmailStr
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < _MIN_PASSWORD_LENGTH:
+            raise ValueError(f"Password must be at least {_MIN_PASSWORD_LENGTH} characters.")
+        if len(v.encode("utf-8")) > _MAX_PASSWORD_LENGTH:
+            raise ValueError(f"Password must not exceed {_MAX_PASSWORD_LENGTH} bytes.")
+        return v
+
+    @field_validator("username")
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 3:
+            raise ValueError("Username must be at least 3 characters.")
+        if len(v) > 50:
+            raise ValueError("Username must not exceed 50 characters.")
+        return v
 
 
 class UserLogin(BaseModel):

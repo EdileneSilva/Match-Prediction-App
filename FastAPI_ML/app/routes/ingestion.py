@@ -1,51 +1,69 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, FastAPI
-from ..services.preparation import preparation_service
-from sqlalchemy.orm import Session
-from ..database import get_db
-from typing import Optional
-import pandas as pd
+import logging
 import io
+from typing import Optional
+
+import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, FastAPI
+from sqlalchemy.orm import Session
+
+from ..database import get_db
+from ..services.preparation import preparation_service
+from ..core.auth import require_api_key
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Ingestion"])
+
+_MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
+
 
 @router.post("/ingest")
 def ingest(
     db: Session = Depends(get_db),
-    file: Optional[UploadFile] = File(None)
+    file: Optional[UploadFile] = File(None),
+    _: str = Depends(require_api_key),
 ):
-    """
-        Ingestion d'une nouvelle source de données dans la base de données ML pour des entrainements futurs.
-        Si le fichier n'est pas fourni, re-ingestion des données de base.
-
-        :param db: Session : Injection de la base de données
-        :param file: Optional[UploadFile] : Le fichier .csv importé
-
-        Returns:
-            dict: Un message de confirmation ou l'état de l'ingestion.
-    """
     try:
-        # Entrainement de base avec les deux sources de données
         if file is None:
             return preparation_service.run_base(db)
-        # Entrainement avec le .csv complémentaire
-        else:
-            # Récupération du fichier
-            contents = file.file.read()
+
+        if file.content_type not in ("text/csv", "application/csv", "application/octet-stream"):
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail="Only CSV files are accepted.",
+            )
+
+        contents = file.file.read(_MAX_UPLOAD_BYTES + 1)
+        if len(contents) > _MAX_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="File exceeds the 10 MB limit.",
+            )
+
+        try:
             df = pd.read_csv(io.BytesIO(contents))
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Uploaded file could not be parsed as CSV.",
+            )
 
-            return preparation_service.run(db, df)
+        return preparation_service.run(db, df)
 
+    except HTTPException:
+        raise
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e)
+            detail=str(e),
         )
-    except Exception as e:
-        import traceback
+    except Exception:
+        logger.exception("Ingestion failed")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=traceback.format_exc()
+            detail="Data ingestion failed. Check server logs for details.",
         )
+
 
 def register_routes(app: FastAPI):
     app.include_router(router)

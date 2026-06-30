@@ -1,9 +1,15 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from .routes.base import register_routes
 from .core.config import settings
+
+limiter = Limiter(key_func=get_remote_address)
 
 
 # ─────────────────────────────────────────────
@@ -33,29 +39,11 @@ TEAMS_SEED = [
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    """
-    Toutes les opérations de démarrage DB sont ici.
-    Utiliser lifespan évite les crashs au niveau module et les problèmes de hot-reload.
-    """
     from .database import SessionLocal
-    from .models.user import User
     from .models.team import Team
 
     db = SessionLocal()
     try:
-        # 1. Utilisateur par défaut (dev)
-        if not db.query(User).filter(User.id == 1).first():
-            default_user = User(
-                id=1,
-                username="dev_user",
-                email="dev@example.com",
-                hashed_password="fake_hashed_password",
-            )
-            db.add(default_user)
-            db.commit()
-            print("✅ Utilisateur dev créé.")
-
-        # 2. Seeding des équipes (ignorer si déjà présentes)
         added = 0
         for team_data in TEAMS_SEED:
             if not db.query(Team).filter(Team.name == team_data["name"]).first():
@@ -73,7 +61,7 @@ async def lifespan(_: FastAPI):
     finally:
         db.close()
 
-    yield  # L'application tourne ici
+    yield
 
 
 app = FastAPI(
@@ -82,6 +70,10 @@ app = FastAPI(
     version=settings.PROJECT_VERSION,
     lifespan=lifespan,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

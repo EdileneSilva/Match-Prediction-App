@@ -1,5 +1,5 @@
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -7,12 +7,13 @@ from jose import JWTError, jwt
 from ..database import get_db
 from ..models.user import User, UserFavoriteTeam, PredictionHistory
 from ..schemas.user import (
-    UserRegister, UserLogin, UserOut, Token, TokenData, 
+    UserRegister, UserLogin, UserOut, Token, TokenData,
     UserUpdate, PasswordChange, ForgotPassword, ResetPassword,
     UserStats, UserFavoriteTeamOut, UserFavoriteTeamBase
 )
 from ..services.auth_service import AuthService
 from ..core.config import settings
+from ..main import limiter
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -45,12 +46,14 @@ def get_current_user(
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def register(user_data: UserRegister, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def register(request: Request, user_data: UserRegister, db: Session = Depends(get_db)):
     return AuthService.register_user(db, user_data)
 
 
 @router.post("/login", response_model=Token)
-def login(login_data: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, login_data: UserLogin, db: Session = Depends(get_db)):
     user = AuthService.authenticate_user(db, login_data)
     if not user:
         raise HTTPException(
@@ -92,7 +95,8 @@ def change_password(
 
 
 @router.post("/forgot-password")
-def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def forgot_password(request: Request, data: ForgotPassword, db: Session = Depends(get_db)):
     return AuthService.forgot_password(db, data.email)
 
 

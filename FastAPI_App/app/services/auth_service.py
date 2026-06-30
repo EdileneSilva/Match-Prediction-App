@@ -1,9 +1,12 @@
+import logging
 from datetime import timedelta
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from ..models.user import User
 from ..schemas.user import UserRegister, UserLogin
 from ..core.security import get_password_hash, verify_password, create_access_token
+
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -93,18 +96,17 @@ class AuthService:
             # Sécurité: ne pas révéler si l'email existe
             return {"message": "Si l'adresse existe, un lien a été envoyé."}
         
-        # Option C: Simulation via console
         reset_token = create_access_token(
             data={"sub": user.email, "type": "reset"},
             expires_delta=timedelta(minutes=15)
         )
-        
-        print("\n" + "="*50)
-        print(f"PASSWORD RESET LINK FOR {email}:")
-        print(f"http://localhost:8080/reset-password?token={reset_token}")
-        print("="*50 + "\n")
-        
-        return {"message": "Si l'adresse existe, un lien a été envoyé (voir console backend)."}
+
+        # TODO: replace with a real email delivery service before going to production.
+        # The token is logged at DEBUG level so it never appears in production logs
+        # (set LOG_LEVEL=DEBUG locally to retrieve it during development).
+        logger.debug("Password reset token for %s: %s", email, reset_token)
+
+        return {"message": "Si l'adresse existe, un lien a été envoyé."}
 
     @staticmethod
     def reset_password_with_token(db: Session, token: str, new_pwd: str):
